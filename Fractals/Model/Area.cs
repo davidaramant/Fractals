@@ -2,12 +2,12 @@
 
 namespace Fractals.Model
 {
-    public sealed class Viewport
+    public sealed class Area
     {
         public readonly InclusiveRange RealRange;
         public readonly InclusiveRange ImagRange;
 
-        public Viewport(InclusiveRange realRange, InclusiveRange imagRange)
+        public Area(InclusiveRange realRange, InclusiveRange imagRange)
         {
             RealRange = realRange;
             ImagRange = imagRange;
