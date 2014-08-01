@@ -1,4 +1,5 @@
-﻿using Fractals.Model;
+﻿using System;
+using Fractals.Model;
 using Fractals.Utility;
 using System.Drawing;
 
@@ -10,9 +11,9 @@ namespace CartoidTest
         {
             var resolution = new Size(500, 500);
 
-            var viewPoint = new Viewport(
-                realRange: new InclusiveRange(-3, 1),
-                imagRange: new InclusiveRange(-2, 2));
+            var viewPoint = new Area(
+                realRange: new InclusiveRange(-2, 1),
+                imagRange: new InclusiveRange(-1.5, 1.5));
 
             var output = new Color[resolution.Width, resolution.Height];
 
@@ -22,10 +23,13 @@ namespace CartoidTest
                 {
                     var number = viewPoint.GetNumberFromPoint(resolution, new Point(x, y));
 
+                    const int boxSize = 25;
+
                     var color = PickColor(
-                        isInSet: IsInSet(number), 
+                        isInSet: () => IsInSet(number), 
                         isInBulbs: MandelbulbChecker.IsInsideBulbs(number), 
-                        isOnAxis: number.Real == 0 || number.Imag == 0);
+                        isOnAxis: number.Real == 0 || number.Imag == 0,
+                        isOnGrid: (x % boxSize == 0) || (y % boxSize == 0));
 
                     output[x, y] = Color.FromKnownColor(color);
                 }
@@ -36,14 +40,19 @@ namespace CartoidTest
             image.Save("output.png");
         }
 
-        static KnownColor PickColor(bool isInSet, bool isInBulbs, bool isOnAxis)
+        static KnownColor PickColor(Func<bool> isInSet, bool isInBulbs, bool isOnAxis, bool isOnGrid)
         {
+            if (isOnGrid)
+            {
+                return KnownColor.Green;
+            }
+
             if (isInBulbs)
             {
                 return KnownColor.Gray;
             }
 
-            if (isInSet)
+            if (isInSet())
             {
                 return KnownColor.Aquamarine;
             }
