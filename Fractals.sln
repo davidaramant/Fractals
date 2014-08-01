@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Express 2012 for Windows Desktop
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fractals", "Fractals.csproj", "{0FEA0CDA-B00C-4738-B4FA-91D2ED973C15}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fractals", "Fractals\Fractals.csproj", "{0FEA0CDA-B00C-4738-B4FA-91D2ED973C15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fractals.Tests", "..\Fractals.Tests\Fractals.Tests.csproj", "{D820C1D6-0B70-449E-BC8D-826E2E91D51D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fractals.Tests", "Fractals.Tests\Fractals.Tests.csproj", "{D820C1D6-0B70-449E-BC8D-826E2E91D51D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartoidTest", "..\CartoidTest\CartoidTest.csproj", "{64D746B8-342B-4743-ADED-C37FEB9186AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartoidTest", "CartoidTest\CartoidTest.csproj", "{64D746B8-342B-4743-ADED-C37FEB9186AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
