@@ -9,7 +9,7 @@ namespace CartoidTest
     {
         static void Main(string[] args)
         {
-            var resolution = new Size(500, 500);
+            var resolution = new Size(1000, 1000);
 
             var viewPoint = new Area(
                 realRange: new InclusiveRange(-2, 1),
@@ -17,22 +17,76 @@ namespace CartoidTest
 
             var output = new Color[resolution.Width, resolution.Height];
 
+            var borderAreas = new Area[]
+            {
+
+            };
+
             for (int y = 0; y < resolution.Height; y++)
             {
                 for (int x = 0; x < resolution.Width; x++)
                 {
                     var number = viewPoint.GetNumberFromPoint(resolution, new Point(x, y));
 
-                    const int boxSize = 25;
-
                     var color = PickColor(
                         isInSet: () => IsInSet(number), 
-                        isInBulbs: MandelbulbChecker.IsInsideBulbs(number), 
-                        isOnAxis: number.Real == 0 || number.Imag == 0,
-                        isOnGrid: (x % boxSize == 0) || (y % boxSize == 0));
+                        isInBulbs: MandelbulbChecker.IsInsideBulbs(number));
 
                     output[x, y] = Color.FromKnownColor(color);
                 }
+            }
+
+            const double gridSize = 0.25;
+
+            // Draw vertical lines
+            for (double real = 0; real < viewPoint.RealRange.Max; real += gridSize)
+            {
+                var point = viewPoint.GetPointFromNumber(resolution, new Complex(real, 0));
+
+                for (int y = 0; y < resolution.Height; y++)
+                {
+                    output[point.X, y] = Color.FromKnownColor(KnownColor.Green);
+                }
+            }
+            for (double real = 0; real >= viewPoint.RealRange.Min; real -= gridSize)
+            {
+                var point = viewPoint.GetPointFromNumber(resolution, new Complex(real, 0));
+
+                for (int y = 0; y < resolution.Height; y++)
+                {
+                    output[point.X, y] = Color.FromKnownColor(KnownColor.Green);
+                }
+            }
+
+            // Draw horizontal lines
+            for (double imag = 0; imag < viewPoint.ImagRange.Max; imag += gridSize)
+            {
+                var point = viewPoint.GetPointFromNumber(resolution, new Complex(0, imag));
+
+                for (int x = 0; x < resolution.Width; x++)
+                {
+                    output[x, point.Y] = Color.FromKnownColor(KnownColor.Green);
+                }
+            }
+            for (double imag = 0; imag >= viewPoint.ImagRange.Min; imag -= gridSize)
+            {
+                var point = viewPoint.GetPointFromNumber(resolution, new Complex(0, imag));
+
+                for (int x = 0; x < resolution.Width; x++)
+                {
+                    output[x, point.Y] = Color.FromKnownColor(KnownColor.Green);
+                }
+            }
+
+            // Draw axis
+            var origin = viewPoint.GetPointFromNumber(resolution, new Complex());
+            for (int x = 0; x < resolution.Width; x++)
+            {
+                output[x, origin.Y] = Color.FromKnownColor(KnownColor.LightGreen);
+            }
+            for (int y = 0; y < resolution.Height; y++)
+            {
+                output[origin.X, y] = Color.FromKnownColor(KnownColor.LightGreen);
             }
 
             var image = ImageUtility.ColorMatrixToBitmap(output);
@@ -40,13 +94,8 @@ namespace CartoidTest
             image.Save("output.png");
         }
 
-        static KnownColor PickColor(Func<bool> isInSet, bool isInBulbs, bool isOnAxis, bool isOnGrid)
+        static KnownColor PickColor(Func<bool> isInSet, bool isInBulbs)
         {
-            if (isOnGrid)
-            {
-                return KnownColor.Green;
-            }
-
             if (isInBulbs)
             {
                 return KnownColor.Gray;
@@ -57,11 +106,6 @@ namespace CartoidTest
                 return KnownColor.Aquamarine;
             }
 
-            if (isOnAxis)
-            {
-                return KnownColor.White;
-            }
-
             return KnownColor.Black;
         }
 
@@ -69,7 +113,7 @@ namespace CartoidTest
         {
             var z = c;
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 2000; i++)
             {
                 z = z * z + c;
 
