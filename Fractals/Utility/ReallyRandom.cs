@@ -6,15 +6,15 @@ namespace Fractals.Utility
 {
     public sealed class ReallyRandom
     {
-        private readonly RNGCryptoServiceProvider _rng = new RNGCryptoServiceProvider();
-        private const int _bufferSize = sizeof(UInt64) * 128;
-        private readonly byte[] _randomBuffer = new byte[_bufferSize];
+        private readonly RNGCryptoServiceProvider _cryptoServiceProvider = new RNGCryptoServiceProvider();
+        private const int BufferSize = sizeof(UInt64) * 128;
+        private readonly byte[] _randomBuffer = new byte[BufferSize];
 
-        private int _bufferOffset = _bufferSize;
+        private int _bufferOffset = BufferSize;
 
         private void FillBuffer()
         {
-            _rng.GetBytes(_randomBuffer);
+            _cryptoServiceProvider.GetBytes(_randomBuffer);
             _bufferOffset = 0;
         }
 
@@ -24,9 +24,9 @@ namespace Fractals.Utility
             {
                 FillBuffer();
             }
-            var value = BitConverter.ToUInt64(_randomBuffer, _bufferOffset);
+            var value = BitConverter.ToUInt64(_randomBuffer, _bufferOffset) / (1 << 11);
             _bufferOffset += sizeof(UInt64);
-            return (double)value / UInt64.MaxValue;
+            return (double) value / (1UL << 53);
         }
 
         public double Next(InclusiveRange range)

@@ -1,4 +1,6 @@
-﻿using Fractals.Utility;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Fractals.Utility;
 using NUnit.Framework;
 using System;
 
@@ -8,40 +10,62 @@ namespace Fractals.Tests.Utility
     public sealed class ReallyRandomTests
     {
         [Test]
-        public void CheckDistribution()
+//        [Repeat(10)]
+        public void SanityCheckDuplicates()
         {
-            const int trials = 10000000;
-            const int samples = 20;
+            const int distributionBuckets = 100;
+            const int numbersToSample = 1000000;
 
-            const int ideal = trials / samples;
-
-            var mathRand = new Random();
-            var mathRandDistribution = GetDistribution(trials, samples, mathRand.NextDouble);
-
-            var reallyRand = new ReallyRandom();
-            var reallyRandDistribution = GetDistribution(trials, samples, reallyRand.Next);
-
-            Console.WriteLine("Distribution of Random Numbers:");
-            for (int ctr = 0; ctr < samples; ctr++)
+            var mathRandom = new Random();
+            var mathResults = new List<double>();
+            for (int i = 0; i < numbersToSample; i++)
             {
-                var mathOffset = ideal - mathRandDistribution[ctr];
-                var reallyOffset = ideal - reallyRandDistribution[ctr];
-
-                Console.WriteLine("{0,6} {1,6}", mathOffset, reallyOffset);
+                mathResults.Add(mathRandom.NextDouble());
             }
+            mathResults.Sort();
+            var mathDistribution = GetDistribution(mathResults, distributionBuckets);
+            var mathDistributedValues = mathDistribution.Values.OrderByDescending(x => x).ToList();
+
+            var rngRandom = new ReallyRandom();
+            var rngResults = new List<double>();
+            for (int i = 0; i < numbersToSample; i++)
+            {
+                rngResults.Add(rngRandom.Next());
+            }
+            rngResults.Sort();
+            var rngDistribution = GetDistribution(rngResults, distributionBuckets);
+            var rngDistributedValues = rngDistribution.Values.OrderByDescending(x => x).ToList();
+
+            for (int i = 0; i < distributionBuckets; i++)
+            {
+                Console.WriteLine("{0}: {1,6} {2,6}", i, mathDistributedValues[i], rngDistributedValues[i]);
+            }
+//            var mathMin = mathDistribution.Values.Min();
+//            var mathMax = mathDistribution.Values.Min();
+//
+//            var rngMin = rngDistribution.Values.Min();
+//            var rnghMax = rngDistribution.Values.Min();
+//
+//            Assert.GreaterOrEqual(rngMin, mathMin);
+//            Assert.LessOrEqual(rnghMax, mathMax);
         }
 
-        private static int[] GetDistribution(int trials, int samples, Func<double> nextDouble)
+        private Dictionary<int, int> GetDistribution(IEnumerable<double> inputs, int distributionBuckets)
         {
-            int[] frequency = new int[samples];
+            var results = new Dictionary<int, int>();
 
-            for (int ctr = 0; ctr <= trials; ctr++)
+            for (var bucketIndex = 0; bucketIndex < distributionBuckets; bucketIndex++)
             {
-                var number = nextDouble();
-                frequency[(int)Math.Floor(number * samples)]++;
+                results.Add(bucketIndex, 0);
             }
 
-            return frequency;
+            foreach (var input in inputs)
+            {
+                var shifted = (int)(input * distributionBuckets);
+                results[shifted] ++;
+            }
+
+            return results;
         }
     }
 }
