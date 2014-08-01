@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0FEA0CDA-B00C-4738-B4FA-91D2ED973C15}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{64D746B8-342B-4743-ADED-C37FEB9186AD}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Fractals</RootNamespace>
-    <AssemblyName>Fractals</AssemblyName>
+    <RootNamespace>CartoidTest</RootNamespace>
+    <AssemblyName>CartoidTest</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,9 +31,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,14 +42,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\Complex.cs" />
-    <Compile Include="Model\InclusiveRange.cs" />
-    <Compile Include="Model\MandelbulbChecker.cs" />
-    <Compile Include="Model\Viewport.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility\HsvColor.cs" />
-    <Compile Include="Utility\ImageUtility.cs" />
-    <Compile Include="Utility\ReallyRandom.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Fractals\Fractals.csproj">
+      <Project>{0fea0cda-b00c-4738-b4fa-91d2ed973c15}</Project>
+      <Name>Fractals</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

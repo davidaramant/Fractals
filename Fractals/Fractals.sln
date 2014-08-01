@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fractals", "Fractals.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fractals.Tests", "..\Fractals.Tests\Fractals.Tests.csproj", "{D820C1D6-0B70-449E-BC8D-826E2E91D51D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartoidTest", "..\CartoidTest\CartoidTest.csproj", "{64D746B8-342B-4743-ADED-C37FEB9186AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{D820C1D6-0B70-449E-BC8D-826E2E91D51D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D820C1D6-0B70-449E-BC8D-826E2E91D51D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D820C1D6-0B70-449E-BC8D-826E2E91D51D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64D746B8-342B-4743-ADED-C37FEB9186AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64D746B8-342B-4743-ADED-C37FEB9186AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64D746B8-342B-4743-ADED-C37FEB9186AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64D746B8-342B-4743-ADED-C37FEB9186AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
