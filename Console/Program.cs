@@ -1,25 +1,44 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
 using Fractals.Model;
 using Fractals.Renderer;
 using Fractals.Utility;
+using log4net;
 
 namespace Console
 {
     class Program
     {
+        private static ILog _log;
+
         static void Main(string[] args)
+        {
+            log4net.Config.XmlConfigurator.Configure();
+
+            new Program().Process(args);
+        }
+
+        public Program()
+        {
+            _log = LogManager.GetLogger(GetType());
+        }
+
+        private void Process(string[] args)
         {
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 args = GetDebuggingArguments();
             }
+
             var options = new Options();
             if (!CommandLine.Parser.Default.ParseArguments(args, options))
             {
                 return;
             }
+
+            _log.InfoFormat("Operation: {0}", options.Operation);
 
             switch (options.Operation)
             {
@@ -38,7 +57,7 @@ namespace Console
             }
         }
 
-        private static void RenderMandelbrot<T>(Options options)
+        private void RenderMandelbrot<T>(Options options)
             where T : MandelbrotRenderer, new()
         {
             var resolution = new Size(options.ResolutionWidth, options.ResolutionHeight);
@@ -51,25 +70,31 @@ namespace Console
 
             Bitmap image = ImageUtility.ColorMatrixToBitmap(output);
 
-            image.Save(Path.Combine(options.OutputDirectory, String.Format("{0}.bmp", options.Filename)));
+            image.Save(Path.Combine(options.OutputDirectory, String.Format("{0}.png", options.Filename)));
         }
 
-        private static void FindPoints(Options options)
+        private void FindPoints(Options options)
         {
             var finder = new PointFinder(options.OutputDirectory, options.Filename);
-            finder.Start();
 
-            System.Console.WriteLine("Press <ENTER> to exit.");
-            System.Console.ReadLine();
+            System.Console.WriteLine("Press <ENTER> to stop...");
+
+            Task.Factory.StartNew(() =>
+            {
+                System.Console.ReadLine();
+                finder.Stop();
+            });
+
+            finder.Start();
         }
 
-        private static void PlotPoints(Options options)
+        private void PlotPoints(Options options)
         {
             var plotter = new Plotter(options.OutputDirectory, options.InputFilename, options.Filename, options.ResolutionWidth, options.ResolutionHeight);
             plotter.Plot();
         }
 
-        private static string[] GetDebuggingArguments()
+        private string[] GetDebuggingArguments()
         {
 //            return new[]
 //                {

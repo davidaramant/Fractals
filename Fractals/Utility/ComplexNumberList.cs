@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using log4net;
 
 namespace Fractals.Utility
 {
@@ -17,11 +18,15 @@ namespace Fractals.Utility
         private const int MaxCountPerFile = 64 * 1024 * 100;
 
         private const int MaxFileNumber = 20;
+        
+        private static ILog _log;
 
         public ComplexNumberList(string directory, string filename)
         {
             _directory = directory;
             _filename = filename;
+            
+            _log = LogManager.GetLogger(GetType());
 
             ChangeFilename();
         }
@@ -45,7 +50,7 @@ namespace Fractals.Utility
                     }
                 }
 
-                using (var stream = new FileStream(_currentFilename + _fileNumber, FileMode.Append))
+                using (var stream = new FileStream(_currentFilename, FileMode.Append))
                 {
                     var realBytes = BitConverter.GetBytes(number.Real);
                     var imagBytes = BitConverter.GetBytes(number.Imag);
@@ -58,7 +63,10 @@ namespace Fractals.Utility
 
         private void ChangeFilename()
         {
-            _currentFilename = Path.Combine(_directory, String.Format("{0}.{1}", _filename, _fileNumber));
+            var newFilename = String.Format("{0}.{1}", _filename, _fileNumber);
+            _currentFilename = Path.Combine(_directory, newFilename);
+
+            _log.InfoFormat("Swithing output file to: {0}", newFilename);
         }
 
         public IEnumerable<Complex> GetNumbers()

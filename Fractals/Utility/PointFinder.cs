@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fractals.Model;
 using Fractals.Renderer;
+using log4net;
 
 namespace Fractals.Utility
 {
@@ -16,6 +17,8 @@ namespace Fractals.Utility
         private readonly int _maximum;
         private readonly string _outputDirectory;
         private readonly string _outputFile;
+        
+        private static ILog _log;
 
         private static bool ShouldStop
         {
@@ -47,10 +50,14 @@ namespace Fractals.Utility
             _maximum = maximum;
             _outputDirectory = outputDirectory;
             _outputFile = outputFile;
+            
+            _log = LogManager.GetLogger(GetType());
         }
 
         public void Start()
         {
+            _log.InfoFormat("Starting to find points");
+
             var bailout = new BailoutRange(
                 min: _minimum,
                 max: _maximum);
@@ -61,14 +68,6 @@ namespace Fractals.Utility
 
             var list = new ComplexNumberList(_outputDirectory, _outputFile);
 
-            Console.WriteLine("Press <ENTER> to cancel...");
-
-            Task.Factory.StartNew(() =>
-            {
-                Console.ReadLine();
-                ShouldStop = true;
-            });
-
             int num = 0;
 
             Parallel.ForEach(GetRandomComplexNumbers(viewPort),
@@ -77,15 +76,27 @@ namespace Fractals.Utility
                     if (BuddhabrotPointGenerator.IsPointInBuddhabrot(number, bailout))
                     {
                         Interlocked.Increment(ref num);
-                        Console.Out.WriteLine(num);
                         list.SaveNumber(number);
+
+                        if (num % 100 == 0)
+                        {
+                            _log.DebugFormat("Found {0} points", num);
+                        }
                     }
 
                     if (ShouldStop)
                     {
                         state.Break();
+                        _log.DebugFormat("This process stopped");
                     }
                 });
+
+            _log.InfoFormat("Stopped finding points");
+        }
+
+        public void Stop()
+        {
+            ShouldStop = true;
         }
 
         private static IEnumerable<Complex> GetRandomComplexNumbers(Area viewPort)

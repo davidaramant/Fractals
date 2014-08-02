@@ -4,18 +4,29 @@ using System.Drawing;
 using System.Linq;
 using Fractals.Model;
 using Fractals.Utility;
+using log4net;
 
 namespace Fractals.Renderer
 {
     public class MandelbrotRenderer
     {
+        private static ILog _log;
+
+        public MandelbrotRenderer()
+        {
+            _log = LogManager.GetLogger(GetType());
+        }
+
         public Color[,] Render(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
         {
+            _log.InfoFormat("Starting to render ({0}x{1})", resolution.Width, resolution.Height);
+
             var viewPoint = new Area(realAxis, imaginaryAxis);
             var areasToInclude = GetAreasToInclude(resolution, realAxis, imaginaryAxis).ToArray();
 
             var output = new Color[resolution.Width, resolution.Height];
 
+            _log.Debug("Rendering points");
             for (int y = 0; y < resolution.Height; y++)
             {
                 for (int x = 0; x < resolution.Width; x++)
@@ -26,7 +37,10 @@ namespace Fractals.Renderer
                 }
             }
 
+            _log.Debug("Rendering grid");
             RenderGrid(resolution, viewPoint, output);
+
+            _log.Debug("Rendering axis");
             RenderAxis(resolution, viewPoint, output);
 
             return output;

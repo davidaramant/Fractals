@@ -1,15 +1,26 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using Fractals.Model;
+using log4net;
 
 namespace Fractals.Utility
 {
     public class MandelbrotFinder
     {
-        public static IEnumerable<Complex> FindPoints(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        private static ILog _log;
+
+        public MandelbrotFinder()
         {
+            _log = LogManager.GetLogger(GetType());
+        }
+
+        public List<Complex> FindPoints(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        {
+            _log.InfoFormat("Looking for points ({0}x{1})", resolution.Width, resolution.Height);
+
             var results = new ConcurrentBag<Complex>();
             var viewPoint = new Area(realAxis, imaginaryAxis);
 
@@ -26,7 +37,11 @@ namespace Fractals.Utility
                 }
             });
 
-            return results;
+            var resultList = results.ToList();
+
+            _log.DebugFormat("Found {0} points", resultList.Count);
+
+            return resultList;
         }
 
         public static bool IsInSet(Complex c)

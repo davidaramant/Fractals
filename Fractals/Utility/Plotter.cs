@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using Fractals.Model;
+using log4net;
 
 namespace Fractals.Utility
 {
@@ -15,6 +16,8 @@ namespace Fractals.Utility
         private readonly int _width;
         private readonly int _height;
 
+        private static ILog _log;
+
         public Plotter(string directory, string inputFilename, string filename, int width, int height)
         {
             _directory = directory;
@@ -22,6 +25,8 @@ namespace Fractals.Utility
             _width = width;
             _filename = filename;
             _height = height;
+            
+            _log = LogManager.GetLogger(GetType());
         }
 
         public void Plot()
