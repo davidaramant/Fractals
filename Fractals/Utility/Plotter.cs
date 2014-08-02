@@ -17,7 +17,32 @@ namespace Fractals.Utility
         private readonly string _filename;
         private readonly Size _resolution;
 
-        private int[][] _plot;
+        #region Hit arrays
+
+        private int _fourthWidth;
+        private int _fourthHeight;
+
+        private int[] _hits00;
+        private int[] _hits10;
+        private int[] _hits20;
+        private int[] _hits30;
+
+        private int[] _hits01;
+        private int[] _hits11;
+        private int[] _hits21;
+        private int[] _hits31;
+
+        private int[] _hits02;
+        private int[] _hits12;
+        private int[] _hits22;
+        private int[] _hits32;
+
+        private int[] _hits03;
+        private int[] _hits13;
+        private int[] _hits23;
+        private int[] _hits33;
+
+        #endregion Hit arrays
 
         private static ILog _log;
 
@@ -38,39 +63,151 @@ namespace Fractals.Utility
 
         private void InitializeHitPlot()
         {
-            _plot = new int[_resolution.Width][];
-            for (int col = 0; col < _resolution.Height; col++)
+            _fourthWidth = _resolution.Width / 4;
+            _fourthHeight = _resolution.Height / 4;
+
+            int quadrantSize = _fourthWidth * _fourthHeight;
+
+            _hits00 = new int[quadrantSize];
+            _hits10 = new int[quadrantSize];
+            _hits20 = new int[quadrantSize];
+            _hits30 = new int[quadrantSize];
+
+            _hits01 = new int[quadrantSize];
+            _hits11 = new int[quadrantSize];
+            _hits21 = new int[quadrantSize];
+            _hits31 = new int[quadrantSize];
+
+            _hits02 = new int[quadrantSize];
+            _hits12 = new int[quadrantSize];
+            _hits22 = new int[quadrantSize];
+            _hits32 = new int[quadrantSize];
+
+            _hits03 = new int[quadrantSize];
+            _hits13 = new int[quadrantSize];
+            _hits23 = new int[quadrantSize];
+            _hits33 = new int[quadrantSize];
+        }
+
+        private int[] GetSegment(int x, int y)
+        {
+            var xQuadrant = x / _fourthWidth;
+            var yQuadrant = y / _fourthHeight;
+
+            switch (xQuadrant)
             {
-                _plot[col] = new int[_resolution.Height];
+                case 0:
+                    switch (yQuadrant)
+                    {
+                        case 0:
+                            return _hits00;
+                        case 1:
+                            return _hits01;
+                        case 2:
+                            return _hits02;
+                        case 3:
+                            return _hits03;
+
+                        default:
+                            throw new Exception("NO WAY");
+                    }
+
+                case 1:
+                    switch (yQuadrant)
+                    {
+                        case 0:
+                            return _hits10;
+                        case 1:
+                            return _hits11;
+                        case 2:
+                            return _hits12;
+                        case 3:
+                            return _hits13;
+
+                        default:
+                            throw new Exception("NO WAY");
+                    }
+
+                case 2:
+                    switch (yQuadrant)
+                    {
+                        case 0:
+                            return _hits20;
+                        case 1:
+                            return _hits21;
+                        case 2:
+                            return _hits22;
+                        case 3:
+                            return _hits23;
+
+                        default:
+                            throw new Exception("NO WAY");
+                    }
+
+                case 3:
+                    switch (yQuadrant)
+                    {
+                        case 0:
+                            return _hits30;
+                        case 1:
+                            return _hits31;
+                        case 2:
+                            return _hits32;
+                        case 3:
+                            return _hits33;
+
+                        default:
+                            throw new Exception("NO WAY");
+                    }
+
+                default:
+                    throw new Exception("NO WAY");
             }
         }
 
         private void IncrementPoint(Point p)
         {
-            Interlocked.Increment(ref _plot[p.X][p.Y]);
+            var segment = GetSegment(p.X, p.Y);
+
+            var offset = (p.X % _fourthWidth) + (_fourthWidth * (p.Y % _fourthHeight));
+
+            Interlocked.Increment(ref segment[offset]);
         }
 
         private int GetHitsForPoint(int x, int y)
         {
-            return _plot[x][y];
+            var segment = GetSegment(x, y);
+
+            var offset = (x % _fourthWidth) + (_fourthWidth * (y % _fourthHeight));
+
+            return segment[offset];
         }
 
         private int FindMaximumHit()
         {
-            int max = 0;
-            for (int x = 0; x < _resolution.Width; x++)
+            return new[]
             {
-                for (int y = 0; y < _resolution.Height; y++)
-                {
-                    var temp = _plot[x][y];
-                    if (temp > max)
-                    {
-                        max = temp;
-                    }
-                }
-            }
+                _hits00.Max(),
+                _hits10.Max(),
+                _hits20.Max(),
+                _hits30.Max(),
 
-            return max;
+                _hits01.Max(),
+                _hits11.Max(),
+                _hits21.Max(),
+                _hits31.Max(),
+
+                _hits02.Max(),
+                _hits12.Max(),
+                _hits22.Max(),
+                _hits32.Max(),
+
+                _hits03.Max(),
+                _hits13.Max(),
+                _hits23.Max(),
+                _hits33.Max(),
+
+            }.Max();
         }
 
         #endregion Hit Plot Array Operations
@@ -106,7 +243,7 @@ namespace Fractals.Utility
 
             _log.InfoFormat("Done plotting trajectories...");
 
-            var max = FindMaximumHit();            
+            var max = FindMaximumHit();
 
             _log.InfoFormat("Found max: {0}", max);
 
@@ -128,7 +265,8 @@ namespace Fractals.Utility
                 }
             }
 
-            _log.Debug("Storing image");
+            _log.InfoFormat("Done setting pixels, saving image...");
+
             outputImg.Save(Path.Combine(_directory, String.Format("{0}.png", _filename)));
         }
 
