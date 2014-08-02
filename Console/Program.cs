@@ -55,6 +55,11 @@ namespace Console
                     PlotPoints(options);
                     break;
             }
+
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                System.Console.ReadLine();
+            }
         }
 
         private void RenderMandelbrot<T>(Options options)
