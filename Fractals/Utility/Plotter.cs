@@ -175,11 +175,11 @@ namespace Fractals.Utility
             Interlocked.Increment(ref segment[offset]);
         }
 
-        private int GetHitsForPoint(int x, int y)
+        private int GetHitsForPoint(Point p)
         {
-            var segment = GetSegment(x, y);
+            var segment = GetSegment(p.X, p.Y);
 
-            var offset = (x % _fourthWidth) + (_fourthWidth * (y % _fourthHeight));
+            var offset = (p.X % _fourthWidth) + (_fourthWidth * (p.Y % _fourthHeight));
 
             return segment[offset];
         }
@@ -250,25 +250,45 @@ namespace Fractals.Utility
 
             var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
 
-            for (int x = 0; x < _resolution.Width; x++)
+            var processedPixels =
+                GetAllPoints().
+                AsParallel().
+                Select(p => ComputeColor(p, max)).
+                AsEnumerable();
+
+            foreach (var result in processedPixels)
             {
-                for (int y = 0; y < _resolution.Height; y++)
-                {
-                    var current = GetHitsForPoint(x, y);
-
-                    var exp = Gamma(1.0 - Math.Pow(Math.E, -10.0 * current / max));
-
-                    outputImg.SetPixel(x, y, new HsvColor(
-                        hue: 196.0 / 360.0,
-                        saturation: (exp < 0.5) ? 1 : 1 - (2 * (exp - 0.5)),
-                        value: (exp < 0.5) ? 2 * exp : 1
-                    ).ToColor());
-                }
+                outputImg.SetPixel(result.Item1.X, result.Item1.Y, result.Item2);
             }
 
             _log.InfoFormat("Done setting pixels, saving image...");
 
             outputImg.Save(Path.Combine(_directory, String.Format("{0}.png", _filename)));
+        }
+
+        private Tuple<Point, Color> ComputeColor(Point p, int max)
+        {
+            var current = GetHitsForPoint(p);
+
+            var exp = Gamma(1.0 - Math.Pow(Math.E, -10.0 * current / max));
+
+            return Tuple.Create(p,
+                new HsvColor(
+                    hue: 196.0 / 360.0,
+                    saturation: (exp < 0.5) ? 1 : 1 - (2 * (exp - 0.5)),
+                    value: (exp < 0.5) ? 2 * exp : 1
+                ).ToColor());
+        }
+
+        private IEnumerable<Point> GetAllPoints()
+        {
+            for (int x = 0; x < _resolution.Width; x++)
+            {
+                for (int y = 0; y < _resolution.Height; y++)
+                {
+                    yield return new Point(x, y);
+                }
+            }
         }
 
         private const double DefaultGamma = 1.2;

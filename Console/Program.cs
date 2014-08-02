@@ -58,6 +58,7 @@ namespace Console
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
+                System.Console.WriteLine("DONE! Press <ENTER> to exit...");
                 System.Console.ReadLine();
             }
         }
