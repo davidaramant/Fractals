@@ -35,8 +35,8 @@ namespace Fractals.Utility
             var list = new ComplexNumberListReader(_directory, _inputFilename);
 
             var viewPort = new Area(
-                                        realRange: new InclusiveRange(-1.75, 1),
-                                        imagRange: new InclusiveRange(-1.3, 1.3));
+                            realRange: new InclusiveRange(-1.75, 1),
+                            imagRange: new InclusiveRange(-1.3, 1.3));
 
             var plot = new int[_resolution.Width][];
             for (int col = 0; col < _resolution.Height; col++)
@@ -52,7 +52,7 @@ namespace Fractals.Utility
                 {
                     var point = viewPort.GetPointFromNumber(rotatedResolution, c).Rotate();
 
-                    if (_resolution.IsInside(point))
+                    if (!_resolution.IsInside(point))
                     {
                         continue;
                     }
@@ -74,7 +74,7 @@ namespace Fractals.Utility
                 }
             }
 
-            var outputImg = new Bitmap(_resolution.Width,_resolution.Height);
+            var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
 
             for (int x = 0; x < _resolution.Width; x++)
             {
@@ -88,7 +88,7 @@ namespace Fractals.Utility
                         hue: 196.0 / 360.0,
                         saturation: (exp < 0.5) ? 1 : 1 - (2 * (exp - 0.5)),
                         value: (exp < 0.5) ? 2 * exp : 1
-                    ).ToColor() );
+                    ).ToColor());
                 }
             }
 
@@ -102,17 +102,26 @@ namespace Fractals.Utility
             return Math.Pow(x, 1.0 / exp);
         }
 
+        private const int Bailout = 30000;
+
         static IEnumerable<Complex> GetTrajectory(Complex c)
         {
-            Complex z = c;
+            var rePrev = c.Real;
+            var imPrev = c.Imag;
 
-            for (int i = 0; i < 30000; i++)
+            double re = 0;
+            double im = 0;
+
+            for (int i = 0; i < Bailout; i++)
             {
-                z = z * z + c;
+                var reTemp = re * re - im * im + rePrev;
+                im = 2 * re * im + imPrev;
+                re = reTemp;
 
-                yield return z;
+                yield return new Complex(re, im);
 
-                if (z.MagnitudeSquared() > 4)
+                var magnitudeSquared = re * re + im * im;
+                if (magnitudeSquared > 4)
                 {
                     yield break;
                 }
