@@ -44,11 +44,11 @@ namespace FindBuddhabrotPoints
 
             var list = new ComplexNumberList("output.list");
 
-            Console.WriteLine("Press any key to cancel...");
+            Console.WriteLine("Press <ENTER> to cancel...");
 
             Task.Factory.StartNew(() =>
             {
-                Console.ReadKey();
+                Console.ReadLine();
                 ShouldStop = true;
             });
 
