@@ -20,7 +20,7 @@ namespace Console
         [Option('f', "filename", Required = true, HelpText = "The output filename")]
         public string Filename { get; set; }
 
-        [Option('i', "input-directory", Required = true, HelpText = "The input directory")]
+        [Option('i', "input-directory", Required = false, HelpText = "The input directory")]
         public string InputDirectory { get; set; }
 
         [Option('p', "input-pattern", Required = false, HelpText = "The input filename pattern")]
