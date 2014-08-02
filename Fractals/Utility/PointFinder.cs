@@ -76,7 +76,7 @@ namespace Fractals.Utility
                         Interlocked.Increment(ref num);
                         list.SaveNumber(number);
 
-                        if (num % 25 == 0)
+                        if (num % 100 == 0)
                         {
                             _log.DebugFormat("Found {0} points", num);
                         }
