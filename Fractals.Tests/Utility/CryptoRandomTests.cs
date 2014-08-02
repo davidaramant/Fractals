@@ -7,7 +7,7 @@ using System;
 namespace Fractals.Tests.Utility
 {
     [TestFixture]
-    public sealed class CrytoRandomTests
+    public sealed class CryptoRandomTests
     {
         [Test]
 //        [Repeat(10)]

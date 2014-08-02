@@ -54,7 +54,7 @@
     <Compile Include="Utility\AreaCalculatorTests.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Utility\CrytoRandomTests.cs" />
+    <Compile Include="Utility\CryptoRandomTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
