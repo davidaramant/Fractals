@@ -10,6 +10,8 @@ namespace Fractals.Utility
 {
     public class MandelbrotFinder
     {
+        private const int Bailout = 10000;
+
         private static ILog _log;
 
         public MandelbrotFinder()
@@ -46,13 +48,20 @@ namespace Fractals.Utility
 
         public static bool IsInSet(Complex c)
         {
-            Complex z = c;
+            var rePrev = c.Real;
+            var imPrev = c.Imag;
 
-            for (int i = 0; i < 5000; i++)
+            double re = 0;
+            double im = 0;
+
+            for (int i = 0; i < Bailout; i++)
             {
-                z = z * z + c;
+                var reTemp = re * re - im * im + rePrev;
+                im = 2 * re * im + imPrev;
+                re = reTemp;
 
-                if (z.MagnitudeSquared() > 4)
+                var magnitudeSquared = re * re + im * im;
+                if (magnitudeSquared > 4)
                 {
                     return false;
                 }
