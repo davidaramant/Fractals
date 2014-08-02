@@ -9,7 +9,7 @@ using Fractals.Utility;
 
 namespace FindBuddhabrotPoints
 {
-    class Program
+    class FindPoints
     {
         private static bool _shouldStop = false;
         private readonly static object ShouldStopLock = new object();
@@ -34,7 +34,10 @@ namespace FindBuddhabrotPoints
 
         static void Main(string[] args)
         {
-            var bailout = new BailoutRange(min: 1000000, max: 5000000);
+            var bailout = new BailoutRange(
+                min: 20000,
+                max: 30000);
+
             var viewPort = new Area(
                 realRange: new InclusiveRange(-0.5, 2),
                 imagRange: new InclusiveRange(-1.3, 1.3));
@@ -49,11 +52,15 @@ namespace FindBuddhabrotPoints
                 ShouldStop = true;
             });
 
+            int num = 0;
+
             Parallel.ForEach(GetRandomComplexNumbers(viewPort),
                 (number, state) =>
                 {
                     if (BuddhabrotPointGenerator.IsPointInBuddhabrot(number, bailout))
                     {
+                        Interlocked.Increment(ref num);
+                        Console.Out.WriteLine(num);
                         list.SaveNumber(number);
                     }
 
@@ -69,7 +76,6 @@ namespace FindBuddhabrotPoints
             var rand = new CryptoRandom();
             while (true)
             {
-                // SO SO WRONG
                 yield return BuddhabrotPointGenerator.GetPossiblePoint(rand, viewPort);
             }
         }
