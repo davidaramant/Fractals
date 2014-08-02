@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Fractals.Model;
 using log4net;
 
@@ -10,11 +12,11 @@ namespace Fractals.Utility
 {
     public class Plotter
     {
-        private readonly string _directory ;
+        private readonly string _directory;
         private readonly string _inputFilename;
         private readonly string _filename;
-        private readonly int _width;
-        private readonly int _height;
+        private readonly Size _resolution;
+
 
         private static ILog _log;
 
@@ -22,61 +24,68 @@ namespace Fractals.Utility
         {
             _directory = directory;
             _inputFilename = inputFilename;
-            _width = width;
             _filename = filename;
-            _height = height;
-            
+            _resolution = new Size(width, height);
+
             _log = LogManager.GetLogger(GetType());
         }
 
         public void Plot()
         {
-                var list = new ComplexNumberList(_directory, _inputFilename);
-            
-                Console.Out.WriteLine(list.GetNumbers().Count());
-            
-                var viewPort = new Area(
-                                realRange: new InclusiveRange(-2, 0.5),
-                                imagRange: new InclusiveRange(-1.3, 1.3));
-            
-                var resolution = new Size(_width, _height);
-            
-                var plot = new int[resolution.Width, resolution.Height];
-            
-                var max = 0;
-            
-                foreach (var number in list.GetNumbers())
+            var list = new ComplexNumberList(_directory, _inputFilename);
+
+            var viewPort = new Area(
+                                        realRange: new InclusiveRange(-1.75, 1),
+                                        imagRange: new InclusiveRange(-1.3, 1.3));
+
+            var plot = new int[_resolution.Width, _resolution.Height];
+
+            var max = 0;
+
+            var rotatedResolution = new Size(_resolution.Height, _resolution.Width);
+
+            Parallel.ForEach(list.GetNumbers(), number =>
+            {
+                foreach (var c in GetTrajectory(number))
                 {
-                    foreach (var c in GetTrajectory(number))
+                    var point = viewPort.GetPointFromNumber(rotatedResolution, c).Rotate();
+
+                    if (point.X < 0 || point.X >= _resolution.Width || point.Y < 0 || point.Y >= _resolution.Height)
                     {
-                        var point = viewPort.GetPointFromNumber(resolution, c);
-            
-                        if (point.X < 0 || point.X >= resolution.Width || point.Y < 0 || point.Y >= resolution.Height)
-                        {
-                            continue;
-                        }
-            
-                        plot[point.X, point.Y]++;
-            
-                        var temp = plot[point.X, point.Y];
-                        if (temp > max)
-                        {
-                            max = temp;
-                        }
+                        continue;
+                    }
+
+                    Interlocked.Increment(ref plot[point.X, point.Y]);
+                }
+            });
+
+            for (int x = 0; x < _resolution.Width; x++)
+            {
+                for (int y = 0; y < _resolution.Height; y++)
+                {
+                    var temp = plot[x, y];
+                    if (temp > max)
+                    {
+                        max = temp;
                     }
                 }
-            
-                var output = new Color[resolution.Width, resolution.Height];
-            
-                for (int x = 0; x < resolution.Width; x++)
+            }
+
+            var output = new Color[_resolution.Width, _resolution.Height];
+
+            var sqrtMax = Math.Sqrt(max);
+
+            for (int x = 0; x < _resolution.Width; x++)
+            {
+                for (int y = 0; y < _resolution.Height; y++)
                 {
-                    for (int y = 0; y < resolution.Height; y++)
-                    {
-                        output[x, y] = new HsvColor(0.5, 1, (double)plot[x, y] / max).ToColor();
-                    }
+                    var sqrtHit = Math.Sqrt(plot[x, y]);
+
+                    output[x, y] = new HsvColor(0.5, 1, sqrtHit / sqrtMax).ToColor();
                 }
-            
-                ImageUtility.ColorMatrixToBitmap(output).Save(Path.Combine(_directory, String.Format("{0}.png", _filename)));
+            }
+
+            ImageUtility.ColorMatrixToBitmap(output).Save(Path.Combine(_directory, String.Format("{0}.png", _filename)));
         }
 
         static IEnumerable<Complex> GetTrajectory(Complex c)

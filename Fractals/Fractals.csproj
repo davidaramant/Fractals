@@ -65,6 +65,7 @@
     <Compile Include="Utility\MandelbrotFinder.cs" />
     <Compile Include="Utility\Plotter.cs" />
     <Compile Include="Utility\PointFinder.cs" />
+    <Compile Include="Utility\SystemDrawingExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
