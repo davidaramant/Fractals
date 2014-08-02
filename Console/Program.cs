@@ -45,6 +45,12 @@ namespace Console
                 case OperationType.RenderMandelbrot:
                     RenderMandelbrot<MandelbrotRenderer>(options);
                     break;
+                case OperationType.RenderMandelbrotEscape:
+                    RenderMandelbrot<MandelbrotEscapeRenderer>(options);
+                    break;
+                case OperationType.RenderMandelbrotDistance:
+                    RenderMandelbrot<MandelbrotDistanceRenderer>(options);
+                    break;
                 case OperationType.RenderInterestingPointsMandelbrot:
                     RenderMandelbrot<InterestingPointsRenderer>(options);
                     break;
@@ -58,13 +64,13 @@ namespace Console
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
-                System.Console.WriteLine("DONE! Press <ENTER> to exit...");
+                System.Console.WriteLine("DONE at {0}! Press <ENTER> to exit...", DateTime.Now);
                 System.Console.ReadLine();
             }
         }
 
         private void RenderMandelbrot<T>(Options options)
-            where T : MandelbrotRenderer, new()
+            where T : IGenerator, new()
         {
             var resolution = new Size(options.ResolutionWidth, options.ResolutionHeight);
             var realAxis = new InclusiveRange(-2, 1);
@@ -117,39 +123,39 @@ namespace Console
 
         private string[] GetDebuggingArguments()
         {
-//            return new[]
-//                {
-//                    "-t", "RenderMandelbrot",
-//                    "-w", "1000",
-//                    "-h", "1000",
-//                    "-d", @"C:\temp",
-//                    "-f", "mandelbrot"
-//                };
-//            return new[]
-//                {
-//                    "-t", "RenderInterestingPointsMandelbrot",
-//                    "-w", "1000",
-//                    "-h", "1000",
-//                    "-d", @"C:\temp",
-//                    "-f", "mandelbrot-areas"
-//                };
-//                return new[]
-//                    {
-//                        "-t", "FindPoints",
-//                        "-d", @"C:\temp",
-//                        "-f", "points",
-//                        "-n", "20000",
-//                        "-x", "30000",
-//                        "-s", "AreasAndBulbExclusion"
-//                    };
-                return new[]
+            //            return new[]
+            //                {
+            //                    "-t", "RenderMandelbrot",
+            //                    "-w", "1000",
+            //                    "-h", "1000",
+            //                    "-d", @"C:\temp",
+            //                    "-f", "mandelbrot"
+            //                };
+            //            return new[]
+            //                {
+            //                    "-t", "RenderInterestingPointsMandelbrot",
+            //                    "-w", "1000",
+            //                    "-h", "1000",
+            //                    "-d", @"C:\temp",
+            //                    "-f", "mandelbrot-areas"
+            //                };
+            //                return new[]
+            //                    {
+            //                        "-t", "FindPoints",
+            //                        "-d", @"C:\temp",
+            //                        "-f", "points",
+            //                        "-n", "20000",
+            //                        "-x", "30000",
+            //                        "-s", "AreasAndBulbExclusion"
+            //                    };
+            return new[]
                     {
                         "-t", "PlotPoints",
                         "-w", "20000",
                         "-h", "20000",
-                        "-d", @"C:\temp",
+                        "-d", @"C:\temp\out",
                         "-f", "buddhabrot",
-                        "-i", @"C:\temp",
+                        "-i", @"C:\temp\in",
                         "-p", "points*"
                     };
         }

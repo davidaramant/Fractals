@@ -8,7 +8,7 @@ using log4net;
 
 namespace Fractals.Renderer
 {
-    public class MandelbrotRenderer
+    public class MandelbrotRenderer : IGenerator
     {
         private static ILog _log;
         

@@ -73,6 +73,9 @@
     <Compile Include="Model\Area.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderer\BuddhabrotPointGenerator.cs" />
+    <Compile Include="Renderer\IGenerator.cs" />
+    <Compile Include="Renderer\MandelbrotDistanceRenderer.cs" />
+    <Compile Include="Renderer\MandelbrotEscapeRenderer.cs" />
     <Compile Include="Renderer\MandelbrotRenderer.cs" />
     <Compile Include="Utility\ComplexNumberListWriter.cs" />
     <Compile Include="Utility\ComplexNumberListReader.cs" />

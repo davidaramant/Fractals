@@ -45,6 +45,8 @@ namespace Console
     public enum OperationType
     {
         RenderMandelbrot,
+        RenderMandelbrotEscape,
+        RenderMandelbrotDistance,
         RenderInterestingPointsMandelbrot,
         FindPoints,
         PlotPoints
