@@ -9,7 +9,8 @@
         {
             return
                 IsInLargerBulb(number) ||
-                IsInSmallerBulb(number);
+                IsInSmallerBulb(number) ||
+                IsInSmallBulbs(number);
         }
 
         static bool IsInLargerBulb(Complex number)
@@ -25,15 +26,12 @@
             return IsInsideCircle(center: new Complex(-1, 0), radius: 0.25, number: number);
         }
 
-        // TODO: These are wrong
         static bool IsInSmallBulbs(Complex number)
         {
             return
-                IsInsideCircle(new Complex(-0.11, 0), 0.63, number) ||
-                IsInsideCircle(new Complex(-1, 0), 0.25, number) ||
-                IsInsideCircle(new Complex(-0.125, 0.744), 0.092, number) ||
-                IsInsideCircle(new Complex(-1.308, 0), 0.058, number) ||
-                IsInsideCircle(new Complex(0, 0.25), 0.35, number);
+                IsInsideCircle(new Complex(-0.125, 0.744), 0.092, number) || 
+                IsInsideCircle(new Complex(-0.125, -0.744), 0.092, number) ||
+                IsInsideCircle(new Complex(-1.308, 0), 0.058, number);
         }
 
         static bool IsInsideCircle(Complex center, double radius, Complex number)
