@@ -1,5 +1,4 @@
 ﻿using Fractals.Model;
-using Fractals.Utility;
 
 namespace Fractals.Renderer
 {
@@ -20,18 +19,6 @@ namespace Fractals.Renderer
             }
 
             return false;
-        }
-
-        public static Complex GetPossiblePoint(CryptoRandom random, Area viewPort)
-        {
-            Complex point;
-
-            do
-            {
-                point = viewPort.GetRandomPoint(random);
-            } while ( MandelbulbChecker.IsInsideBulbs(point));
-            
-            return point;
         }
     }
 }

@@ -58,14 +58,17 @@
     <Compile Include="Renderer\MandelbrotRenderer.cs" />
     <Compile Include="Utility\ComplexNumberListWriter.cs" />
     <Compile Include="Utility\ComplexNumberListReader.cs" />
+    <Compile Include="Utility\ExcludingBulbPointGenerator.cs" />
     <Compile Include="Utility\HsvColor.cs" />
     <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\CryptoRandom.cs" />
     <Compile Include="Renderer\InterestingPointsRenderer.cs" />
     <Compile Include="Utility\AreaCalculator.cs" />
+    <Compile Include="Utility\InterestingAreasPointGenerator.cs" />
     <Compile Include="Utility\MandelbrotFinder.cs" />
     <Compile Include="Utility\Plotter.cs" />
     <Compile Include="Utility\PointFinder.cs" />
+    <Compile Include="Utility\RandomPointGenerator.cs" />
     <Compile Include="Utility\SystemDrawingExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

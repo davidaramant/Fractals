@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Fractals.Model;
 using Fractals.Renderer;
@@ -16,6 +15,8 @@ namespace Fractals.Utility
         private readonly int _maximum;
         private readonly string _outputDirectory;
         private readonly string _outputFile;
+
+        private readonly RandomPointGenerator _pointGenerator;
         
         private static ILog _log;
 
@@ -37,12 +38,14 @@ namespace Fractals.Utility
             }
         }
 
-        public PointFinder(int minimum, int maximum, string outputDirectory, string outputFile)
+        public PointFinder(int minimum, int maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
         {
             _minimum = minimum;
             _maximum = maximum;
             _outputDirectory = outputDirectory;
             _outputFile = outputFile;
+
+            _pointGenerator = pointGenerator;
             
             _log = LogManager.GetLogger(GetType());
         }
@@ -59,11 +62,13 @@ namespace Fractals.Utility
                 realRange: new InclusiveRange(-2, 0.5),
                 imagRange: new InclusiveRange(-1.3, 1.3));
 
+            _pointGenerator.Initialize(viewPort);
+
             var list = new ComplexNumberListWriter(_outputDirectory, _outputFile);
 
             int num = 0;
 
-            Parallel.ForEach(GetRandomComplexNumbers(viewPort),
+            Parallel.ForEach(_pointGenerator.GetRandomComplexNumbers(viewPort),
                 (number, state) =>
                 {
                     if (BuddhabrotPointGenerator.IsPointInBuddhabrot(number, bailout))
@@ -91,14 +96,5 @@ namespace Fractals.Utility
         {
             ShouldStop = true;
         }
-
-        private static IEnumerable<Complex> GetRandomComplexNumbers(Area viewPort)
-        {
-            var rand = new CryptoRandom();
-            while (true)
-            {
-                yield return BuddhabrotPointGenerator.GetPossiblePoint(rand, viewPort);
-            }
-        } 
     }
 }

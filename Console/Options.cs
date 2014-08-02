@@ -29,6 +29,9 @@ namespace Console
         [Option('x', "maximum", Required = false, HelpText = "The maxiumum")]
         public int Maxiumum { get; set; }
 
+        [Option('s', "strategy", Required = false, HelpText = "The point finding strategy")]
+        public PointStrategy Strategy { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {
@@ -43,5 +46,13 @@ namespace Console
         RenderInterestingPointsMandelbrot,
         FindPoints,
         PlotPoints
+    }
+
+    public enum PointStrategy
+    {
+        None,
+        Everything,
+        ExcludeBulbs,
+        AreasAndBulbExclusion
     }
 }

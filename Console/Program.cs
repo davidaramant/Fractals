@@ -75,7 +75,22 @@ namespace Console
 
         private void FindPoints(Options options)
         {
-            var finder = new PointFinder(options.Miniumum, options.Maxiumum, options.OutputDirectory, options.Filename);
+            RandomPointGenerator generator;
+            switch (options.Strategy)
+            {
+                case PointStrategy.Everything:
+                    generator = new RandomPointGenerator();
+                    break;
+                case PointStrategy.ExcludeBulbs:
+                    generator = new ExcludingBulbPointGenerator();
+                    break;
+                case PointStrategy.AreasAndBulbExclusion:
+                    generator = new InterestingAreasPointGenerator();
+                    break;
+                default:
+                    throw new ArgumentException();
+            }
+            var finder = new PointFinder(options.Miniumum, options.Maxiumum, options.OutputDirectory, options.Filename, generator);
 
             System.Console.WriteLine("Press <ENTER> to stop...");
 
@@ -118,7 +133,8 @@ namespace Console
 //                        "-d", "C:\\temp",
 //                        "-f", "points",
 //                        "-n", "20000",
-//                        "-x", "30000"
+//                        "-x", "30000",
+//                        "-s", "AreasAndBulbExclusion"
 //                    };
                 return new[]
                     {
