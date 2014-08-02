@@ -39,7 +39,7 @@ namespace FindBuddhabrotPoints
                 max: 30000);
 
             var viewPort = new Area(
-                realRange: new InclusiveRange(-0.5, 2),
+                realRange: new InclusiveRange(-2, 0.5),
                 imagRange: new InclusiveRange(-1.3, 1.3));
 
             var list = new ComplexNumberList("output.list");

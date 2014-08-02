@@ -8,7 +8,13 @@ namespace Fractals.Utility
     public sealed class ComplexNumberList
     {
         private readonly string _filePath;
+        private int _count;
+        private int _fileNumber;
 
+        private const int MaxCount = 64 * 1024 * 100;
+
+        private const int MaxFileNumber = 20;
+        
         public ComplexNumberList(string filePath)
         {
             _filePath = filePath;
@@ -20,7 +26,19 @@ namespace Fractals.Utility
         {
             lock (_fileLock)
             {
-                using (var stream = new FileStream(_filePath,FileMode.Append))
+                _count ++;
+
+                if (_count%MaxCount == 0)
+                {
+                    _fileNumber++;
+
+                    if (_fileNumber == MaxFileNumber)
+                    {
+                        throw new Exception("STOP");
+                    }
+                }
+
+                using (var stream = new FileStream(_filePath + _fileNumber,FileMode.Append))
                 {
                     var realBytes = BitConverter.GetBytes(number.Real);
                     var imagBytes = BitConverter.GetBytes(number.Imag);

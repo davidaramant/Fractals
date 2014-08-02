@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using Fractals.Utility;
 
 namespace Fractals.Model
@@ -38,7 +39,7 @@ namespace Fractals.Model
         public Complex GetRandomPoint(CryptoRandom random)
         {
             return new Complex(
-                real: random.Next(RealRange), 
+                real: random.Next(RealRange),
                 imag: random.Next(ImagRange));
         }
     }
