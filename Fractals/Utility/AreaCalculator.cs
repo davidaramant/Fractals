@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using Fractals.Model;
 
 namespace Fractals.Utility
 {
     public class AreaCalculator
     {
-        const double GridSize = 0.1;
+        const double GridSize = 0.05;
         
         public IEnumerable<Area> InterestingAreas(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
         {
@@ -18,24 +20,23 @@ namespace Fractals.Utility
             return areasWithSomeNumbers;
         }
 
-        private IEnumerable<Area> FindAreasWithNumbers(List<Area> allAreas, IEnumerable<Complex> numbers)
+        private IEnumerable<Area> FindAreasWithNumbers(IEnumerable<Area> allAreas, IEnumerable<Complex> numbers)
         {
-            var results = new HashSet<Area>();
+            var results = new ConcurrentBag<Area>();
 
-            foreach (var number in numbers)
+            Parallel.ForEach(numbers, number =>
             {
-                Complex thisNumber = number;
-                var containingAreas = allAreas.Where(a => a.IsInside(thisNumber));
+                var containingAreas = allAreas.Where(a => a.IsInside(number));
                 foreach (var containingArea in containingAreas)
                 {
                     results.Add(containingArea);
                 }
-            }
+            });
 
-            return results;
+            return results.Distinct();
         }
 
-        private List<Area> AllPossibleAreas(InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        private IEnumerable<Area> AllPossibleAreas(InclusiveRange realAxis, InclusiveRange imaginaryAxis)
         {
             var allAreas = new List<Area>();
 

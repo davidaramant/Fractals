@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using Fractals.Model;
 
 namespace Fractals.Utility
@@ -8,10 +10,10 @@ namespace Fractals.Utility
     {
         public static IEnumerable<Complex> FindPoints(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
         {
-            var results = new List<Complex>();
+            var results = new ConcurrentBag<Complex>();
             var viewPoint = new Area(realAxis, imaginaryAxis);
 
-            for (int y = 0; y < resolution.Height; y++)
+            Parallel.For(0, resolution.Height, y =>
             {
                 for (int x = 0; x < resolution.Width; x++)
                 {
@@ -22,7 +24,7 @@ namespace Fractals.Utility
                         results.Add(number);
                     }
                 }
-            }
+            });
 
             return results;
         }
@@ -31,7 +33,7 @@ namespace Fractals.Utility
         {
             Complex z = c;
 
-            for (int i = 0; i < 2000; i++)
+            for (int i = 0; i < 5000; i++)
             {
                 z = z * z + c;
 
