@@ -10,15 +10,15 @@ namespace Fractals.Utility
 {
     public class AreaCalculator
     {
-        const double GridSize = 0.05;
-        
+        const double GridSize = 0.04;
+
         private static ILog _log;
 
         public AreaCalculator()
         {
             _log = LogManager.GetLogger(GetType());
         }
-        
+
         public List<Area> InterestingAreas(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
         {
             _log.DebugFormat("Looking for intersting areas ({0}x{1})", resolution.Width, resolution.Height);
