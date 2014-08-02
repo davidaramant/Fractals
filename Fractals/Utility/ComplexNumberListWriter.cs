@@ -15,8 +15,6 @@ namespace Fractals.Utility
         private int _fileNumber;
 
         private const int MaxCountPerFile = 64 * 1024 * 100;
-
-        private const int MaxFileNumber = 20;
         
         private static ILog _log;
 
@@ -42,11 +40,6 @@ namespace Fractals.Utility
                 {
                     _fileNumber++;
                     ChangeFilename();
-
-                    if (_fileNumber == MaxFileNumber)
-                    {
-                        throw new Exception("STOP");
-                    }
                 }
 
                 using (var stream = new FileStream(_currentFilename, FileMode.Append))
