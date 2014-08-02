@@ -9,8 +9,7 @@
         {
             return
                 IsInLargerBulb(number) ||
-                IsInSmallerBulb(number) ||
-                IsInSmallBulbs(number);
+                IsInCircularBulbs(number);
         }
 
         static bool IsInLargerBulb(Complex number)
@@ -21,15 +20,11 @@
             return (q * (q + (number.Real - 0.25))) < (0.25 * number.Imag * number.Imag);
         }
 
-        static bool IsInSmallerBulb(Complex number)
-        {
-            return IsInsideCircle(center: new Complex(-1, 0), radius: 0.25, number: number);
-        }
-
-        static bool IsInSmallBulbs(Complex number)
+        static bool IsInCircularBulbs(Complex number)
         {
             return
-                IsInsideCircle(new Complex(-0.125, 0.744), 0.092, number) || 
+                IsInsideCircle(new Complex(-1, 0), 0.25, number) ||
+                IsInsideCircle(new Complex(-0.125, 0.744), 0.092, number) ||
                 IsInsideCircle(new Complex(-0.125, -0.744), 0.092, number) ||
                 IsInsideCircle(new Complex(-1.308, 0), 0.058, number);
         }
