@@ -24,14 +24,16 @@ namespace Fractals.Tests.Utility
 
             try
             {
-                var list = new ComplexNumberList(file.DirectoryName, file.Name);
+                var listWriter = new ComplexNumberListWriter(file.DirectoryName, file.Name);
 
                 foreach (Complex n in numbers)
                 {
-                    list.SaveNumber(n);
+                    listWriter.SaveNumber(n);
                 }
 
-                Complex[] roundTripped = list.GetNumbers().ToArray();
+                var listReader = new ComplexNumberListReader(file.DirectoryName, file.Name);
+
+                Complex[] roundTripped = listReader.GetNumbers().ToArray();
 
                 Assert.That(
                     roundTripped.Select(n => n.ToString()).ToArray(),

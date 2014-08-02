@@ -1,12 +1,11 @@
 ﻿using Fractals.Model;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using log4net;
 
 namespace Fractals.Utility
 {
-    public sealed class ComplexNumberList
+    public sealed class ComplexNumberListWriter
     {
         private readonly string _directory;
         private readonly string _filename;
@@ -21,7 +20,7 @@ namespace Fractals.Utility
         
         private static ILog _log;
 
-        public ComplexNumberList(string directory, string filename)
+        public ComplexNumberListWriter(string directory, string filename)
         {
             _directory = directory;
             _filename = filename;
@@ -66,32 +65,7 @@ namespace Fractals.Utility
             var newFilename = String.Format("{0}.{1}", _filename, _fileNumber);
             _currentFilename = Path.Combine(_directory, newFilename);
 
-            _log.InfoFormat("Swithing output file to: {0}", newFilename);
-        }
-
-        public IEnumerable<Complex> GetNumbers()
-        {
-            var realBytes = new byte[8];
-            var imagBytes = new byte[8];
-
-            using (var stream = File.OpenRead(_currentFilename))
-            {
-                while (true)
-                {
-                    if (stream.Read(realBytes, 0, 8) != 8)
-                    {
-                        yield break;
-                    }
-                    if (stream.Read(imagBytes, 0, 8) != 8)
-                    {
-                        yield break;
-                    }
-
-                    yield return new Complex(
-                        BitConverter.ToDouble(realBytes, 0),
-                        BitConverter.ToDouble(imagBytes, 0));
-                }
-            }
+            _log.InfoFormat("Swithing file to: {0}", newFilename);
         }
     }
 }

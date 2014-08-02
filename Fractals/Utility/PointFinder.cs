@@ -66,7 +66,7 @@ namespace Fractals.Utility
                 realRange: new InclusiveRange(-2, 0.5),
                 imagRange: new InclusiveRange(-1.3, 1.3));
 
-            var list = new ComplexNumberList(_outputDirectory, _outputFile);
+            var list = new ComplexNumberListWriter(_outputDirectory, _outputFile);
 
             int num = 0;
 

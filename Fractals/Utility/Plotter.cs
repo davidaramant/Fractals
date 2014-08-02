@@ -32,7 +32,7 @@ namespace Fractals.Utility
 
         public void Plot()
         {
-            var list = new ComplexNumberList(_directory, _inputFilename);
+            var list = new ComplexNumberListReader(_directory, _inputFilename);
 
             var viewPort = new Area(
                                         realRange: new InclusiveRange(-1.75, 1),
