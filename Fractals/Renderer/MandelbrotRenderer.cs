@@ -1,16 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using Fractals.Model;
+using Fractals.Utility;
 
 namespace Fractals.Renderer
 {
     public class MandelbrotRenderer
     {
-        public Color[,] Render()
+        public Color[,] Render(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
         {
-            var resolution = new Size(1000, 1000);
-
-            var viewPoint = new Area(new InclusiveRange(-2, 1), new InclusiveRange(-1.5, 1.5));
+            var viewPoint = new Area(realAxis, imaginaryAxis);
+            var areasToInclude = GetAreasToInclude(resolution, realAxis, imaginaryAxis).ToArray();
 
             var output = new Color[resolution.Width, resolution.Height];
 
@@ -18,14 +20,59 @@ namespace Fractals.Renderer
             {
                 for (int x = 0; x < resolution.Width; x++)
                 {
-                    Complex number = viewPoint.GetNumberFromPoint(resolution, new Point(x, y));
-
-                    KnownColor color = PickColor(() => IsInSet(number), MandelbulbChecker.IsInsideBulbs(number));
-
-                    output[x, y] = Color.FromKnownColor(color);
+                    var number = viewPoint.GetNumberFromPoint(resolution, new Point(x, y));
+                    Color color = PickColor(() => areasToInclude.Any(a => a.IsInside(number)), () => MandelbrotFinder.IsInSet(number), () => MandelbulbChecker.IsInsideBulbs(number));
+                    output[x, y] = color;
                 }
             }
 
+            RenderGrid(resolution, viewPoint, output);
+            RenderAxis(resolution, viewPoint, output);
+
+            return output;
+        }
+
+        protected virtual IEnumerable<Area> GetAreasToInclude(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        {
+            yield return new Area(realAxis, imaginaryAxis);
+        }
+
+        protected virtual Color PickColor(Func<bool> isInArea , Func<bool> isInSet, Func<bool> isInBulbs)
+        {
+            if (!isInArea())
+            {
+                return Color.IndianRed;
+            }
+
+            if (isInBulbs())
+            {
+                return Color.Gray;
+            }
+
+            if (isInSet())
+            {
+                return Color.Aquamarine;
+            }
+
+            return Color.Black;
+        }
+
+        private static void RenderAxis(Size resolution, Area viewPoint, Color[,] output)
+        {
+            // Draw axis
+            Point origin = viewPoint.GetPointFromNumber(resolution, new Complex());
+            for (int x = 0; x < resolution.Width; x++)
+            {
+                output[x, origin.Y] = Color.LightGreen;
+            }
+            for (int y = 0; y < resolution.Height; y++)
+            {
+                output[origin.X, y] = Color.LightGreen;
+            }
+        }
+
+        private static void RenderGrid(Size resolution, Area viewPoint, Color[,] output)
+        {
             const double gridSize = 0.25;
 
             // Draw vertical lines
@@ -35,7 +82,7 @@ namespace Fractals.Renderer
 
                 for (int y = 0; y < resolution.Height; y++)
                 {
-                    output[point.X, y] = Color.FromKnownColor(KnownColor.Green);
+                    output[point.X, y] = Color.Green;
                 }
             }
             for (double real = 0; real >= viewPoint.RealRange.Min; real -= gridSize)
@@ -44,7 +91,7 @@ namespace Fractals.Renderer
 
                 for (int y = 0; y < resolution.Height; y++)
                 {
-                    output[point.X, y] = Color.FromKnownColor(KnownColor.Green);
+                    output[point.X, y] = Color.Green;
                 }
             }
 
@@ -55,7 +102,7 @@ namespace Fractals.Renderer
 
                 for (int x = 0; x < resolution.Width; x++)
                 {
-                    output[x, point.Y] = Color.FromKnownColor(KnownColor.Green);
+                    output[x, point.Y] = Color.Green;
                 }
             }
             for (double imag = 0; imag >= viewPoint.ImagRange.Min; imag -= gridSize)
@@ -64,54 +111,9 @@ namespace Fractals.Renderer
 
                 for (int x = 0; x < resolution.Width; x++)
                 {
-                    output[x, point.Y] = Color.FromKnownColor(KnownColor.Green);
+                    output[x, point.Y] = Color.Green;
                 }
             }
-
-            // Draw axis
-            Point origin = viewPoint.GetPointFromNumber(resolution, new Complex());
-            for (int x = 0; x < resolution.Width; x++)
-            {
-                output[x, origin.Y] = Color.FromKnownColor(KnownColor.LightGreen);
-            }
-            for (int y = 0; y < resolution.Height; y++)
-            {
-                output[origin.X, y] = Color.FromKnownColor(KnownColor.LightGreen);
-            }
-
-            return output;
-        }
-
-        private static KnownColor PickColor(Func<bool> isInSet, bool isInBulbs)
-        {
-            if (isInBulbs)
-            {
-                return KnownColor.Gray;
-            }
-
-            if (isInSet())
-            {
-                return KnownColor.Aquamarine;
-            }
-
-            return KnownColor.Black;
-        }
-
-        private static bool IsInSet(Complex c)
-        {
-            Complex z = c;
-
-            for (int i = 0; i < 2000; i++)
-            {
-                z = z*z + c;
-
-                if (z.MagnitudeSquared() > 4)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }
