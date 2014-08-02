@@ -9,13 +9,15 @@ using log4net;
 
 namespace Fractals.Utility
 {
-    public class Plotter
+    public sealed class Plotter
     {
         private readonly string _inputDirectory;
         private readonly string _inputFilenamePattern;
         private readonly string _directory;
         private readonly string _filename;
         private readonly Size _resolution;
+
+        private int[][] _plot;
 
         private static ILog _log;
 
@@ -28,7 +30,50 @@ namespace Fractals.Utility
             _resolution = new Size(width, height);
 
             _log = LogManager.GetLogger(GetType());
+
+            InitializeHitPlot();
         }
+
+        #region Hit Plot Array Operations
+
+        private void InitializeHitPlot()
+        {
+            _plot = new int[_resolution.Width][];
+            for (int col = 0; col < _resolution.Height; col++)
+            {
+                _plot[col] = new int[_resolution.Height];
+            }
+        }
+
+        private void IncrementPoint(Point p)
+        {
+            Interlocked.Increment(ref _plot[p.X][p.Y]);
+        }
+
+        private int GetHitsForPoint(int x, int y)
+        {
+            return _plot[x][y];
+        }
+
+        private int FindMaximumHit()
+        {
+            int max = 0;
+            for (int x = 0; x < _resolution.Width; x++)
+            {
+                for (int y = 0; y < _resolution.Height; y++)
+                {
+                    var temp = _plot[x][y];
+                    if (temp > max)
+                    {
+                        max = temp;
+                    }
+                }
+            }
+
+            return max;
+        }
+
+        #endregion Hit Plot Array Operations
 
         public void Plot()
         {
@@ -39,12 +84,6 @@ namespace Fractals.Utility
             var viewPort = new Area(
                             realRange: new InclusiveRange(-1.75, 1),
                             imagRange: new InclusiveRange(-1.3, 1.3));
-
-            var plot = new int[_resolution.Width][];
-            for (int col = 0; col < _resolution.Height; col++)
-            {
-                plot[col] = new int[_resolution.Height];
-            }
 
             var rotatedResolution = new Size(_resolution.Height, _resolution.Width);
 
@@ -61,28 +100,15 @@ namespace Fractals.Utility
                         continue;
                     }
 
-                    Interlocked.Increment(ref plot[point.X][point.Y]);
+                    IncrementPoint(point);
                 }
             });
 
             _log.InfoFormat("Done plotting trajectories...");
 
-            var max = 0;
-            for (int x = 0; x < _resolution.Width; x++)
-            {
-                for (int y = 0; y < _resolution.Height; y++)
-                {
-                    var temp = plot[x][y];
-                    if (temp > max)
-                    {
-                        max = temp;
-                    }
-                }
-            }
+            var max = FindMaximumHit();            
 
             _log.InfoFormat("Found max: {0}", max);
-
-            _log.Debug("Rendering image");
 
             var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
 
@@ -90,7 +116,7 @@ namespace Fractals.Utility
             {
                 for (int y = 0; y < _resolution.Height; y++)
                 {
-                    var current = plot[x][y];
+                    var current = GetHitsForPoint(x, y);
 
                     var exp = Gamma(1.0 - Math.Pow(Math.E, -10.0 * current / max));
 
