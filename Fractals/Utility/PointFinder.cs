@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Fractals.Model;
@@ -38,12 +37,6 @@ namespace Fractals.Utility
             }
         }
 
-        public PointFinder(string outputDirectory, string outputFile)
-            : this(2000, 3000, outputDirectory, outputFile)
-        {
-        }
-
-
         public PointFinder(int minimum, int maximum, string outputDirectory, string outputFile)
         {
             _minimum = minimum;
@@ -56,7 +49,7 @@ namespace Fractals.Utility
 
         public void Start()
         {
-            _log.InfoFormat("Starting to find points");
+            _log.InfoFormat("Starting to find points (minumum: {0}, maximum: {1})", _minimum, _maximum);
 
             var bailout = new BailoutRange(
                 min: _minimum,
@@ -78,7 +71,7 @@ namespace Fractals.Utility
                         Interlocked.Increment(ref num);
                         list.SaveNumber(number);
 
-                        if (num % 100 == 0)
+                        if (num % 25 == 0)
                         {
                             _log.DebugFormat("Found {0} points", num);
                         }

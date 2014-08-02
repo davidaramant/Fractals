@@ -23,6 +23,12 @@ namespace Console
         [Option('i', "input", Required = false, HelpText = "The input filename")]
         public string InputFilename { get; set; }
 
+        [Option('n', "minimum", Required = false, HelpText = "The minimum")]
+        public int Miniumum { get; set; }
+
+        [Option('x', "maximum", Required = false, HelpText = "The maxiumum")]
+        public int Maxiumum { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {

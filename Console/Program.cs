@@ -75,7 +75,7 @@ namespace Console
 
         private void FindPoints(Options options)
         {
-            var finder = new PointFinder(options.OutputDirectory, options.Filename);
+            var finder = new PointFinder(options.Miniumum, options.Maxiumum, options.OutputDirectory, options.Filename);
 
             System.Console.WriteLine("Press <ENTER> to stop...");
 
@@ -116,7 +116,9 @@ namespace Console
 //                    {
 //                        "-t", "FindPoints",
 //                        "-d", "C:\\temp",
-//                        "-f", "points"
+//                        "-f", "points",
+//                        "-n", "20000",
+//                        "-x", "30000"
 //                    };
                 return new[]
                     {
