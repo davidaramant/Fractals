@@ -52,7 +52,7 @@ namespace Fractals.Utility
                 {
                     var point = viewPort.GetPointFromNumber(rotatedResolution, c).Rotate();
 
-                    if (point.X < 0 || point.X >= _resolution.Width || point.Y < 0 || point.Y >= _resolution.Height)
+                    if (_resolution.IsInside(point))
                     {
                         continue;
                     }
