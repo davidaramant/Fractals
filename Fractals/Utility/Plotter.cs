@@ -40,8 +40,6 @@ namespace Fractals.Utility
 
             var plot = new int[_resolution.Width, _resolution.Height];
 
-            var max = 0;
-
             var rotatedResolution = new Size(_resolution.Height, _resolution.Width);
 
             Parallel.ForEach(list.GetNumbers(), number =>
@@ -59,6 +57,7 @@ namespace Fractals.Utility
                 }
             });
 
+            var max = 0;
             for (int x = 0; x < _resolution.Width; x++)
             {
                 for (int y = 0; y < _resolution.Height; y++)
@@ -73,19 +72,30 @@ namespace Fractals.Utility
 
             var output = new Color[_resolution.Width, _resolution.Height];
 
-            var sqrtMax = Math.Sqrt(max);
-
             for (int x = 0; x < _resolution.Width; x++)
             {
                 for (int y = 0; y < _resolution.Height; y++)
                 {
-                    var sqrtHit = Math.Sqrt(plot[x, y]);
+                    var current = plot[x, y];
 
-                    output[x, y] = new HsvColor(0.5, 1, sqrtHit / sqrtMax).ToColor();
+                    var exp = Gamma(1.0 - Math.Pow(Math.E, -10.0*current/max));
+
+                    output[x, y] = new HsvColor(
+                        hue: 196.0 / 360.0,
+                        saturation: (exp < 0.5) ? 1 : 1 - (2*(exp-0.5)),
+                        value: ( exp < 0.5 ) ? 2*exp : 1
+                    ).ToColor();
                 }
             }
 
             ImageUtility.ColorMatrixToBitmap(output).Save(Path.Combine(_directory, String.Format("{0}.png", _filename)));
+        }
+
+        private const double DefaultGamma = 1.2;
+
+        private static double Gamma(double x, double exp = DefaultGamma)
+        {
+            return Math.Pow(x, 1.0 / exp);
         }
 
         static IEnumerable<Complex> GetTrajectory(Complex c)
