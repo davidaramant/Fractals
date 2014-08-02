@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
-using Fractals.Utility;
 using Fractals.Model;
+using Fractals.Utility;
+using NUnit.Framework;
 
 namespace Fractals.Tests.Utility
 {
@@ -19,25 +15,26 @@ namespace Fractals.Tests.Utility
             var numbers = new[]
             {
                 new Complex(),
-                new Complex(1,1), 
-                new Complex(0.25,0.5), 
+                new Complex(1, 1),
+                new Complex(0.25, 0.5)
             };
 
-            var path = System.IO.Path.GetTempFileName();
+            string path = Path.GetTempFileName();
+            var file = new FileInfo(path);
 
             try
             {
-                var list = new ComplexNumberList(path);
+                var list = new ComplexNumberList(file.DirectoryName, file.Name);
 
-                foreach (var n in numbers)
+                foreach (Complex n in numbers)
                 {
                     list.SaveNumber(n);
                 }
 
-                var roundTripped = list.GetNumbers().ToArray();
+                Complex[] roundTripped = list.GetNumbers().ToArray();
 
                 Assert.That(
-                    roundTripped.Select(n => n.ToString()).ToArray(), 
+                    roundTripped.Select(n => n.ToString()).ToArray(),
                     Is.EquivalentTo(numbers.Select(n => n.ToString()).ToArray()),
                     "Did not save and load numbers.");
             }
@@ -49,6 +46,5 @@ namespace Fractals.Tests.Utility
                 }
             }
         }
-
     }
 }

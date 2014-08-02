@@ -1,15 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fractals", "Fractals\Fractals.csproj", "{0FEA0CDA-B00C-4738-B4FA-91D2ED973C15}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fractals.Tests", "Fractals.Tests\Fractals.Tests.csproj", "{D820C1D6-0B70-449E-BC8D-826E2E91D51D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartoidTest", "CartoidTest\CartoidTest.csproj", "{64D746B8-342B-4743-ADED-C37FEB9186AD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindBuddhabrotPoints", "FindBuddhabrotPoints\FindBuddhabrotPoints.csproj", "{E48BC5A9-F2D4-4BAE-8A81-3F7711A0E665}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuddhabrotTrajectoryPlotter", "BuddhabrotTrajectoryPlotter\BuddhabrotTrajectoryPlotter.csproj", "{45D3972A-187A-4B20-B209-9857766FC6BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{EDCD72FB-E05F-4031-83FD-4DF5BCCD5008}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,18 +23,10 @@ Global
 		{D820C1D6-0B70-449E-BC8D-826E2E91D51D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D820C1D6-0B70-449E-BC8D-826E2E91D51D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D820C1D6-0B70-449E-BC8D-826E2E91D51D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{64D746B8-342B-4743-ADED-C37FEB9186AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{64D746B8-342B-4743-ADED-C37FEB9186AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64D746B8-342B-4743-ADED-C37FEB9186AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{64D746B8-342B-4743-ADED-C37FEB9186AD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E48BC5A9-F2D4-4BAE-8A81-3F7711A0E665}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E48BC5A9-F2D4-4BAE-8A81-3F7711A0E665}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E48BC5A9-F2D4-4BAE-8A81-3F7711A0E665}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E48BC5A9-F2D4-4BAE-8A81-3F7711A0E665}.Release|Any CPU.Build.0 = Release|Any CPU
-		{45D3972A-187A-4B20-B209-9857766FC6BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{45D3972A-187A-4B20-B209-9857766FC6BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{45D3972A-187A-4B20-B209-9857766FC6BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{45D3972A-187A-4B20-B209-9857766FC6BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDCD72FB-E05F-4031-83FD-4DF5BCCD5008}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDCD72FB-E05F-4031-83FD-4DF5BCCD5008}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDCD72FB-E05F-4031-83FD-4DF5BCCD5008}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDCD72FB-E05F-4031-83FD-4DF5BCCD5008}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

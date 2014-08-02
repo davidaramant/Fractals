@@ -58,8 +58,10 @@
     <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\CryptoRandom.cs" />
     <Compile Include="Renderer\InterestingPointsRenderer.cs" />
-    <Compile Include="Utility\AreaCalculator.cs"/>
+    <Compile Include="Utility\AreaCalculator.cs" />
     <Compile Include="Utility\MandelbrotFinder.cs" />
+    <Compile Include="Utility\Plotter.cs" />
+    <Compile Include="Utility\PointFinder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

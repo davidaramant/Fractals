@@ -7,17 +7,23 @@ namespace Fractals.Utility
 {
     public sealed class ComplexNumberList
     {
-        private readonly string _filePath;
+        private readonly string _directory;
+        private readonly string _filename;
+        private string _currentFilename;
+
         private int _count;
         private int _fileNumber;
 
-        private const int MaxCount = 64 * 1024 * 100;
+        private const int MaxCountPerFile = 64 * 1024 * 100;
 
         private const int MaxFileNumber = 20;
-        
-        public ComplexNumberList(string filePath)
+
+        public ComplexNumberList(string directory, string filename)
         {
-            _filePath = filePath;
+            _directory = directory;
+            _filename = filename;
+
+            ChangeFilename();
         }
 
         private readonly object _fileLock = new object();
@@ -28,9 +34,10 @@ namespace Fractals.Utility
             {
                 _count ++;
 
-                if (_count%MaxCount == 0)
+                if (_count%MaxCountPerFile == 0)
                 {
                     _fileNumber++;
+                    ChangeFilename();
 
                     if (_fileNumber == MaxFileNumber)
                     {
@@ -38,7 +45,7 @@ namespace Fractals.Utility
                     }
                 }
 
-                using (var stream = new FileStream(_filePath + _fileNumber,FileMode.Append))
+                using (var stream = new FileStream(_currentFilename + _fileNumber, FileMode.Append))
                 {
                     var realBytes = BitConverter.GetBytes(number.Real);
                     var imagBytes = BitConverter.GetBytes(number.Imag);
@@ -49,12 +56,17 @@ namespace Fractals.Utility
             }
         }
 
+        private void ChangeFilename()
+        {
+            _currentFilename = Path.Combine(_directory, String.Format("{0}.{1}", _filename, _fileNumber));
+        }
+
         public IEnumerable<Complex> GetNumbers()
         {
             var realBytes = new byte[8];
             var imagBytes = new byte[8];
 
-            using (var stream = File.OpenRead(_filePath))
+            using (var stream = File.OpenRead(_currentFilename))
             {
                 while (true)
                 {
