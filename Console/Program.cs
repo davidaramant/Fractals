@@ -78,7 +78,7 @@ namespace Console
             RandomPointGenerator generator;
             switch (options.Strategy)
             {
-                case PointStrategy.Everything:
+                case PointStrategy.CompletelyRandom:
                     generator = new RandomPointGenerator();
                     break;
                 case PointStrategy.ExcludeBulbs:
@@ -105,7 +105,7 @@ namespace Console
 
         private void PlotPoints(Options options)
         {
-            var plotter = new Plotter(options.OutputDirectory, options.InputFilename, options.Filename, options.ResolutionWidth, options.ResolutionHeight);
+            var plotter = new Plotter(options.InputDirectory, options.InputFilenamePattern, options.OutputDirectory, options.Filename, options.ResolutionWidth, options.ResolutionHeight);
             plotter.Plot();
         }
 
@@ -114,23 +114,23 @@ namespace Console
 //            return new[]
 //                {
 //                    "-t", "RenderMandelbrot",
-//                    "-w", "500",
-//                    "-h", "500",
-//                    "-d", "C:\\temp",
+//                    "-w", "1000",
+//                    "-h", "1000",
+//                    "-d", @"C:\temp",
 //                    "-f", "mandelbrot"
 //                };
 //            return new[]
 //                {
 //                    "-t", "RenderInterestingPointsMandelbrot",
-//                    "-w", "500",
-//                    "-h", "500",
-//                    "-d", "C:\\temp",
+//                    "-w", "1000",
+//                    "-h", "1000",
+//                    "-d", @"C:\temp",
 //                    "-f", "mandelbrot-areas"
 //                };
 //                return new[]
 //                    {
 //                        "-t", "FindPoints",
-//                        "-d", "C:\\temp",
+//                        "-d", @"C:\temp",
 //                        "-f", "points",
 //                        "-n", "20000",
 //                        "-x", "30000",
@@ -141,9 +141,10 @@ namespace Console
                         "-t", "PlotPoints",
                         "-w", "10000",
                         "-h", "10000",
-                        "-d", "C:\\temp",
+                        "-d", @"C:\temp",
                         "-f", "buddhabrot",
-                        "-i", "points"
+                        "-i", @"C:\temp",
+                        "-p", "points*"
                     };
         }
     }

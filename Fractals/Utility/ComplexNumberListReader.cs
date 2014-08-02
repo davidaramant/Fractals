@@ -9,14 +9,14 @@ namespace Fractals.Utility
     public sealed class ComplexNumberListReader
     {
         private readonly string _directory;
-        private readonly string _filename;
+        private readonly string _filenamePattern;
         
         private static ILog _log;
 
-        public ComplexNumberListReader(string directory, string filename)
+        public ComplexNumberListReader(string directory, string filenamePattern)
         {
             _directory = directory;
-            _filename = filename;
+            _filenamePattern = filenamePattern;
             
             _log = LogManager.GetLogger(GetType());
         }
@@ -26,15 +26,15 @@ namespace Fractals.Utility
             var realBytes = new byte[8];
             var imagBytes = new byte[8];
 
-            var fileFormat = String.Format("{0}.*", _filename);
-            _log.DebugFormat("Looking in '{0}' for '{1}' files", _directory, fileFormat);
+            _log.DebugFormat("Looking in '{0}' for '{1}' files", _directory, _filenamePattern);
 
-            var files = Directory.GetFiles(_directory, fileFormat);
-            _log.DebugFormat("Found {0} files", fileFormat.Length);
+            var files = Directory.GetFiles(_directory, _filenamePattern);
+            _log.DebugFormat("Found {0} files", files.Length);
 
             foreach (var file in files)
             {
-                _log.DebugFormat("Processing '{0}'", file);
+                var fileInfo = new FileInfo(file);
+                _log.DebugFormat("Processing '{0}'", fileInfo.Name);
                 using (var stream = File.OpenRead(file))
                 {
                     while (true)

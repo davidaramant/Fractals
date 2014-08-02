@@ -14,14 +14,17 @@ namespace Console
         [Option('w', "width", Required = false, HelpText = "The resolution width (in pixels)")]
         public int ResolutionWidth { get; set; }
 
-        [Option('d', "directory", Required = true, HelpText = "The directory")]
+        [Option('d', "directory", Required = true, HelpText = "The output directory")]
         public string OutputDirectory { get; set; }
 
         [Option('f', "filename", Required = true, HelpText = "The output filename")]
         public string Filename { get; set; }
 
-        [Option('i', "input", Required = false, HelpText = "The input filename")]
-        public string InputFilename { get; set; }
+        [Option('i', "input-directory", Required = true, HelpText = "The input directory")]
+        public string InputDirectory { get; set; }
+
+        [Option('p', "input-pattern", Required = false, HelpText = "The input filename pattern")]
+        public string InputFilenamePattern { get; set; }
 
         [Option('n', "minimum", Required = false, HelpText = "The minimum")]
         public int Miniumum { get; set; }
@@ -41,7 +44,6 @@ namespace Console
 
     public enum OperationType
     {
-        None,
         RenderMandelbrot,
         RenderInterestingPointsMandelbrot,
         FindPoints,
@@ -50,8 +52,7 @@ namespace Console
 
     public enum PointStrategy
     {
-        None,
-        Everything,
+        CompletelyRandom,
         ExcludeBulbs,
         AreasAndBulbExclusion
     }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Fractals.Model;
@@ -12,18 +11,19 @@ namespace Fractals.Utility
 {
     public class Plotter
     {
+        private readonly string _inputDirectory;
+        private readonly string _inputFilenamePattern;
         private readonly string _directory;
-        private readonly string _inputFilename;
         private readonly string _filename;
         private readonly Size _resolution;
 
-
         private static ILog _log;
 
-        public Plotter(string directory, string inputFilename, string filename, int width, int height)
+        public Plotter(string inputDirectory, string inputFilenamePattern, string directory, string filename, int width, int height)
         {
+            _inputDirectory = inputDirectory;
+            _inputFilenamePattern = inputFilenamePattern;
             _directory = directory;
-            _inputFilename = inputFilename;
             _filename = filename;
             _resolution = new Size(width, height);
 
@@ -32,7 +32,9 @@ namespace Fractals.Utility
 
         public void Plot()
         {
-            var list = new ComplexNumberListReader(_directory, _inputFilename);
+            _log.InfoFormat("Plotting image ({0}x{1})", _resolution.Width, _resolution.Height);
+
+            var list = new ComplexNumberListReader(_inputDirectory, _inputFilenamePattern);
 
             var viewPort = new Area(
                             realRange: new InclusiveRange(-1.75, 1),
@@ -45,6 +47,8 @@ namespace Fractals.Utility
             }
 
             var rotatedResolution = new Size(_resolution.Height, _resolution.Width);
+
+            _log.Debug("Calculating trajectories");
 
             Parallel.ForEach(list.GetNumbers(), number =>
             {
@@ -78,6 +82,8 @@ namespace Fractals.Utility
 
             _log.InfoFormat("Found max: {0}", max);
 
+            _log.Debug("Rendering image");
+
             var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
 
             for (int x = 0; x < _resolution.Width; x++)
@@ -96,6 +102,7 @@ namespace Fractals.Utility
                 }
             }
 
+            _log.Debug("Storing image");
             outputImg.Save(Path.Combine(_directory, String.Format("{0}.png", _filename)));
         }
 
