@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace Fractals.Utility
 {
-    public sealed class CrytoRandom
+    public sealed class CryptoRandom
     {
         private readonly RNGCryptoServiceProvider _cryptoServiceProvider = new RNGCryptoServiceProvider();
         private const int BufferSize = sizeof(UInt64) * 128;

@@ -26,7 +26,7 @@ namespace Fractals.Tests.Utility
             var mathDistribution = GetDistribution(mathResults, distributionBuckets);
             var mathDistributedValues = mathDistribution.Values.OrderByDescending(x => x).ToList();
 
-            var rngRandom = new CrytoRandom();
+            var rngRandom = new CryptoRandom();
             var rngResults = new List<double>();
             for (int i = 0; i < numbersToSample; i++)
             {
