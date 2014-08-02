@@ -1,4 +1,5 @@
-﻿using Fractals.Model;
+﻿using System.IO;
+using Fractals.Model;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -42,7 +43,7 @@ namespace FindBuddhabrotPoints
             Parallel.ForEach(GetRandomComplexNumbers(),
                 (number, state) =>
                 {
-                    Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+
 
                     if (ShouldStop)
                     {

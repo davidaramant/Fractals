@@ -51,6 +51,7 @@
     <Compile Include="Model\Area.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderer\MandelbrotRenderer.cs" />
+    <Compile Include="Utility\ComplexNumberList.cs" />
     <Compile Include="Utility\HsvColor.cs" />
     <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\CrytoRandom.cs" />
