@@ -61,6 +61,8 @@ namespace Fractals.Utility
                 }
             });
 
+            _log.InfoFormat("Done plotting trajectories...");
+
             var max = 0;
             for (int x = 0; x < _resolution.Width; x++)
             {
@@ -73,6 +75,8 @@ namespace Fractals.Utility
                     }
                 }
             }
+
+            _log.InfoFormat("Found max: {0}", max);
 
             var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
 
