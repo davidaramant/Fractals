@@ -18,7 +18,7 @@ namespace Fractals.Utility
             _bufferOffset = 0;
         }
 
-        public double Next()
+        public double NextDouble()
         {
             if (_bufferOffset >= _randomBuffer.Length)
             {
@@ -31,7 +31,7 @@ namespace Fractals.Utility
 
         public double Next(InclusiveRange range)
         {
-            return range.Magnitude * Next() + range.Min;
+            return range.Magnitude * NextDouble() + range.Min;
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Fractals.Tests.Utility
             var rngResults = new List<double>();
             for (int i = 0; i < numbersToSample; i++)
             {
-                rngResults.Add(rngRandom.Next());
+                rngResults.Add(rngRandom.NextDouble());
             }
             rngResults.Sort();
             var rngDistribution = GetDistribution(rngResults, distributionBuckets);
