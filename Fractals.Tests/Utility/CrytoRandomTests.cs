@@ -7,7 +7,7 @@ using System;
 namespace Fractals.Tests.Utility
 {
     [TestFixture]
-    public sealed class ReallyRandomTests
+    public sealed class CrytoRandomTests
     {
         [Test]
 //        [Repeat(10)]
@@ -26,7 +26,7 @@ namespace Fractals.Tests.Utility
             var mathDistribution = GetDistribution(mathResults, distributionBuckets);
             var mathDistributedValues = mathDistribution.Values.OrderByDescending(x => x).ToList();
 
-            var rngRandom = new ReallyRandom();
+            var rngRandom = new CrytoRandom();
             var rngResults = new List<double>();
             for (int i = 0; i < numbersToSample; i++)
             {
@@ -38,8 +38,9 @@ namespace Fractals.Tests.Utility
 
             for (int i = 0; i < distributionBuckets; i++)
             {
-                Console.WriteLine("{0}: {1,6} {2,6}", i, mathDistributedValues[i], rngDistributedValues[i]);
+                Console.WriteLine("{0,2}: {1,20} {2,20}", i, mathDistributedValues[i], rngDistributedValues[i]);
             }
+
 //            var mathMin = mathDistribution.Values.Min();
 //            var mathMax = mathDistribution.Values.Min();
 //
