@@ -131,7 +131,7 @@ namespace Console
             //                    "-t", "RenderMandelbrot",
             //                    "-w", "1000",
             //                    "-h", "1000",
-            //                    "-d", @"C:\temp",
+            //                    "-d", @"C:\temp\out",
             //                    "-f", "mandelbrot"
             //                };
             //return new[]
@@ -150,42 +150,41 @@ namespace Console
             //                    "-d", @"C:\temp\out",
             //                    "-f", "mandelbrot_escape_fancy"
             //                }; 
-            return new[]
-                            {
-                                "-t", "RenderMandelbrotDistance",
-                                "-w", "1000",
-                                "-h", "1000",
-                                "-d", @"C:\temp\out",
-                                "-f", "mandelbrot_distance"
-                            };
-
+            //return new[]
+            //                {
+            //                    "-t", "RenderMandelbrotDistance",
+            //                    "-w", "1000",
+            //                    "-h", "1000",
+            //                    "-d", @"C:\temp\out",
+            //                    "-f", "mandelbrot_distance"
+            //                };
             //            return new[]
             //                {
             //                    "-t", "RenderInterestingPointsMandelbrot",
             //                    "-w", "1000",
             //                    "-h", "1000",
-            //                    "-d", @"C:\temp",
+            //                    "-d", @"C:\temp\out",
             //                    "-f", "mandelbrot-areas"
             //                };
             //                return new[]
             //                    {
             //                        "-t", "FindPoints",
-            //                        "-d", @"C:\temp",
+            //                        "-d", @"C:\temp\out",
             //                        "-f", "points",
             //                        "-n", "20000",
             //                        "-x", "30000",
             //                        "-s", "AreasAndBulbExclusion"
             //                    };
-            //return new[]
-            //        {
-            //            "-t", "PlotPoints",
-            //            "-w", "20000",
-            //            "-h", "20000",
-            //            "-d", @"C:\temp\out",
-            //            "-f", "buddhabrot",
-            //            "-i", @"C:\temp\in",
-            //            "-p", "points*"
-            //        };
+            return new[]
+                    {
+                        "-t", "PlotPoints",
+                        "-w", "20000",
+                        "-h", "20000",
+                        "-d", @"C:\temp\out",
+                        "-f", "buddhabrot",
+                        "-i", @"C:\temp\in",
+                        "-p", "points*"
+                    };
         }
     }
 }
