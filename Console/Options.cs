@@ -53,6 +53,7 @@ namespace Console
         PlotAntiBuddhabrot, 
         RenderPoints,
         RenderMandelbrotEscapeFancy,
+        RenderNebulabrot,
     }
 
     public enum PointStrategy

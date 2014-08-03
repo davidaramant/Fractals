@@ -69,6 +69,9 @@ namespace Console
                 case OperationType.PlotAntiBuddhabrot:
                     PlotAntiBuddhabrot(options);
                     break;
+                case OperationType.RenderNebulabrot:
+                    RenderNebulabrot(options);
+                    break;
             }
 
             if (System.Diagnostics.Debugger.IsAttached)
@@ -141,6 +144,20 @@ namespace Console
             var renderer = new PointRenderer(
                 inputDirectory: options.InputDirectory,
                 inputFilename: options.InputFilenamePattern,
+                width: options.ResolutionWidth,
+                height: options.ResolutionHeight);
+
+            renderer.Render(outputDirectory: options.OutputDirectory, outputFilename: options.Filename);
+        }
+
+        private void RenderNebulabrot(Options options)
+        {
+            var inputFiles = options.InputFilenamePattern.Split(',');
+            var renderer = new NebulaPointRenderer(
+                inputDirectory: options.InputDirectory,
+                inputFilenameRed: inputFiles[0],
+                inputFilenameGreen: inputFiles[1],
+                inputFilenameBlue: inputFiles[2],
                 width: options.ResolutionWidth,
                 height: options.ResolutionHeight);
 
@@ -225,6 +242,16 @@ namespace Console
             //        "-f", "anti-buddhabrot",
             //        "-w", "2048",
             //        "-h", "2048"
+            //    };
+            //return new[]
+            //    {
+            //        "-t", "RenderNebulabrot",
+            //        "-w", "4096",
+            //        "-h", "4096",
+            //        "-d", @"C:\temp\out",
+            //        "-f", "nebulabrot",
+            //        "-i", @"C:\temp\out",
+            //        "-p", "red-0x10000.plot,green-0x1000.plot,blue-0x100.plot"
             //    };
         }
     }
