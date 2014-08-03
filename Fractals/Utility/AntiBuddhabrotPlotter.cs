@@ -1,7 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Fractals.Model;
 using log4net;
 
