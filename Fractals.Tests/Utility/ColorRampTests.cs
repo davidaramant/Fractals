@@ -41,10 +41,12 @@ namespace Fractals.Tests.Utility
         {
             MakeStrip(new[]
                 {
-                    Tuple.Create(new HsvColor(196.0/360.0, 1, 0), 0.0),
-                    Tuple.Create(new HsvColor(196.0/360.0, 1, 1), 0.3),
-                    Tuple.Create(new HsvColor(137.0/360.0, 1, 1), 0.5),
-                    Tuple.Create(new HsvColor(137.0/360.0, 0, 1), 1.0)
+                    Tuple.Create(new HsvColor(213.0/360.0, 0.82, 0), 0.0),
+                    Tuple.Create(new HsvColor(213.0/360.0, 0.82, 1), 0.1),
+                    Tuple.Create(new HsvColor(196.0/360.0, 1, 1), 0.15),
+                    Tuple.Create(new HsvColor(196.0/360.0, 0.1, 1), 0.3),
+                    Tuple.Create(new HsvColor(196.0/360.0, 0, 1), 1.0),
+
                 },
                 @"C:\temp\out\rangeramp.png");
         }

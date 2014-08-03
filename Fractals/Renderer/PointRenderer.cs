@@ -18,6 +18,13 @@ namespace Fractals.Renderer
 
         private readonly HitPlot _hitPlot;
 
+        private readonly ColorRamp _colorRamp = new ColorRamp(new[]
+                {
+                    Tuple.Create(new HsvColor(196.0/360.0, 1, 0), 0.0),
+                    Tuple.Create(new HsvColor(196.0/360.0, 1, 1), 0.5),
+                    Tuple.Create(new HsvColor(196.0/360.0, 0, 1), 1.0),
+                });
+
         public PointRenderer(string inputDirectory, string inputFilename, int width, int height)
         {
             _inputInputDirectory = inputDirectory;
@@ -69,14 +76,9 @@ namespace Fractals.Renderer
         {
             var current = _hitPlot.GetHitsForPoint(p);
 
-            var exp = Gamma(1.0 - Math.Pow(Math.E, -10.0 * current / max));
+            var ratio = Gamma(1.0 - Math.Pow(Math.E, -10.0 * current / max));
 
-            return Tuple.Create(p,
-                new HsvColor(
-                    hue: 196.0 / 360.0,
-                    saturation: (exp < 0.5) ? 1 : 1 - (2 * (exp - 0.5)),
-                    value: (exp < 0.5) ? 2 * exp : 1
-                ).ToColor());
+            return Tuple.Create(p, _colorRamp.GetColor(ratio).ToColor());
         }
 
         private static double Gamma(double x, double exp = 1.2)
