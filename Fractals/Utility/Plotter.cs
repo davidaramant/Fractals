@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Fractals.Model;
+using log4net;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Fractals.Model;
-using log4net;
 
 namespace Fractals.Utility
 {
@@ -18,32 +17,7 @@ namespace Fractals.Utility
 
         protected readonly Size Resolution;
 
-        #region Hit arrays
-
-        private int _fourthWidth;
-        private int _fourthHeight;
-
-        private int[] _hits00;
-        private int[] _hits10;
-        private int[] _hits20;
-        private int[] _hits30;
-
-        private int[] _hits01;
-        private int[] _hits11;
-        private int[] _hits21;
-        private int[] _hits31;
-
-        private int[] _hits02;
-        private int[] _hits12;
-        private int[] _hits22;
-        private int[] _hits32;
-
-        private int[] _hits03;
-        private int[] _hits13;
-        private int[] _hits23;
-        private int[] _hits33;
-
-        #endregion Hit arrays
+        private readonly HitPlot _hitPlot;
 
         private static ILog _log;
 
@@ -65,167 +39,8 @@ namespace Fractals.Utility
                 _log.Warn("The height should be evenly divisible by 16");
             }
 
-            InitializeHitPlot();
+            _hitPlot = new HitPlot(Resolution);
         }
-
-        #region Hit Plot Array Operations
-
-        private void InitializeHitPlot()
-        {
-            _fourthWidth = Resolution.Width / 4;
-            _fourthHeight = Resolution.Height / 4;
-
-            int quadrantSize = _fourthWidth * _fourthHeight;
-
-            _hits00 = new int[quadrantSize];
-            _hits10 = new int[quadrantSize];
-            _hits20 = new int[quadrantSize];
-            _hits30 = new int[quadrantSize];
-
-            _hits01 = new int[quadrantSize];
-            _hits11 = new int[quadrantSize];
-            _hits21 = new int[quadrantSize];
-            _hits31 = new int[quadrantSize];
-
-            _hits02 = new int[quadrantSize];
-            _hits12 = new int[quadrantSize];
-            _hits22 = new int[quadrantSize];
-            _hits32 = new int[quadrantSize];
-
-            _hits03 = new int[quadrantSize];
-            _hits13 = new int[quadrantSize];
-            _hits23 = new int[quadrantSize];
-            _hits33 = new int[quadrantSize];
-        }
-
-        private int[] GetSegment(int x, int y)
-        {
-            var xQuadrant = x / _fourthWidth;
-            var yQuadrant = y / _fourthHeight;
-
-            // Handle points that fall exactly on the edge
-            if (xQuadrant == 4)
-                xQuadrant--;
-            if (yQuadrant == 4)
-                yQuadrant--;
-
-            switch (xQuadrant)
-            {
-                case 0:
-                    switch (yQuadrant)
-                    {
-                        case 0:
-                            return _hits00;
-                        case 1:
-                            return _hits01;
-                        case 2:
-                            return _hits02;
-                        case 3:
-                            return _hits03;
-
-                        default:
-                            throw new Exception("NO WAY");
-                    }
-
-                case 1:
-                    switch (yQuadrant)
-                    {
-                        case 0:
-                            return _hits10;
-                        case 1:
-                            return _hits11;
-                        case 2:
-                            return _hits12;
-                        case 3:
-                            return _hits13;
-
-                        default:
-                            throw new Exception("NO WAY");
-                    }
-
-                case 2:
-                    switch (yQuadrant)
-                    {
-                        case 0:
-                            return _hits20;
-                        case 1:
-                            return _hits21;
-                        case 2:
-                            return _hits22;
-                        case 3:
-                            return _hits23;
-
-                        default:
-                            throw new Exception("NO WAY");
-                    }
-
-                case 3:
-                    switch (yQuadrant)
-                    {
-                        case 0:
-                            return _hits30;
-                        case 1:
-                            return _hits31;
-                        case 2:
-                            return _hits32;
-                        case 3:
-                            return _hits33;
-
-                        default:
-                            throw new Exception("NO WAY");
-                    }
-
-                default:
-                    throw new Exception("NO WAY");
-            }
-        }
-
-        private void IncrementPoint(Point p)
-        {
-            var segment = GetSegment(p.X, p.Y);
-
-            var offset = (p.X % _fourthWidth) + (_fourthWidth * (p.Y % _fourthHeight));
-
-            Interlocked.Increment(ref segment[offset]);
-        }
-
-        private int GetHitsForPoint(Point p)
-        {
-            var segment = GetSegment(p.X, p.Y);
-
-            var offset = (p.X % _fourthWidth) + (_fourthWidth * (p.Y % _fourthHeight));
-
-            return segment[offset];
-        }
-
-        private int FindMaximumHit()
-        {
-            return new[]
-            {
-                _hits00.Max(),
-                _hits10.Max(),
-                _hits20.Max(),
-                _hits30.Max(),
-
-                _hits01.Max(),
-                _hits11.Max(),
-                _hits21.Max(),
-                _hits31.Max(),
-
-                _hits02.Max(),
-                _hits12.Max(),
-                _hits22.Max(),
-                _hits32.Max(),
-
-                _hits03.Max(),
-                _hits13.Max(),
-                _hits23.Max(),
-                _hits33.Max(),
-
-            }.Max();
-        }
-
-        #endregion Hit Plot Array Operations
 
         protected abstract IEnumerable<Complex> GetNumbers();
 
@@ -254,13 +69,13 @@ namespace Fractals.Utility
                         continue;
                     }
 
-                    IncrementPoint(point);
+                    _hitPlot.IncrementPoint(point);
                 }
             });
 
             _log.Info("Done plotting trajectories");
 
-            var max = FindMaximumHit();
+            var max = _hitPlot.FindMaximumHit();
 
             _log.DebugFormat("Found maximum: {0}", max);
 
@@ -288,7 +103,7 @@ namespace Fractals.Utility
 
         private Tuple<Point, Color> ComputeColor(Point p, int max)
         {
-            var current = GetHitsForPoint(p);
+            var current = _hitPlot.GetHitsForPoint(p);
 
             var exp = Gamma(1.0 - Math.Pow(Math.E, -10.0 * current / max));
 
