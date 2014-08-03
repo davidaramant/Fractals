@@ -95,6 +95,12 @@ namespace Fractals.Utility
             var xQuadrant = x / _fourthWidth;
             var yQuadrant = y / _fourthHeight;
 
+            // Handle points that fall exactly on the edge
+            if (xQuadrant == 4)
+                xQuadrant--;
+            if (yQuadrant == 4)
+                yQuadrant--;
+
             switch (xQuadrant)
             {
                 case 0:
