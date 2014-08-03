@@ -57,6 +57,15 @@ namespace Fractals.Utility
 
             _log = LogManager.GetLogger(GetType());
 
+            if (width % 16 != 0)
+            {
+                _log.Warn("The width should be evenly divisible by 16");
+            }
+            if (height % 16 != 0)
+            {
+                _log.Warn("The height should be evenly divisible by 16");
+            }
+
             InitializeHitPlot();
         }
 
