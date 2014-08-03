@@ -63,6 +63,9 @@ namespace Console
                 case OperationType.PlotPoints:
                     PlotPoints(options);
                     break;
+                case OperationType.PlotAntiBuddhabrot:
+                    PlotAntiBuddhabrot(options);
+                    break;
             }
 
             if (System.Diagnostics.Debugger.IsAttached)
@@ -105,7 +108,7 @@ namespace Console
                 default:
                     throw new ArgumentException();
             }
-            var finder = new PointFinder(options.Miniumum, options.Maxiumum, options.OutputDirectory, options.Filename, generator);
+            var finder = new BuddhabrotNumberFinder(options.Miniumum, options.Maxiumum, options.OutputDirectory, options.Filename, generator);
 
             System.Console.WriteLine("Press <ENTER> to stop...");
 
@@ -120,71 +123,85 @@ namespace Console
 
         private void PlotPoints(Options options)
         {
-            var plotter = new Plotter(options.InputDirectory, options.InputFilenamePattern, options.OutputDirectory, options.Filename, options.ResolutionWidth, options.ResolutionHeight);
+            var plotter = new FilePlotter(options.InputDirectory, options.InputFilenamePattern, options.OutputDirectory, options.Filename, options.ResolutionWidth, options.ResolutionHeight);
+            plotter.Plot();
+        }
+
+        private void PlotAntiBuddhabrot(Options options)
+        {
+            var plotter = new AntiBuddhabrotPlotter(options.OutputDirectory, options.Filename, options.ResolutionWidth, options.ResolutionHeight);
             plotter.Plot();
         }
 
         private string[] GetDebuggingArguments()
         {
-            //            return new[]
-            //                {
-            //                    "-t", "RenderMandelbrot",
-            //                    "-w", "1000",
-            //                    "-h", "1000",
-            //                    "-d", @"C:\temp\out",
-            //                    "-f", "mandelbrot"
-            //                };
             //return new[]
-            //                {
-            //                    "-t", "RenderMandelbrotEscapePlain",
-            //                    "-w", "2000",
-            //                    "-h", "2000",
-            //                    "-d", @"C:\temp\out",
-            //                    "-f", "mandelbrot_escape"
-            //                };
+            //    {
+            //        "-t", "RenderMandelbrot",
+            //        "-w", "1024",
+            //        "-h", "1024",
+            //        "-d", @"C:\temp\out",
+            //        "-f", "mandelbrot"
+            //    };
             //return new[]
-            //                {
-            //                    "-t", "RenderMandelbrotEscapeFancy",
-            //                    "-w", "1000",
-            //                    "-h", "1000",
-            //                    "-d", @"C:\temp\out",
-            //                    "-f", "mandelbrot_escape_fancy"
-            //                }; 
+            //    {
+            //        "-t", "RenderMandelbrotEscapePlain",
+            //        "-w", "2048",
+            //        "-h", "2048",
+            //        "-d", @"C:\temp\out",
+            //        "-f", "mandelbrot_escape"
+            //    };
             //return new[]
-            //                {
-            //                    "-t", "RenderMandelbrotDistance",
-            //                    "-w", "1000",
-            //                    "-h", "1000",
-            //                    "-d", @"C:\temp\out",
-            //                    "-f", "mandelbrot_distance"
-            //                };
-            //            return new[]
-            //                {
-            //                    "-t", "RenderInterestingPointsMandelbrot",
-            //                    "-w", "1000",
-            //                    "-h", "1000",
-            //                    "-d", @"C:\temp\out",
-            //                    "-f", "mandelbrot-areas"
-            //                };
-            //                return new[]
-            //                    {
-            //                        "-t", "FindPoints",
-            //                        "-d", @"C:\temp\out",
-            //                        "-f", "points",
-            //                        "-n", "20000",
-            //                        "-x", "30000",
-            //                        "-s", "AreasAndBulbExclusion"
-            //                    };
+            //    {
+            //        "-t", "RenderMandelbrotEscapeFancy",
+            //        "-w", "1024",
+            //        "-h", "1024",
+            //        "-d", @"C:\temp\out",
+            //        "-f", "mandelbrot_escape_fancy"
+            //    }; 
+            //return new[]
+            //    {
+            //        "-t", "RenderMandelbrotDistance",
+            //        "-w", "1024",
+            //        "-h", "1024",
+            //        "-d", @"C:\temp\out",
+            //        "-f", "mandelbrot_distance"
+            //    };
+            //return new[]
+            //    {
+            //        "-t", "RenderInterestingPointsMandelbrot",
+            //        "-w", "1024",
+            //        "-h", "1024",
+            //        "-d", @"C:\temp\out",
+            //        "-f", "mandelbrot-areas"
+            //    };
+            //return new[]
+            //    {
+            //        "-t", "FindPoints",
+            //        "-d", @"C:\temp\out",
+            //        "-f", "points",
+            //        "-n", "20000",
+            //        "-x", "30000",
+            //        "-s", "AreasAndBulbExclusion"
+            //    };
             return new[]
-                    {
-                        "-t", "PlotPoints",
-                        "-w", "22400",
-                        "-h", "22400",
-                        "-d", @"C:\temp\out",
-                        "-f", "buddhabrot",
-                        "-i", @"C:\temp\in",
-                        "-p", "points*"
-                    };
+                {
+                    "-t", "PlotPoints",
+                    "-w", "22400",
+                    "-h", "22400",
+                    "-d", @"C:\temp\out",
+                    "-f", "buddhabrot",
+                    "-i", @"C:\temp\in",
+                    "-p", "points*"
+                };
+            //return new[]
+            //    {
+            //        "-t", "PlotAntiBuddhabrot",
+            //        "-d", @"C:\temp\out",
+            //        "-f", "anti-buddhabrot",
+            //        "-w", "2048",
+            //        "-h", "2048"
+            //    };
         }
     }
 }

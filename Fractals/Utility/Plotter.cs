@@ -10,13 +10,13 @@ using log4net;
 
 namespace Fractals.Utility
 {
-    public sealed class Plotter
+    public abstract class Plotter
     {
-        private readonly string _inputDirectory;
-        private readonly string _inputFilenamePattern;
         private readonly string _directory;
         private readonly string _filename;
-        private readonly Size _resolution;
+        private readonly int _bailout;
+
+        protected readonly Size Resolution;
 
         #region Hit arrays
 
@@ -47,13 +47,12 @@ namespace Fractals.Utility
 
         private static ILog _log;
 
-        public Plotter(string inputDirectory, string inputFilenamePattern, string directory, string filename, int width, int height)
+        protected Plotter(string directory, string filename, int width, int height, int bailout)
         {
-            _inputDirectory = inputDirectory;
-            _inputFilenamePattern = inputFilenamePattern;
             _directory = directory;
             _filename = filename;
-            _resolution = new Size(width, height);
+            Resolution = new Size(width, height);
+            _bailout = bailout;
 
             _log = LogManager.GetLogger(GetType());
 
@@ -73,8 +72,8 @@ namespace Fractals.Utility
 
         private void InitializeHitPlot()
         {
-            _fourthWidth = _resolution.Width / 4;
-            _fourthHeight = _resolution.Height / 4;
+            _fourthWidth = Resolution.Width / 4;
+            _fourthHeight = Resolution.Height / 4;
 
             int quadrantSize = _fourthWidth * _fourthHeight;
 
@@ -228,11 +227,11 @@ namespace Fractals.Utility
 
         #endregion Hit Plot Array Operations
 
+        protected abstract IEnumerable<Complex> GetNumbers();
+
         public void Plot()
         {
-            _log.InfoFormat("Plotting image ({0}x{1})", _resolution.Width, _resolution.Height);
-
-            var list = new ComplexNumberListReader(_inputDirectory, _inputFilenamePattern);
+            _log.InfoFormat("Plotting image ({0}x{1})", Resolution.Width, Resolution.Height);
 
             var viewPort = new Area(
                             realRange: new InclusiveRange(-1.75, 1),
@@ -240,17 +239,17 @@ namespace Fractals.Utility
 
             viewPort.LogViewport();
 
-            var rotatedResolution = new Size(_resolution.Height, _resolution.Width);
+            var rotatedResolution = new Size(Resolution.Height, Resolution.Width);
 
-            _log.Debug("Calculating trajectories");
+            _log.Info("Calculating trajectories");
 
-            Parallel.ForEach(list.GetNumbers(), number =>
+            Parallel.ForEach(GetNumbers(), number =>
             {
                 foreach (var c in GetTrajectory(number))
                 {
                     var point = viewPort.GetPointFromNumber(rotatedResolution, c).Rotate();
 
-                    if (!_resolution.IsInside(point))
+                    if (!Resolution.IsInside(point))
                     {
                         continue;
                     }
@@ -259,16 +258,18 @@ namespace Fractals.Utility
                 }
             });
 
-            _log.Debug("Done plotting trajectories");
+            _log.Info("Done plotting trajectories");
 
             var max = FindMaximumHit();
 
             _log.DebugFormat("Found maximum: {0}", max);
 
-            var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
+            _log.Info("Starting to render");
+
+            var outputImg = new Bitmap(Resolution.Width, Resolution.Height);
 
             var processedPixels =
-                _resolution.GetAllPoints().
+                Resolution.GetAllPoints().
                 AsParallel().
                 Select(p => ComputeColor(p, max)).
                 AsEnumerable();
@@ -278,7 +279,7 @@ namespace Fractals.Utility
                 outputImg.SetPixel(result.Item1.X, result.Item1.Y, result.Item2);
             }
 
-            _log.Debug("Done setting pixels");
+            _log.Info("Finished rendering");
 
             _log.Debug("Saving image");
             outputImg.Save(Path.Combine(_directory, String.Format("{0}.png", _filename)));
@@ -303,10 +304,8 @@ namespace Fractals.Utility
         {
             return Math.Pow(x, 1.0 / exp);
         }
-
-        private const int Bailout = 30000;
-
-        static IEnumerable<Complex> GetTrajectory(Complex c)
+        
+        private IEnumerable<Complex> GetTrajectory(Complex c)
         {
             var rePrev = c.Real;
             var imPrev = c.Imaginary;
@@ -314,7 +313,7 @@ namespace Fractals.Utility
             double re = 0;
             double im = 0;
 
-            for (int i = 0; i < Bailout; i++)
+            for (int i = 0; i < _bailout; i++)
             {
                 var reTemp = re * re - im * im + rePrev;
                 im = 2 * re * im + imPrev;

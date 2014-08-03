@@ -6,7 +6,7 @@ using log4net;
 
 namespace Fractals.Utility
 {
-    public class PointFinder
+    public class BuddhabrotNumberFinder
     {
         private static bool _shouldStop = false;
         private readonly static object ShouldStopLock = new object();
@@ -38,7 +38,7 @@ namespace Fractals.Utility
             }
         }
 
-        public PointFinder(int minimum, int maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
+        public BuddhabrotNumberFinder(int minimum, int maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
         {
             _minimum = minimum;
             _maximum = maximum;

@@ -50,7 +50,8 @@ namespace Console
         RenderInterestingPointsMandelbrot,
         FindPoints,
         PlotPoints,
-        RenderMandelbrotEscapeFancy
+        RenderMandelbrotEscapeFancy,
+        PlotAntiBuddhabrot
     }
 
     public enum PointStrategy
