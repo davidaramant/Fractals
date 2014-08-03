@@ -30,13 +30,13 @@ namespace Fractals.Utility
 
             _log = LogManager.GetLogger(GetType());
 
-            if (width % 16 != 0)
+            if (width % 4 != 0)
             {
-                _log.Warn("The width should be evenly divisible by 16");
+                _log.Warn("The width should be evenly divisible by 4");
             }
-            if (height % 16 != 0)
+            if (height % 4 != 0)
             {
-                _log.Warn("The height should be evenly divisible by 16");
+                _log.Warn("The height should be evenly divisible by 4");
             }
 
             _hitPlot = new HitPlot(Resolution);
@@ -75,51 +75,9 @@ namespace Fractals.Utility
 
             _log.Info("Done plotting trajectories");
 
-            var max = _hitPlot.FindMaximumHit();
-
-            _log.DebugFormat("Found maximum: {0}", max);
-
-            _log.Info("Starting to render");
-
-            var outputImg = new Bitmap(Resolution.Width, Resolution.Height);
-
-            var processedPixels =
-                Resolution.GetAllPoints().
-                AsParallel().
-                Select(p => ComputeColor(p, max)).
-                AsEnumerable();
-
-            foreach (var result in processedPixels)
-            {
-                outputImg.SetPixel(result.Item1.X, result.Item1.Y, result.Item2);
-            }
-
-            _log.Info("Finished rendering");
-
-            _log.Debug("Saving image");
-            outputImg.Save(Path.Combine(_directory, String.Format("{0}.png", _filename)));
-            _log.Debug("Done saving image");
+            _hitPlot.SaveTrajectories(Path.Combine(_directory, _filename));
         }
 
-        private Tuple<Point, Color> ComputeColor(Point p, int max)
-        {
-            var current = _hitPlot.GetHitsForPoint(p);
-
-            var exp = Gamma(1.0 - Math.Pow(Math.E, -10.0 * current / max));
-
-            return Tuple.Create(p,
-                new HsvColor(
-                    hue: 196.0 / 360.0,
-                    saturation: (exp < 0.5) ? 1 : 1 - (2 * (exp - 0.5)),
-                    value: (exp < 0.5) ? 2 * exp : 1
-                ).ToColor());
-        }
-
-        private static double Gamma(double x, double exp = 1.2)
-        {
-            return Math.Pow(x, 1.0 / exp);
-        }
-        
         private IEnumerable<Complex> GetTrajectory(Complex c)
         {
             var rePrev = c.Real;
@@ -143,5 +101,6 @@ namespace Fractals.Utility
                 }
             }
         }
+
     }
 }

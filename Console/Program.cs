@@ -63,6 +63,9 @@ namespace Console
                 case OperationType.PlotPoints:
                     PlotPoints(options);
                     break;
+                case OperationType.RenderPoints:
+                    RenderPoints(options);
+                    break;
                 case OperationType.PlotAntiBuddhabrot:
                     PlotAntiBuddhabrot(options);
                     break;
@@ -133,6 +136,17 @@ namespace Console
             plotter.Plot();
         }
 
+        private void RenderPoints(Options options)
+        {
+            var renderer = new PointRenderer(
+                inputDirectory: options.InputDirectory,
+                inputFilename: options.InputFilenamePattern,
+                width: options.ResolutionWidth,
+                height: options.ResolutionHeight);
+
+            renderer.Render(outputDirectory: options.OutputDirectory, outputFilename: options.Filename);
+        }
+
         private string[] GetDebuggingArguments()
         {
             //return new[]
@@ -184,15 +198,25 @@ namespace Console
             //        "-x", "30000",
             //        "-s", "AreasAndBulbExclusion"
             //    };
+            //return new[]
+            //    {
+            //        "-t", "PlotPoints",
+            //        "-w", "1000",
+            //        "-h", "1000",
+            //        "-d", @"C:\temp\out",
+            //        "-f", "buddhabrot.plot",
+            //        "-i", @"C:\temp\in",
+            //        "-p", "bulb.orthanc.0"
+            //    };
             return new[]
                 {
-                    "-t", "PlotPoints",
-                    "-w", "22400",
-                    "-h", "22400",
+                    "-t", "RenderPoints",
+                    "-w", "1000",
+                    "-h", "1000",
                     "-d", @"C:\temp\out",
                     "-f", "buddhabrot",
-                    "-i", @"C:\temp\in",
-                    "-p", "points*"
+                    "-i", @"C:\temp\out",
+                    "-p", "buddhabrot.plot"
                 };
             //return new[]
             //    {

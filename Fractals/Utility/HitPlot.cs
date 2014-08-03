@@ -31,7 +31,7 @@ namespace Fractals.Utility
         private readonly int[] _hits23;
         private readonly int[] _hits33;
 
-        public HitPlot( Size resolution )
+        public HitPlot(Size resolution)
         {
             _fourthWidth = resolution.Width / 4;
             _fourthHeight = resolution.Height / 4;
@@ -66,185 +66,186 @@ namespace Fractals.Utility
                 // Row 0
                 foreach (var i in _hits00)
                 {
-                    var buffer = BitConverter.GetBytes(_hits00[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits10)
                 {
-                    var buffer = BitConverter.GetBytes(_hits10[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits20)
                 {
-                    var buffer = BitConverter.GetBytes(_hits20[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits30)
                 {
-                    var buffer = BitConverter.GetBytes(_hits30[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
 
                 // Row 1
                 foreach (var i in _hits01)
                 {
-                    var buffer = BitConverter.GetBytes(_hits01[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits11)
                 {
-                    var buffer = BitConverter.GetBytes(_hits11[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits21)
                 {
-                    var buffer = BitConverter.GetBytes(_hits21[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits31)
                 {
-                    var buffer = BitConverter.GetBytes(_hits31[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
 
                 // Row 2
                 foreach (var i in _hits02)
                 {
-                    var buffer = BitConverter.GetBytes(_hits02[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits12)
                 {
-                    var buffer = BitConverter.GetBytes(_hits12[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits22)
                 {
-                    var buffer = BitConverter.GetBytes(_hits22[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits32)
                 {
-                    var buffer = BitConverter.GetBytes(_hits32[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
 
                 // Row 3
                 foreach (var i in _hits03)
                 {
-                    var buffer = BitConverter.GetBytes(_hits03[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits13)
                 {
-                    var buffer = BitConverter.GetBytes(_hits13[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits23)
                 {
-                    var buffer = BitConverter.GetBytes(_hits23[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
                 foreach (var i in _hits33)
                 {
-                    var buffer = BitConverter.GetBytes(_hits33[i]);
+                    var buffer = BitConverter.GetBytes(i);
                     file.Write(buffer, 0, buffer.Count());
                 }
-
+                file.Flush();
+                file.Close();
             }
         }
 
         public void LoadTrajectories(string filePath)
         {
-            using (var file = new FileStream(filePath, FileMode.Open))
+            using (var file = File.OpenRead(filePath))
             {
                 const int intSize = sizeof(Int32);
                 var buffer = new byte[sizeof(Int32)];
                 var tempInt = 0;
 
                 // Row 0
-                foreach (var i in _hits00)
+                for(int i = 0; i < _hits00.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits00[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits10)
+                for (int i = 0; i < _hits10.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits10[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits20)
+                for (int i = 0; i < _hits20.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits20[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits30)
+                for (int i = 0; i < _hits30.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits30[i] = BitConverter.ToInt32(buffer, 0);
                 }
 
                 // Row 1
-                foreach (var i in _hits01)
+                for (int i = 0; i < _hits01.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits01[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits11)
+                for (int i = 0; i < _hits11.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits11[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits21)
+                for (int i = 0; i < _hits21.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits21[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits31)
+                for (int i = 0; i < _hits31.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits31[i] = BitConverter.ToInt32(buffer, 0);
                 }
 
                 // Row 2
-                foreach (var i in _hits02)
+                for (int i = 0; i < _hits02.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits02[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits12)
+                for (int i = 0; i < _hits12.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits12[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits22)
+                for (int i = 0; i < _hits22.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits22[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits32)
+                for (int i = 0; i < _hits32.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits32[i] = BitConverter.ToInt32(buffer, 0);
                 }
 
                 // Row 3
-                foreach (var i in _hits03)
+                for (int i = 0; i < _hits03.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits03[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits13)
+                for (int i = 0; i < _hits13.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits13[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits23)
+                for (int i = 0; i < _hits23.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits23[i] = BitConverter.ToInt32(buffer, 0);
                 }
-                foreach (var i in _hits33)
+                for (int i = 0; i < _hits33.Length; i++)
                 {
                     file.Read(buffer, 0, intSize);
                     _hits33[i] = BitConverter.ToInt32(buffer, 0);
