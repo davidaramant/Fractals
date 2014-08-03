@@ -12,7 +12,6 @@ namespace Fractals.Utility
         private string _currentFilename;
 
         private int _count;
-        private int _fileNumber;
 
         private const int MaxCountPerFile = 64 * 1024 * 100;
         
@@ -38,7 +37,6 @@ namespace Fractals.Utility
 
                 if (_count%MaxCountPerFile == 0)
                 {
-                    _fileNumber++;
                     ChangeFilename();
                 }
 
@@ -55,7 +53,7 @@ namespace Fractals.Utility
 
         private void ChangeFilename()
         {
-            var newFilename = String.Format("{0}.{1}", _filename, _fileNumber);
+            var newFilename = String.Format("{0}.{1}.dat", _filename, Guid.NewGuid().ToString().Replace("-", "").ToLower());
             _currentFilename = Path.Combine(_directory, newFilename);
 
             _log.InfoFormat("Swithing file to: {0}", newFilename);
