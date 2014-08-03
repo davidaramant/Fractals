@@ -84,6 +84,7 @@
     <Compile Include="Utility\ComplexNumberListReader.cs" />
     <Compile Include="Utility\FilePlotter.cs" />
     <Compile Include="Utility\ExcludingBulbPointGenerator.cs" />
+    <Compile Include="Utility\HitPlot.cs" />
     <Compile Include="Utility\HsvColor.cs" />
     <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\CryptoRandom.cs" />
