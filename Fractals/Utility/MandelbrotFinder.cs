@@ -49,7 +49,7 @@ namespace Fractals.Utility
         public static bool IsInSet(Complex c)
         {
             var rePrev = c.Real;
-            var imPrev = c.Imag;
+            var imPrev = c.Imaginary;
 
             double re = 0;
             double im = 0;

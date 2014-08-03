@@ -31,7 +31,7 @@ namespace Fractals.Utility
 
         public double Next(InclusiveRange range)
         {
-            return range.Magnitude * NextDouble() + range.Min;
+            return range.Magnitude * NextDouble() + range.Minimum;
         }
     }
 }

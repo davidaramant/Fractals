@@ -43,7 +43,7 @@ namespace Fractals.Utility
                 using (var stream = new FileStream(_currentFilename, FileMode.Append))
                 {
                     var realBytes = BitConverter.GetBytes(number.Real);
-                    var imagBytes = BitConverter.GetBytes(number.Imag);
+                    var imagBytes = BitConverter.GetBytes(number.Imaginary);
 
                     stream.Write(realBytes, 0, realBytes.Length);
                     stream.Write(imagBytes, 0, imagBytes.Length);

@@ -59,7 +59,7 @@ namespace Fractals.Tests.Models
                     var calculatedNumber = area.GetNumberFromPoint(resolution, calculatedPoint);
 
                     Assert.AreEqual(number.Real, calculatedNumber.Real);
-                    Assert.AreEqual(number.Imag, calculatedNumber.Imag);
+                    Assert.AreEqual(number.Imaginary, calculatedNumber.Imaginary);
                 }
             }
         }

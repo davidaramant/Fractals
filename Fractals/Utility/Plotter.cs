@@ -221,7 +221,9 @@ namespace Fractals.Utility
 
             var viewPort = new Area(
                             realRange: new InclusiveRange(-1.75, 1),
-                            imagRange: new InclusiveRange(-1.3, 1.3));
+                            imaginaryRange: new InclusiveRange(-1.3, 1.3));
+
+            viewPort.LogViewport();
 
             var rotatedResolution = new Size(_resolution.Height, _resolution.Width);
 
@@ -242,11 +244,11 @@ namespace Fractals.Utility
                 }
             });
 
-            _log.InfoFormat("Done plotting trajectories...");
+            _log.Debug("Done plotting trajectories");
 
             var max = FindMaximumHit();
 
-            _log.InfoFormat("Found max: {0}", max);
+            _log.DebugFormat("Found maximum: {0}", max);
 
             var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
 
@@ -261,9 +263,11 @@ namespace Fractals.Utility
                 outputImg.SetPixel(result.Item1.X, result.Item1.Y, result.Item2);
             }
 
-            _log.InfoFormat("Done setting pixels, saving image...");
+            _log.Debug("Done setting pixels");
 
+            _log.Debug("Saving image");
             outputImg.Save(Path.Combine(_directory, String.Format("{0}.png", _filename)));
+            _log.Debug("Done saving image");
         }
 
         private Tuple<Point, Color> ComputeColor(Point p, int max)
@@ -290,7 +294,7 @@ namespace Fractals.Utility
         static IEnumerable<Complex> GetTrajectory(Complex c)
         {
             var rePrev = c.Real;
-            var imPrev = c.Imag;
+            var imPrev = c.Imaginary;
 
             double re = 0;
             double im = 0;

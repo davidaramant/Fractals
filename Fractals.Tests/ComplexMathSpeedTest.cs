@@ -44,7 +44,7 @@ namespace Fractals.Tests
             var manualTimer = Stopwatch.StartNew();
 
             var rePrev = c.Real;
-            var imPrev = c.Imag;
+            var imPrev = c.Imaginary;
 
             double re = 0;
             double im = 0;

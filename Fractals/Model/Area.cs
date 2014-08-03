@@ -1,46 +1,57 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using Fractals.Utility;
+using log4net;
 
 namespace Fractals.Model
 {
     public sealed class Area
     {
         public readonly InclusiveRange RealRange;
-        public readonly InclusiveRange ImagRange;
+        public readonly InclusiveRange ImaginaryRange;
 
-        public Area(InclusiveRange realRange, InclusiveRange imagRange)
+        private readonly ILog _log;
+
+        public Area(InclusiveRange realRange, InclusiveRange imaginaryRange)
         {
             RealRange = realRange;
-            ImagRange = imagRange;
+            ImaginaryRange = imaginaryRange;
+
+            _log = LogManager.GetLogger(GetType());
         }
 
         public bool IsInside(Complex number)
         {
             return
                 RealRange.IsInside(number.Real) &&
-                ImagRange.IsInside(number.Imag);
+                ImaginaryRange.IsInside(number.Imaginary);
         }
 
         public Point GetPointFromNumber(Size resolution, Complex number)
         {
             return new Point(
-                x: (int)(resolution.Width * ((number.Real - RealRange.Min) / RealRange.Magnitude)),
-                y: (int)(resolution.Height * ((number.Imag - ImagRange.Min) / ImagRange.Magnitude)));
+                x: (int)(resolution.Width * ((number.Real - RealRange.Minimum) / RealRange.Magnitude)),
+                y: (int)(resolution.Height * ((number.Imaginary - ImaginaryRange.Minimum) / ImaginaryRange.Magnitude)));
         }
 
         public Complex GetNumberFromPoint(Size resolution, Point point)
         {
             return new Complex(
-                real: RealRange.Magnitude * ((double)point.X / resolution.Width) + RealRange.Min,
-                imag: ImagRange.Magnitude * ((double)point.Y / resolution.Height) + ImagRange.Min);
+                real: RealRange.Magnitude * ((double)point.X / resolution.Width) + RealRange.Minimum,
+                imaginary: ImaginaryRange.Magnitude * ((double)point.Y / resolution.Height) + ImaginaryRange.Minimum);
         }
 
         public Complex GetRandomPoint(CryptoRandom random)
         {
             return new Complex(
                 real: random.Next(RealRange),
-                imag: random.Next(ImagRange));
+                imaginary: random.Next(ImaginaryRange));
+        }
+
+        public void LogViewport()
+        {
+            _log.DebugFormat("Viewport: Real {0}:{1}, Imaginary: {2}:{3}",
+                RealRange.Minimum, RealRange.Maximum,
+                ImaginaryRange.Minimum, ImaginaryRange.Maximum);
         }
     }
 }

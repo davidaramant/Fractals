@@ -19,8 +19,10 @@ namespace Fractals.Renderer
             _log.InfoFormat("Starting to render ({0}x{1})", resolution.Width, resolution.Height);
 
             var viewPort = new Area(
-                realRange: new InclusiveRange(-2, 2), 
-                imagRange: new InclusiveRange(-2, 2));
+                realRange: new InclusiveRange(-2, 2),
+                imaginaryRange: new InclusiveRange(-2, 2));
+
+            viewPort.LogViewport();
 
             var output = new Color[resolution.Width, resolution.Height];
 
@@ -53,7 +55,7 @@ namespace Fractals.Renderer
             }
 
             var rePrev = c.Real;
-            var imPrev = c.Imag;
+            var imPrev = c.Imaginary;
 
             double re = 0;
             double im = 0;

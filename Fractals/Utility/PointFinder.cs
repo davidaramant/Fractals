@@ -52,15 +52,20 @@ namespace Fractals.Utility
 
         public void Start()
         {
-            _log.InfoFormat("Starting to find points (minumum: {0}, maximum: {1})", _minimum, _maximum);
+            _log.Info("Starting to find points");
+            _log.DebugFormat("Random Generator: {0}", _pointGenerator.GetType().Name);
+            _log.DebugFormat("Minimum Threshold: {0}", _minimum);
+            _log.DebugFormat("Maximum Threshold: {0}", _maximum);
 
             var bailout = new BailoutRange(
-                min: _minimum,
-                max: _maximum);
+                minimum: _minimum,
+                maximum: _maximum);
 
             var viewPort = new Area(
                 realRange: new InclusiveRange(-2, 1),
-                imagRange: new InclusiveRange(-1.5, 1.5));
+                imaginaryRange: new InclusiveRange(-1.5, 1.5));
+
+            viewPort.LogViewport();
 
             _pointGenerator.Initialize(viewPort);
 
@@ -85,11 +90,12 @@ namespace Fractals.Utility
                     if (ShouldStop)
                     {
                         state.Break();
-                        _log.DebugFormat("This process stopped");
+                        _log.Debug("This process stopped");
                     }
                 });
 
-            _log.InfoFormat("Stopped finding points");
+            _log.DebugFormat("Found {0} points", num);
+            _log.Info("Stopped finding points");
         }
 
         public void Stop()

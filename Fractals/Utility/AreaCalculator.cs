@@ -56,13 +56,13 @@ namespace Fractals.Utility
             var allAreas = new List<Area>();
 
             var realPoints = new List<double>();
-            for (var realPoint = realAxis.Min; realPoint <= realAxis.Max; realPoint += GridSize)
+            for (var realPoint = realAxis.Minimum; realPoint <= realAxis.Maximum; realPoint += GridSize)
             {
                 realPoints.Add(realPoint);
             }
 
             var imaginaryPoints = new List<double>();
-            for (var imaginaryPoint = imaginaryAxis.Min; imaginaryPoint <= imaginaryAxis.Max; imaginaryPoint += GridSize)
+            for (var imaginaryPoint = imaginaryAxis.Minimum; imaginaryPoint <= imaginaryAxis.Maximum; imaginaryPoint += GridSize)
             {
                 imaginaryPoints.Add(imaginaryPoint);
             }

@@ -13,7 +13,7 @@ namespace Fractals.Utility
         public override void Initialize(Area viewPort)
         {
             var areaCalculator = new AreaCalculator();
-            _interestingAreas = areaCalculator.InterestingAreas(new Size(1000, 1000), viewPort.RealRange, viewPort.ImagRange);
+            _interestingAreas = areaCalculator.InterestingAreas(new Size(1000, 1000), viewPort.RealRange, viewPort.ImaginaryRange);
 
             _random = new Random();
         }

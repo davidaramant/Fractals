@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Fractals.Model;
 using Fractals.Utility;
 using log4net;
@@ -25,7 +22,9 @@ namespace Fractals.Renderer
 
             var viewPort = new Area(
                 realRange: new InclusiveRange(-2, 1),
-                imagRange: new InclusiveRange(-1.5, 1.5));
+                imaginaryRange: new InclusiveRange(-1.5, 1.5));
+
+            viewPort.LogViewport();
 
             var output = new Color[resolution.Width, resolution.Height];
 
@@ -75,7 +74,7 @@ namespace Fractals.Renderer
         public static Tuple<int, double, double> FindEscapeTimeAndDistance(Complex c)
         {
             var rePrev = c.Real;
-            var imPrev = c.Imag;
+            var imPrev = c.Imaginary;
 
             double re = 0;
             double im = 0;

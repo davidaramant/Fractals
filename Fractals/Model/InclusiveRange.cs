@@ -4,25 +4,25 @@ namespace Fractals.Model
 {
     public sealed class InclusiveRange
     {
-        public readonly double Min;
-        public readonly double Max;
+        public readonly double Minimum;
+        public readonly double Maximum;
 
         public double Magnitude
         {
-            get { return Math.Abs(Max - Min); }
+            get { return Math.Abs(Maximum - Minimum); }
         }
 
-        public InclusiveRange(double min, double max)
+        public InclusiveRange(double minimum, double maximum)
         {
-            Min = min;
-            Max = max;
+            Minimum = minimum;
+            Maximum = maximum;
         }
 
         public bool IsInside(double value)
         {
             return
-                value >= Min &&
-                value <= Max;
+                value >= Minimum &&
+                value <= Maximum;
         }
     }
 }

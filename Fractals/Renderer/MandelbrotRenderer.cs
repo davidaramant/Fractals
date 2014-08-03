@@ -28,7 +28,10 @@ namespace Fractals.Renderer
         {
             _log.InfoFormat("Starting to render ({0}x{1})", resolution.Width, resolution.Height);
 
-            var viewPoint = new Area(realAxis, imaginaryAxis);
+            var viewPort = new Area(realAxis, imaginaryAxis);
+
+            viewPort.LogViewport();
+
             var areasToInclude = GetAreasToInclude(resolution, realAxis, imaginaryAxis).ToArray();
 
             var output = new Color[resolution.Width, resolution.Height];
@@ -38,7 +41,7 @@ namespace Fractals.Renderer
             {
                 for (int x = 0; x < resolution.Width; x++)
                 {
-                    var number = viewPoint.GetNumberFromPoint(resolution, new Point(x, y));
+                    var number = viewPort.GetNumberFromPoint(resolution, new Point(x, y));
                     Color color = PickColor(() => areasToInclude.Any(a => a.IsInside(number)), () => MandelbrotFinder.IsInSet(number), () => MandelbulbChecker.IsInsideBulbs(number));
                     output[x, y] = color;
                 }
@@ -47,11 +50,11 @@ namespace Fractals.Renderer
             if (ShouldIncludeGrid)
             {
                 _log.Debug("Rendering grid");
-                RenderGrid(resolution, viewPoint, output);
+                RenderGrid(resolution, viewPort, output);
             }
 
             _log.Debug("Rendering axis");
-            RenderAxis(resolution, viewPoint, output);
+            RenderAxis(resolution, viewPort, output);
 
             return output;
         }
@@ -98,7 +101,7 @@ namespace Fractals.Renderer
         private static void RenderGrid(Size resolution, Area viewPoint, Color[,] output)
         {
             // Draw vertical lines
-            for (double real = 0; real < viewPoint.RealRange.Max; real += GridSize)
+            for (double real = 0; real < viewPoint.RealRange.Maximum; real += GridSize)
             {
                 Point point = viewPoint.GetPointFromNumber(resolution, new Complex(real, 0));
 
@@ -107,7 +110,7 @@ namespace Fractals.Renderer
                     output[point.X, y] = Color.Green;
                 }
             }
-            for (double real = 0; real >= viewPoint.RealRange.Min; real -= GridSize)
+            for (double real = 0; real >= viewPoint.RealRange.Minimum; real -= GridSize)
             {
                 Point point = viewPoint.GetPointFromNumber(resolution, new Complex(real, 0));
 
@@ -118,7 +121,7 @@ namespace Fractals.Renderer
             }
 
             // Draw horizontal lines
-            for (double imag = 0; imag < viewPoint.ImagRange.Max; imag += GridSize)
+            for (double imag = 0; imag < viewPoint.ImaginaryRange.Maximum; imag += GridSize)
             {
                 Point point = viewPoint.GetPointFromNumber(resolution, new Complex(0, imag));
 
@@ -127,7 +130,7 @@ namespace Fractals.Renderer
                     output[x, point.Y] = Color.Green;
                 }
             }
-            for (double imag = 0; imag >= viewPoint.ImagRange.Min; imag -= GridSize)
+            for (double imag = 0; imag >= viewPoint.ImaginaryRange.Minimum; imag -= GridSize)
             {
                 Point point = viewPoint.GetPointFromNumber(resolution, new Complex(0, imag));
 

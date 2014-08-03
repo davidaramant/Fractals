@@ -15,9 +15,9 @@
         static bool IsInLargerBulb(Complex number)
         {
             var real_minus_fourth = number.Real - 0.25;
-            var q = real_minus_fourth * real_minus_fourth + number.Imag * number.Imag;
+            var q = real_minus_fourth * real_minus_fourth + number.Imaginary * number.Imaginary;
 
-            return (q * (q + (number.Real - 0.25))) < (0.25 * number.Imag * number.Imag);
+            return (q * (q + (number.Real - 0.25))) < (0.25 * number.Imaginary * number.Imaginary);
         }
 
         static bool IsInCircularBulbs(Complex number)
@@ -33,7 +33,7 @@
         {
             var translated = number - center;
 
-            return (translated.Real * translated.Real + translated.Imag * translated.Imag) <= (radius * radius);
+            return (translated.Real * translated.Real + translated.Imaginary * translated.Imaginary) <= (radius * radius);
         }
     }
 }

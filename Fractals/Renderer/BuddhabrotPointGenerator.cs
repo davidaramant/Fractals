@@ -7,12 +7,12 @@ namespace Fractals.Renderer
         public static bool IsPointInBuddhabrot(Complex c, BailoutRange bailoutRange)
         {
             var rePrev = c.Real;
-            var imPrev = c.Imag;
+            var imPrev = c.Imaginary;
 
             double re = 0;
             double im = 0;
             
-            for (int i = 0; i < bailoutRange.Max; i++)
+            for (int i = 0; i < bailoutRange.Maximum; i++)
             {
                 var reTemp = re*re - im*im + rePrev;
                 im = 2*re*im + imPrev;
@@ -21,7 +21,7 @@ namespace Fractals.Renderer
                 var magnitudeSquared = re*re + im*im;
                 if (magnitudeSquared > 4)
                 {
-                    return i >= bailoutRange.Min;
+                    return i >= bailoutRange.Minimum;
                 }
             }
 

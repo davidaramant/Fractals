@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace Fractals.Model
@@ -18,21 +14,21 @@ namespace Fractals.Model
         /// <summary>
         /// The imaginary component of the number.
         /// </summary>
-        public readonly double Imag;
+        public readonly double Imaginary;
 
         public Complex()
         {
         }
 
-        public Complex(double real, double imag)
+        public Complex(double real, double imaginary)
         {
             Real = real;
-            Imag = imag;
+            Imaginary = imaginary;
         }
 
         public override string ToString()
         {
-            return String.Format("({0},{1}i)", Real, Imag);
+            return String.Format("({0},{1}i)", Real, Imaginary);
         }
 
         /// <summary>
@@ -40,24 +36,24 @@ namespace Fractals.Model
         /// </summary>
         public double MagnitudeSquared()
         {
-            return Real * Real + Imag * Imag;
+            return Real * Real + Imaginary * Imaginary;
         }
 
         public static Complex operator +(Complex c1, Complex c2)
         {
-            return new Complex(c1.Real + c2.Real, c1.Imag + c2.Imag);
+            return new Complex(c1.Real + c2.Real, c1.Imaginary + c2.Imaginary);
         }
 
         public static Complex operator -(Complex c1, Complex c2)
         {
-            return new Complex(c1.Real - c2.Real, c1.Imag - c2.Imag);
+            return new Complex(c1.Real - c2.Real, c1.Imaginary - c2.Imaginary);
         }
 
         public static Complex operator *(Complex c1, Complex c2)
         {
             return new Complex(
-                        real: c1.Real * c2.Real - c1.Imag * c2.Imag,
-                        imag: c1.Imag * c2.Real + c1.Real * c2.Imag
+                        real: c1.Real * c2.Real - c1.Imaginary * c2.Imaginary,
+                        imaginary: c1.Imaginary * c2.Real + c1.Real * c2.Imaginary
             );
         }
     }
