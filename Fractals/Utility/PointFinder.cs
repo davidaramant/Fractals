@@ -59,8 +59,8 @@ namespace Fractals.Utility
                 max: _maximum);
 
             var viewPort = new Area(
-                realRange: new InclusiveRange(-2, 0.5),
-                imagRange: new InclusiveRange(-1.3, 1.3));
+                realRange: new InclusiveRange(-2, 1),
+                imagRange: new InclusiveRange(-1.5, 1.5));
 
             _pointGenerator.Initialize(viewPort);
 
