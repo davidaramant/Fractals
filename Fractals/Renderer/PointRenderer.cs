@@ -18,12 +18,7 @@ namespace Fractals.Renderer
 
         private readonly HitPlot _hitPlot;
 
-        private readonly ColorRamp _colorRamp = new ColorRamp(new[]
-                {
-                    Tuple.Create(new HsvColor(196.0/360.0, 1, 0), 0.0),
-                    Tuple.Create(new HsvColor(196.0/360.0, 1, 1), 0.5),
-                    Tuple.Create(new HsvColor(196.0/360.0, 0, 1), 1.0),
-                });
+        private readonly ColorRamp _colorRamp = ColorRampFactory.Blue;
 
         public PointRenderer(string inputDirectory, string inputFilename, int width, int height)
         {
