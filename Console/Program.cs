@@ -45,8 +45,11 @@ namespace Console
                 case OperationType.RenderMandelbrot:
                     RenderMandelbrot<MandelbrotRenderer>(options);
                     break;
-                case OperationType.RenderMandelbrotEscape:
+                case OperationType.RenderMandelbrotEscapePlain:
                     RenderMandelbrot<MandelbrotEscapeRenderer>(options);
+                    break;
+                case OperationType.RenderMandelbrotEscapeFancy:
+                    RenderMandelbrot<MandelbrotEscapeRendererFancy>(options);
                     break;
                 case OperationType.RenderMandelbrotDistance:
                     RenderMandelbrot<MandelbrotDistanceRenderer>(options);
@@ -131,6 +134,31 @@ namespace Console
             //                    "-d", @"C:\temp",
             //                    "-f", "mandelbrot"
             //                };
+            //return new[]
+            //                {
+            //                    "-t", "RenderMandelbrotEscapePlain",
+            //                    "-w", "2000",
+            //                    "-h", "2000",
+            //                    "-d", @"C:\temp\out",
+            //                    "-f", "mandelbrot_escape"
+            //                };
+            //return new[]
+            //                {
+            //                    "-t", "RenderMandelbrotEscapeFancy",
+            //                    "-w", "1000",
+            //                    "-h", "1000",
+            //                    "-d", @"C:\temp\out",
+            //                    "-f", "mandelbrot_escape_fancy"
+            //                }; 
+            return new[]
+                            {
+                                "-t", "RenderMandelbrotDistance",
+                                "-w", "1000",
+                                "-h", "1000",
+                                "-d", @"C:\temp\out",
+                                "-f", "mandelbrot_distance"
+                            };
+
             //            return new[]
             //                {
             //                    "-t", "RenderInterestingPointsMandelbrot",
@@ -148,16 +176,16 @@ namespace Console
             //                        "-x", "30000",
             //                        "-s", "AreasAndBulbExclusion"
             //                    };
-            return new[]
-                    {
-                        "-t", "PlotPoints",
-                        "-w", "20000",
-                        "-h", "20000",
-                        "-d", @"C:\temp\out",
-                        "-f", "buddhabrot",
-                        "-i", @"C:\temp\in",
-                        "-p", "points*"
-                    };
+            //return new[]
+            //        {
+            //            "-t", "PlotPoints",
+            //            "-w", "20000",
+            //            "-h", "20000",
+            //            "-d", @"C:\temp\out",
+            //            "-f", "buddhabrot",
+            //            "-i", @"C:\temp\in",
+            //            "-p", "points*"
+            //        };
         }
     }
 }

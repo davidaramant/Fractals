@@ -76,6 +76,7 @@
     <Compile Include="Renderer\IGenerator.cs" />
     <Compile Include="Renderer\MandelbrotDistanceRenderer.cs" />
     <Compile Include="Renderer\MandelbrotEscapeRenderer.cs" />
+    <Compile Include="Renderer\MandelbrotEscapeRendererFancy.cs" />
     <Compile Include="Renderer\MandelbrotRenderer.cs" />
     <Compile Include="Utility\ComplexNumberListWriter.cs" />
     <Compile Include="Utility\ComplexNumberListReader.cs" />

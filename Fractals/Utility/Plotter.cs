@@ -251,7 +251,7 @@ namespace Fractals.Utility
             var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
 
             var processedPixels =
-                GetAllPoints().
+                _resolution.GetAllPoints().
                 AsParallel().
                 Select(p => ComputeColor(p, max)).
                 AsEnumerable();
@@ -280,20 +280,7 @@ namespace Fractals.Utility
                 ).ToColor());
         }
 
-        private IEnumerable<Point> GetAllPoints()
-        {
-            for (int x = 0; x < _resolution.Width; x++)
-            {
-                for (int y = 0; y < _resolution.Height; y++)
-                {
-                    yield return new Point(x, y);
-                }
-            }
-        }
-
-        private const double DefaultGamma = 1.2;
-
-        private static double Gamma(double x, double exp = DefaultGamma)
+        private static double Gamma(double x, double exp = 1.2)
         {
             return Math.Pow(x, 1.0 / exp);
         }

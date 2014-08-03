@@ -1,15 +1,20 @@
-﻿using Fractals.Model;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Fractals.Model;
 using Fractals.Utility;
 using log4net;
-using System.Drawing;
 
 namespace Fractals.Renderer
 {
-    public sealed class MandelbrotEscapeRenderer : IGenerator
+    public sealed class MandelbrotEscapeRendererFancy : IGenerator
     {
         private static ILog _log;
 
-        public MandelbrotEscapeRenderer()
+        public MandelbrotEscapeRendererFancy()
         {
             _log = LogManager.GetLogger(GetType());
         }
@@ -19,33 +24,50 @@ namespace Fractals.Renderer
             _log.InfoFormat("Starting to render ({0}x{1})", resolution.Width, resolution.Height);
 
             var viewPort = new Area(
-                realRange: new InclusiveRange(-2, 2), 
-                imagRange: new InclusiveRange(-2, 2));
+                realRange: new InclusiveRange(-2, 1),
+                imagRange: new InclusiveRange(-1.5, 1.5));
 
             var output = new Color[resolution.Width, resolution.Height];
 
             _log.Debug("Rendering points");
-            for (int y = 0; y < resolution.Height; y++)
+
+            var allPointsWithEscapeTimes =
+                resolution.GetAllPoints().AsParallel().
+                Select(p => Tuple.Create(p, PickColor(FindEscapeTime(viewPort.GetNumberFromPoint(resolution, p))))).
+                AsEnumerable();
+
+            foreach (var result in allPointsWithEscapeTimes)
             {
-                for (int x = 0; x < resolution.Width; x++)
-                {
-                    var number = viewPort.GetNumberFromPoint(resolution, new Point(x, y));
-                    Color color = PickColor(IsInSet(number));
-                    output[x, y] = color;
-                }
+                output[result.Item1.X, result.Item1.Y] = result.Item2;
             }
 
             return output;
         }
 
+        private static double Gamma(double x, double exp = 1.2)
+        {
+            return Math.Pow(x, 1.0 / exp);
+        }
+
         private static Color PickColor(int escapeTime)
         {
-            return escapeTime % 2 == 0 ? Color.Black : Color.White;
+            if (escapeTime == -1)
+            {
+                return Color.Black;
+            }
+
+            var exp = Gamma(1.0 - Math.Pow(Math.E, -10.0 * escapeTime / Bailout));
+
+            return new HsvColor(
+                hue:0.85,
+                saturation: (exp < 0.5) ? 1 : 1 - (2 * (exp - 0.5)),
+                value: (exp < 0.5) ? 2 * exp : 1
+            ).ToColor();
         }
 
         private const int Bailout = 3000;
 
-        public static int IsInSet(Complex c)
+        public static int FindEscapeTime(Complex c)
         {
             if (MandelbrotFinder.IsInSet(c))
             {

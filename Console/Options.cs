@@ -45,11 +45,12 @@ namespace Console
     public enum OperationType
     {
         RenderMandelbrot,
-        RenderMandelbrotEscape,
+        RenderMandelbrotEscapePlain,
         RenderMandelbrotDistance,
         RenderInterestingPointsMandelbrot,
         FindPoints,
-        PlotPoints
+        PlotPoints,
+        RenderMandelbrotEscapeFancy
     }
 
     public enum PointStrategy
