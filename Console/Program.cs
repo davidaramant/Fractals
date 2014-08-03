@@ -178,8 +178,8 @@ namespace Console
             return new[]
                     {
                         "-t", "PlotPoints",
-                        "-w", "20000",
-                        "-h", "20000",
+                        "-w", "22400",
+                        "-h", "22400",
                         "-d", @"C:\temp\out",
                         "-f", "buddhabrot",
                         "-i", @"C:\temp\in",
