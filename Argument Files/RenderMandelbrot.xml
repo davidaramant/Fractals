@@ -5,5 +5,5 @@
     <Height>1024</Height>
   </Resolution>
   <OutputDirectory>C:\temp</OutputDirectory>
-  <OutputFilename>Mandelbrot</OutputFilename>
+  <OutputFilename>MandelbrotPlain</OutputFilename>
 </ExampleImageRendererArguments>
