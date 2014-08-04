@@ -6,7 +6,7 @@ namespace Fractals.Utility
 {
     public sealed class CryptoRandom
     {
-        private readonly RNGCryptoServiceProvider _cryptoServiceProvider = new RNGCryptoServiceProvider();
+        private readonly RNGCryptoServiceProvider _cryptoServiceProvider = new RNGCryptoServiceProvider(Guid.NewGuid().ToByteArray());
         private const int BufferSize = sizeof(UInt64) * 128;
         private readonly byte[] _randomBuffer = new byte[BufferSize];
 
