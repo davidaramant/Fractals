@@ -12,11 +12,30 @@ namespace Fractals.Utility
 {
     public class EdgeLocator
     {
+        private readonly string _outputDirectory;
+        private readonly string _outputFilename;
+
         private readonly static ILog _log;
 
         static EdgeLocator()
         {
             _log = LogManager.GetLogger(typeof (EdgeLocator));
+        }
+
+        public EdgeLocator(string outputDirectory, string outputFilename)
+        {
+            _outputDirectory = outputDirectory;
+            _outputFilename = outputFilename;
+        }
+
+        public void StoreEdges(Size resolution, double gridSize, Area viewPort)
+        {
+            var writer = new AreaListWriter(_outputDirectory, _outputFilename);
+
+            foreach (var area in LocateEdges(resolution, gridSize, viewPort))
+            {
+                writer.SaveArea(area);
+            }
         }
 
         public static List<Area> LocateEdges(Size resolution, double gridSize, Area viewPort)

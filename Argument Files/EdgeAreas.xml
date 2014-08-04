@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EdgeAreaArguments>
+  <Resolution>
+    <Width>1024</Width>
+    <Height>1024</Height>
+  </Resolution>
+  <GridSize>0.04</GridSize>
+  <OutputDirectory>C:\temp\out</OutputDirectory>
+  <OutputFilename>Edge.edge</OutputFilename>
+</EdgeAreaArguments>

@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arguments\EdgeAreaArguments.cs" />
     <Compile Include="Arguments\ExampleImageRendererArguments.cs" />
     <Compile Include="Arguments\GlobalArguments.cs" />
     <Compile Include="Arguments\NebulaRenderingArguments.cs" />
@@ -93,6 +94,8 @@
     <Compile Include="Utility\ComplexNumberListWriter.cs" />
     <Compile Include="Utility\ComplexNumberListReader.cs" />
     <Compile Include="PointGenerator\BulbsExcludedPointGenerator.cs" />
+    <Compile Include="Utility\AreaListReader.cs" />
+    <Compile Include="Utility\AreaListWriter.cs" />
     <Compile Include="Utility\HitPlot.cs" />
     <Compile Include="Utility\HsvColor.cs" />
     <Compile Include="Utility\ImageUtility.cs" />

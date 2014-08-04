@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Fractals.Arguments;
-using Fractals.Model;
 using Fractals.PointGenerator;
 using Fractals.Renderer;
 using Fractals.Utility;
@@ -74,6 +73,9 @@ namespace Fractals.Console
                 case OperationType.RenderNebulaPlots:
                     RenderNebulabrot(options);
                     break;
+                case OperationType.FindEdgeAreas:
+                    FindEdgeAreas(options);
+                    break;
             }
 
             if (System.Diagnostics.Debugger.IsAttached)
@@ -122,7 +124,7 @@ namespace Fractals.Console
                     generator = new BulbsExcludedPointGenerator();
                     break;
                 case PointSelectionStrategy.EdgesWithBulbsExcluded:
-                    generator = new EdgeAreasWithBulbsExcludedPointGenerator();
+                    generator = new EdgeAreasWithBulbsExcludedPointGenerator(arguments.InputDirectory, arguments.InputEdgeFilename);
                     break;
                 default:
                     throw new ArgumentException();
@@ -173,6 +175,13 @@ namespace Fractals.Console
             renderer.Render(outputDirectory: arguments.OutputDirectory, outputFilename: arguments.OutputFilename);
         }
 
+        private void FindEdgeAreas(Options options)
+        {
+            var arguments = DeserializeArguments<EdgeAreaArguments>(options.ConfigurationFilepath);
+            var locator = new EdgeLocator(arguments.OutputDirectory, arguments.OutputFilename);
+            locator.StoreEdges(arguments.Resolution.ToSize(), arguments.GridSize, AreaFactory.SearchArea);
+        }
+
         private static void SetupParallelismLimits(Options options)
         {
             var processorCount = Environment.ProcessorCount;
@@ -210,6 +219,7 @@ namespace Fractals.Console
             //return new[] { "-t", "RenderNebulaPlots", "-c", @"..\..\..\..\Argument Files\RenderNebulaPlot.xml" };
             //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };
             //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };
+            //return new[] { "-t", "FindEdgeAreas", "-c", @"..\..\..\..\Argument Files\EdgeAreas.xml" };
             return new string[0];
         }
     }

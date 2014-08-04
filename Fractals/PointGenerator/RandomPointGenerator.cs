@@ -15,10 +15,6 @@ namespace Fractals.PointGenerator
             }
         }
 
-        public virtual void Initialize(Area viewPort)
-        {
-        }
-
         public virtual Area SelectArea(Area viewPoint)
         {
             return viewPoint;

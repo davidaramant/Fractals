@@ -1,23 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Linq;
 using Fractals.Model;
 using Fractals.Utility;
+using log4net;
 
 namespace Fractals.PointGenerator
 {
     public class EdgeAreasWithBulbsExcludedPointGenerator : BulbsExcludedPointGenerator
     {
-        private const double GridSize = 0.04;
+        private static ILog _log;
 
-        private Random _random;
-        private List<Area> _edgeAreas;
- 
-        public override void Initialize(Area viewPort)
+        private readonly Random _random;
+        private readonly List<Area> _edgeAreas;
+
+        public EdgeAreasWithBulbsExcludedPointGenerator(string directory, string filename)
         {
-            _edgeAreas = EdgeLocator.LocateEdges(new Size(1000, 1000), GridSize, viewPort);
+            _log = LogManager.GetLogger(GetType());
 
             _random = new Random();
+            
+            _log.Info("Loading edge areas from file");
+
+            var listReader = new AreaListReader(directory, filename);
+
+            _edgeAreas = listReader
+                .GetAreas()
+                .ToList();
+            _log.DebugFormat("Loaded {0} edge areas", _edgeAreas.Count);
         }
 
         public override Area SelectArea(Area viewPoint)

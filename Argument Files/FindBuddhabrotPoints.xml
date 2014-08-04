@@ -4,5 +4,8 @@
   <OutputFilenamePrefix>Points</OutputFilenamePrefix>
   <MinimumThreshold>1000</MinimumThreshold>
   <MaximumThreshold>2000</MaximumThreshold>
-  <SelectionStrategy>BulbsExcluded</SelectionStrategy>
+  <SelectionStrategy>EdgesWithBulbsExcluded</SelectionStrategy>
+  <!--The following are only required with the strategy includes edge detection-->
+  <InputDirectory>C:\temp\in</InputDirectory>
+  <InputEdgeFilename>Edge.edge</InputEdgeFilename>
 </PointFinderArguments>

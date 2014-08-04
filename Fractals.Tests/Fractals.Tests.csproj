@@ -69,6 +69,7 @@
     <Compile Include="ComplexMathSpeedTest.cs" />
     <Compile Include="Models\AreaTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utility\AreaListTests.cs" />
     <Compile Include="Utility\ColorRampTests.cs" />
     <Compile Include="Utility\ComplexNumberListTests.cs" />
     <Compile Include="Utility\AreaCalculatorTests.cs">

@@ -67,8 +67,6 @@ namespace Fractals.Utility
 
             viewPort.LogViewport();
 
-            _pointGenerator.Initialize(viewPort);
-
             var list = new ComplexNumberListWriter(_outputDirectory, _outputFile);
 
             int num = 0;

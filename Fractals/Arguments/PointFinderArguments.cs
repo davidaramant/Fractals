@@ -9,6 +9,10 @@ namespace Fractals.Arguments
 
         public string OutputFilenamePrefix { get; set; }
 
+        public string InputDirectory { get; set; }
+
+        public string InputEdgeFilename { get; set; }
+
         public uint MinimumThreshold { get; set; }
 
         public uint MaximumThreshold { get; set; }
