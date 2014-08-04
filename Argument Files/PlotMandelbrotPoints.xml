@@ -4,8 +4,8 @@
     <Width>1024</Width>
     <Height>1024</Height>
   </Resolution>
-  <InputDirectory>C:\temp\in</InputDirectory>
-  <OutputDirectory>C:\temp\out</OutputDirectory>
+  <InputDirectory>C:\temp</InputDirectory>
   <InputFilePattern>MandelbrotPoints.*.point</InputFilePattern>
+  <OutputDirectory>C:\temp</OutputDirectory>
   <OutputFilename>Mandelbrot.plot</OutputFilename>
 </PointPlottingArguments>

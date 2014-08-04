@@ -4,6 +4,6 @@
     <Width>1024</Width>
     <Height>1024</Height>
   </Resolution>
-  <OutputDirectory>C:\temp\out</OutputDirectory>
+  <OutputDirectory>C:\temp</OutputDirectory>
   <OutputFilename>MandelbrotEscapeFancy</OutputFilename>
 </ExampleImageRendererArguments>

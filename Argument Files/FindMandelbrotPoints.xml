@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PointFinderArguments>
-  <OutputDirectory>C:\temp\out</OutputDirectory>
+  <OutputDirectory>C:\temp</OutputDirectory>
   <OutputFilenamePrefix>MandelbrotPoints</OutputFilenamePrefix>
   <MinimumThreshold>10000</MinimumThreshold>
   <MaximumThreshold>20000</MaximumThreshold>
   <SelectionStrategy>EdgesAndBulbsOnly</SelectionStrategy>
   <!--The following are only required with the strategy includes edge detection-->
-  <InputDirectory>C:\temp\in</InputDirectory>
+  <InputDirectory>C:\temp</InputDirectory>
   <InputEdgeFilename>Edge.edge</InputEdgeFilename>
 </PointFinderArguments>

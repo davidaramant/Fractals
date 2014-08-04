@@ -4,8 +4,8 @@
     <Width>1024</Width>
     <Height>1024</Height>
   </Resolution>
-  <InputDirectory>C:\temp\in</InputDirectory>
+  <InputDirectory>C:\temp</InputDirectory>
   <InputFilename>Buddhabrot.plot</InputFilename>
-  <OutputDirectory>C:\temp\out</OutputDirectory>
+  <OutputDirectory>C:\temp</OutputDirectory>
   <OutputFilename>Buddhabrot</OutputFilename>
 </RenderingArguments>
