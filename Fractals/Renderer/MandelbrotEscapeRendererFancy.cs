@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
+using Fractals.Arguments;
 using Fractals.Model;
 using Fractals.Utility;
 using log4net;
@@ -31,9 +32,12 @@ namespace Fractals.Renderer
             _log.Debug("Rendering points");
 
             var allPointsWithEscapeTimes =
-                resolution.GetAllPoints().AsParallel().
-                Select(p => Tuple.Create(p, PickColor(FindEscapeTime(viewPort.GetNumberFromPoint(resolution, p))))).
-                AsEnumerable();
+                resolution
+                .GetAllPoints()
+                .AsParallel()
+                .WithDegreeOfParallelism(GlobalArguments.DegreesOfParallelism)
+                .Select(p => Tuple.Create(p, PickColor(FindEscapeTime(viewPort.GetNumberFromPoint(resolution, p)))))
+                .AsEnumerable();
 
             foreach (var result in allPointsWithEscapeTimes)
             {

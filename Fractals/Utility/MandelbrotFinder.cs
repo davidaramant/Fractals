@@ -2,8 +2,10 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
+using Fractals.Arguments;
 using Fractals.Model;
 using log4net;
 
@@ -27,16 +29,13 @@ namespace Fractals.Utility
             var results = new ConcurrentBag<Complex>();
             var viewPoint = new Area(realAxis, imaginaryAxis);
 
-            Parallel.For(0, resolution.Height, y =>
+            Parallel.ForEach(GetAllPoints(resolution), new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, point =>
             {
-                for (int x = 0; x < resolution.Width; x++)
-                {
-                    var number = viewPoint.GetNumberFromPoint(resolution, new Point(x, y));
+                var number = viewPoint.GetNumberFromPoint(resolution, point);
 
-                    if (IsInSet(number))
-                    {
-                        results.Add(number);
-                    }
+                if (IsInSet(number))
+                {
+                    results.Add(number);
                 }
             });
 
@@ -45,6 +44,17 @@ namespace Fractals.Utility
             _log.DebugFormat("Found {0} points", resultList.Count);
 
             return resultList;
+        }
+
+        private static IEnumerable<Point> GetAllPoints(Size resolution)
+        {
+            for (int y = 0; y < resolution.Height; y++)
+            {
+                for (int x = 0; x < resolution.Width; x++)
+                {
+                    yield return new Point(x, y);
+                }
+            }
         }
 
         public static bool IsInSet(Complex c)

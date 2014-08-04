@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arguments\ExampleImageRendererArguments.cs" />
+    <Compile Include="Arguments\GlobalArguments.cs" />
     <Compile Include="Arguments\NebulaRenderingArguments.cs" />
     <Compile Include="Arguments\PointFinderArguments.cs" />
     <Compile Include="Arguments\PointPlottingArguments.cs" />

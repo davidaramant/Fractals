@@ -41,6 +41,8 @@ namespace Fractals.Console
                 return;
             }
 
+            SetupParallelismLimits(options);
+
             _log.InfoFormat("Operation: {0}", options.Operation);
 
             switch (options.Operation)
@@ -170,6 +172,26 @@ namespace Fractals.Console
                 height: arguments.Resolution.Height);
 
             renderer.Render(outputDirectory: arguments.OutputDirectory, outputFilename: arguments.OutputFilename);
+        }
+
+        private static void SetupParallelismLimits(Options options)
+        {
+            if (options.Utilization.HasValue)
+            {
+                var numberToUse = Environment.ProcessorCount*options.Utilization.Value/100;
+                if (numberToUse == 0)
+                {
+                    numberToUse = 1;
+                }
+
+                GlobalArguments.DegreesOfParallelism = numberToUse;
+
+                _log.InfoFormat("Parallel operations set to use {0} of {1} processors", numberToUse, Environment.ProcessorCount);
+            }
+            else
+            {
+                _log.DebugFormat("Parallel options set to use all processors available");
+            }
         }
 
         private string[] GetDebuggingArguments()

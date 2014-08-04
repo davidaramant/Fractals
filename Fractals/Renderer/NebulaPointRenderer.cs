@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using Fractals.Arguments;
 using Fractals.Utility;
 using log4net;
 
@@ -61,10 +62,12 @@ namespace Fractals.Renderer
             var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
 
             var processedPixels =
-                _resolution.GetAllPoints().
-                AsParallel().
-                Select(p => ComputeColor(p, maxRed, maxGreen, maxBlue)).
-                AsEnumerable();
+                _resolution
+                .GetAllPoints()
+                .AsParallel()
+                .WithDegreeOfParallelism(GlobalArguments.DegreesOfParallelism)
+                .Select(p => ComputeColor(p, maxRed, maxGreen, maxBlue))
+                .AsEnumerable();
 
             foreach (var result in processedPixels)
             {

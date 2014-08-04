@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
+using Fractals.Arguments;
 using Fractals.Model;
 using Fractals.Utility;
 using log4net;
@@ -31,9 +32,13 @@ namespace Fractals.Renderer
             _log.Debug("Rendering points");
 
             var allPointsWithEscapeTimesAndDistance =
-                resolution.GetAllPoints().AsParallel().
-                Select(p => Tuple.Create(p, FindEscapeTimeAndDistance(viewPort.GetNumberFromPoint(resolution, p)))).
-                AsEnumerable().ToArray();
+                resolution
+                    .GetAllPoints()
+                    .AsParallel()
+                    .WithDegreeOfParallelism(GlobalArguments.DegreesOfParallelism)
+                    .Select(p => Tuple.Create(p, FindEscapeTimeAndDistance(viewPort.GetNumberFromPoint(resolution, p))))
+                    .AsEnumerable()
+                    .ToArray();
 
             var maxDistance = allPointsWithEscapeTimesAndDistance.Select(_ => _.Item2).Select(_ => _.Item2).Max();
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Fractals.Arguments;
 using Fractals.Model;
 using Fractals.Utility;
 using log4net;
@@ -41,6 +42,7 @@ namespace Fractals.Renderer
 
             var processedPixels = GetAllPoints(resolution)
                 .AsParallel()
+                .WithDegreeOfParallelism(GlobalArguments.DegreesOfParallelism)
                 .Select(p => PickColorForPoint(p, viewPort, resolution, checkForEdges, areasToInclude))
                 .AsEnumerable();
 
@@ -61,7 +63,7 @@ namespace Fractals.Renderer
             return output;
         }
 
-        private IEnumerable<Point> GetAllPoints(Size resolution)
+        private static IEnumerable<Point> GetAllPoints(Size resolution)
         {
             for (int y = 0; y < resolution.Height; y++)
             {

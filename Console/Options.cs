@@ -11,6 +11,9 @@ namespace Fractals.Console
         [Option('c', "config", Required = true, HelpText = "The path to the configuration file")]
         public string ConfigurationFilepath { get; set; }
 
+        [Option('u', "utilization", Required = false, HelpText = "The percentage (as an integer) of the CPUs to utilize")]
+        public int? Utilization { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {

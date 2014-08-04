@@ -1,4 +1,5 @@
-﻿using Fractals.Model;
+﻿using Fractals.Arguments;
+using Fractals.Model;
 using log4net;
 using System.Collections.Generic;
 using System.Drawing;
@@ -57,7 +58,7 @@ namespace Fractals.Utility
 
             _log.Info("Calculating trajectories");
 
-            Parallel.ForEach(GetNumbers(), number =>
+            Parallel.ForEach(GetNumbers(), new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, number =>
             {
                 foreach (var c in GetTrajectory(number))
                 {

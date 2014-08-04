@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Fractals.Arguments;
 using Fractals.Model;
 using log4net;
 
@@ -39,7 +40,7 @@ namespace Fractals.Utility
             var results = new ConcurrentBag<Area>();
 
             var processedCount = 0;
-            Parallel.ForEach(numbers, number =>
+            Parallel.ForEach(numbers, new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, number =>
             {
                 var containingAreas = allAreas.Where(a => a.IsInside(number));
                 foreach (var containingArea in containingAreas)

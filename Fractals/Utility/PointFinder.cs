@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Fractals.Arguments;
 using Fractals.Model;
 using Fractals.PointGenerator;
 using log4net;
@@ -74,7 +75,7 @@ namespace Fractals.Utility
 
             int num = 0;
 
-            Parallel.ForEach(_pointGenerator.GetRandomComplexNumbers(viewPort),
+            Parallel.ForEach(_pointGenerator.GetRandomComplexNumbers(viewPort), new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism },
                 (number, state) =>
                 {
                     if (IsPointInBuddhabrot(number, bailout))
