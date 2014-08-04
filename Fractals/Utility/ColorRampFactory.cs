@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Fractals.Utility
 {
@@ -27,6 +28,26 @@ namespace Fractals.Utility
                     Tuple.Create(new HsvColor(0, 1, 1), 0.2),
                     Tuple.Create(new HsvColor(1, 1, 1), 1.0),
                 });
+            }
+        }
+
+        public static ColorRamp Rainbow
+        {
+            get
+            {
+                const int rangeCount = 18;
+                const int rangeStep = 360 / rangeCount;
+
+                var colorRanges = new List<Tuple<HsvColor, double>>();
+                for (int i = 0; i <= rangeCount; i++)
+                {
+                    var color = new HsvColor((double) i * rangeStep / 360, 1, 1);
+                    var threshold = (double)i / rangeCount;
+
+                    colorRanges.Add(Tuple.Create(color, threshold));
+                }
+
+                return new ColorRamp(colorRanges);
             }
         }
     }

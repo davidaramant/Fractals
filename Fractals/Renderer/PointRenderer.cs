@@ -16,7 +16,7 @@ namespace Fractals.Renderer
 
         private static ILog _log;
 
-        private readonly ColorRamp _colorRamp = ColorRampFactory.Blue;
+        private readonly ColorRamp _colorRamp = ColorRampFactory.Rainbow;
 
         public PointRenderer(string inputDirectory, string inputFilename, int width, int height)
         {
@@ -47,6 +47,9 @@ namespace Fractals.Renderer
             _log.Info("Done loading");
             _log.DebugFormat("{0} distinct points found (for the specified resolution)", points.Length);
 
+            var middlePoint = new Point(_resolution.Width / 2, _resolution.Height / 2);
+            var maximumDistance = CalculateDistance(middlePoint, new Point(0, 0));
+
             _log.Info("Starting to render");
 
             var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
@@ -63,7 +66,7 @@ namespace Fractals.Renderer
                     continue;
                 }
 
-                outputImg.SetPixel(point.X, point.Y, Color.DeepSkyBlue);
+                outputImg.SetPixel(point.X, point.Y, ComputeColor(point, middlePoint, maximumDistance));
             }
 
             _log.Info("Finished rendering");
@@ -71,7 +74,24 @@ namespace Fractals.Renderer
             _log.Debug("Saving image");
             outputImg.Save(Path.Combine(outputDirectory, String.Format("{0}.png", outputFilename)));
             _log.Debug("Done saving image");
+        }
 
+        private Color ComputeColor(Point p, Point middlePoint, double maximumDistance)
+        {
+            var distance = CalculateDistance(p, middlePoint);
+            var ratio = Gamma(1.0 - Math.Pow(Math.E, -10.0 * distance / maximumDistance));
+
+            return _colorRamp.GetColor(ratio).ToColor();
+        }
+
+        private static double CalculateDistance(Point point1, Point point2)
+        {
+            return (Math.Pow(point1.X - point2.X, 2) + Math.Pow(point1.Y - point2.Y, 2));
+        }
+
+        private static double Gamma(double x, double exp = 1.2)
+        {
+            return Math.Pow(x, 1.0 / exp);
         }
     }
 }
