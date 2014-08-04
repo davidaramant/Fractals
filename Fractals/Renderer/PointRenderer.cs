@@ -35,6 +35,8 @@ namespace Fractals.Renderer
 
         public void Render(string outputDirectory, string outputFilename)
         {
+            _log.InfoFormat("Creating image ({0}x{1})", _resolution.Width, _resolution.Height);
+
             _log.Info("Loading trajectory...");
 
             _hitPlot.LoadTrajectories(Path.Combine(_inputInputDirectory, _inputFilename));
