@@ -31,6 +31,7 @@ namespace Fractals.Utility
         public void StoreEdges(Size resolution, double gridSize, Area viewPort)
         {
             var writer = new AreaListWriter(_outputDirectory, _outputFilename);
+            writer.Truncate();
 
             foreach (var area in LocateEdges(resolution, gridSize, viewPort))
             {
@@ -38,7 +39,7 @@ namespace Fractals.Utility
             }
         }
 
-        public static List<Area> LocateEdges(Size resolution, double gridSize, Area viewPort)
+        public static IEnumerable<Area> LocateEdges(Size resolution, double gridSize, Area viewPort)
         {
             _log.DebugFormat("Looking for intersting areas ({0}x{1})", resolution.Width, resolution.Height);
 
@@ -49,14 +50,13 @@ namespace Fractals.Utility
             _log.DebugFormat("Found {0} points within the region", numbers.Count);
 
             var areasWithSomeNumbers = FindAreasWithNumbers(allAreas, numbers);
-            _log.InfoFormat("Found {0} areas bordering points", areasWithSomeNumbers.Count);
 
             return areasWithSomeNumbers;
         }
 
-        private static List<Area> FindAreasWithNumbers(IEnumerable<Area> allAreas, IEnumerable<Complex> numbers)
+        private static IEnumerable<Area> FindAreasWithNumbers(IEnumerable<Area> allAreas, IEnumerable<Complex> numbers)
         {
-            var results = new ConcurrentBag<Area>();
+            var results = new ConcurrentDictionary<Area, byte>();
 
             var processedCount = 0;
             Parallel.ForEach(numbers, new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, number =>
@@ -64,7 +64,7 @@ namespace Fractals.Utility
                 var containingAreas = allAreas.Where(a => a.IsInside(number));
                 foreach (var containingArea in containingAreas)
                 {
-                    results.Add(containingArea);
+                    results.GetOrAdd(containingArea, 0x00);
                 }
 
                 Interlocked.Increment(ref processedCount);
@@ -75,7 +75,9 @@ namespace Fractals.Utility
             });
             _log.DebugFormat("Checked {0} points", processedCount);
 
-            return results.Distinct().ToList();
+            _log.InfoFormat("Found {0} areas bordering points", results.Count);
+
+            return results.Keys;
         }
 
         private static List<Area> AllPossibleAreas(InclusiveRange realAxis, InclusiveRange imaginaryAxis, double gridSize)
