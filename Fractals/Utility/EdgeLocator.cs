@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Fractals.Model;
 using log4net;
@@ -10,20 +11,18 @@ namespace Fractals.Utility
 {
     public class EdgeLocator
     {
-        const double GridSize = 0.04;
-
         private static ILog _log;
 
-        public EdgeLocator()
+        static EdgeLocator()
         {
-            _log = LogManager.GetLogger(GetType());
+            _log = LogManager.GetLogger(typeof (EdgeLocator));
         }
 
-        public List<Area> LocateEdges(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        public static List<Area> LocateEdges(Size resolution, double gridSize, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
         {
             _log.DebugFormat("Looking for intersting areas ({0}x{1})", resolution.Width, resolution.Height);
 
-            var allAreas = AllPossibleAreas(realAxis, imaginaryAxis);
+            var allAreas = AllPossibleAreas(realAxis, imaginaryAxis, gridSize);
             _log.DebugFormat("Found {0} total areas", allAreas.Count);
 
             var numbers = new MandelbrotFinder().FindPoints(resolution, realAxis, imaginaryAxis);
@@ -35,10 +34,11 @@ namespace Fractals.Utility
             return areasWithSomeNumbers;
         }
 
-        private List<Area> FindAreasWithNumbers(IEnumerable<Area> allAreas, IEnumerable<Complex> numbers)
+        private static List<Area> FindAreasWithNumbers(IEnumerable<Area> allAreas, IEnumerable<Complex> numbers)
         {
             var results = new ConcurrentBag<Area>();
 
+            var processedCount = 0;
             Parallel.ForEach(numbers, number =>
             {
                 var containingAreas = allAreas.Where(a => a.IsInside(number));
@@ -46,23 +46,30 @@ namespace Fractals.Utility
                 {
                     results.Add(containingArea);
                 }
+
+                Interlocked.Increment(ref processedCount);
+                if (processedCount % 10000 == 0)
+                {
+                    _log.DebugFormat("Checked {0} points", processedCount);
+                }
             });
+            _log.DebugFormat("Checked {0} points", processedCount);
 
             return results.Distinct().ToList();
         }
 
-        private List<Area> AllPossibleAreas(InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        private static List<Area> AllPossibleAreas(InclusiveRange realAxis, InclusiveRange imaginaryAxis, double gridSize)
         {
             var allAreas = new List<Area>();
 
             var realPoints = new List<double>();
-            for (var realPoint = realAxis.Minimum; realPoint <= realAxis.Maximum; realPoint += GridSize)
+            for (var realPoint = realAxis.Minimum; realPoint <= realAxis.Maximum; realPoint += gridSize)
             {
                 realPoints.Add(realPoint);
             }
 
             var imaginaryPoints = new List<double>();
-            for (var imaginaryPoint = imaginaryAxis.Minimum; imaginaryPoint <= imaginaryAxis.Maximum; imaginaryPoint += GridSize)
+            for (var imaginaryPoint = imaginaryAxis.Minimum; imaginaryPoint <= imaginaryAxis.Maximum; imaginaryPoint += gridSize)
             {
                 imaginaryPoints.Add(imaginaryPoint);
             }

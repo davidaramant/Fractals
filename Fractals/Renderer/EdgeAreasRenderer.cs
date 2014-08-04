@@ -7,6 +7,8 @@ namespace Fractals.Renderer
 {
     public class EdgeAreasRenderer : MandelbrotRenderer
     {
+        private const double GridSize = 0.04;
+
         protected override bool ShouldIncludeGrid
         {
             get { return false; }
@@ -14,7 +16,7 @@ namespace Fractals.Renderer
 
         protected override IEnumerable<Area> GetAreasToInclude(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
         {
-            return new EdgeLocator().LocateEdges(resolution, realAxis, imaginaryAxis);
+            return EdgeLocator.LocateEdges(resolution, GridSize, realAxis, imaginaryAxis);
         }
     }
 }

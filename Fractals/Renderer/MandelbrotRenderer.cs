@@ -16,7 +16,7 @@ namespace Fractals.Renderer
 
         protected virtual bool ShouldIncludeGrid
         {
-            get { return true; }
+            get { return false; }
         }
 
         public MandelbrotRenderer()
@@ -33,6 +33,7 @@ namespace Fractals.Renderer
             viewPort.LogViewport();
 
             var areasToInclude = GetAreasToInclude(resolution, realAxis, imaginaryAxis).ToArray();
+            var checkForEdges = areasToInclude.Length > 1;
 
             var output = new Color[resolution.Width, resolution.Height];
 
@@ -42,7 +43,10 @@ namespace Fractals.Renderer
                 for (int x = 0; x < resolution.Width; x++)
                 {
                     var number = viewPort.GetNumberFromPoint(resolution, new Point(x, y));
-                    Color color = PickColor(() => areasToInclude.Any(a => a.IsInside(number)), () => MandelbrotFinder.IsInSet(number), () => MandelbulbChecker.IsInsideBulbs(number));
+                    Color color = PickColor(
+                        () => checkForEdges && areasToInclude.Any(a => a.IsInside(number)),
+                        () => MandelbrotFinder.IsInSet(number),
+                        () => MandelbulbChecker.IsInsideBulbs(number));
                     output[x, y] = color;
                 }
             }
@@ -64,13 +68,8 @@ namespace Fractals.Renderer
             yield return new Area(realAxis, imaginaryAxis);
         }
 
-        protected virtual Color PickColor(Func<bool> isInArea , Func<bool> isInSet, Func<bool> isInBulbs)
+        protected virtual Color PickColor(Func<bool> isInEdgeRegion , Func<bool> isInSet, Func<bool> isInBulbs)
         {
-            if (!isInArea())
-            {
-                return Color.IndianRed;
-            }
-
             if (isInBulbs())
             {
                 return Color.Gray;
@@ -79,6 +78,11 @@ namespace Fractals.Renderer
             if (isInSet())
             {
                 return Color.Aquamarine;
+            }
+
+            if (isInEdgeRegion())
+            {
+                return Color.IndianRed;
             }
 
             return Color.Black;

@@ -8,13 +8,14 @@ namespace Fractals.PointGenerator
 {
     public class EdgeAreasWithBulbsExcludedPointGenerator : BulbsExcludedPointGenerator
     {
+        private const double GridSize = 0.04;
+
         private Random _random;
         private List<Area> _edgeAreas;
  
         public override void Initialize(Area viewPort)
         {
-            var areaCalculator = new EdgeLocator();
-            _edgeAreas = areaCalculator.LocateEdges(new Size(1000, 1000), viewPort.RealRange, viewPort.ImaginaryRange);
+            _edgeAreas = EdgeLocator.LocateEdges(new Size(1000, 1000), GridSize, viewPort.RealRange, viewPort.ImaginaryRange);
 
             _random = new Random();
         }
