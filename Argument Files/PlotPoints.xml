@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PointPlottingArguments>
+  <ResolutionWidth>1024</ResolutionWidth>
+  <ResolutionHeight>1024</ResolutionHeight>
+  <InputDirectory>C:\temp\in</InputDirectory>
+  <InputFilePattern>Points.*.dat</InputFilePattern>
+  <OutputDirectory>C:\temp\out</OutputDirectory>
+  <OutputFilename>Plot.plot</OutputFilename>
+</PointPlottingArguments>

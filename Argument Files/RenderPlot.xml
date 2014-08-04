@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RenderingArguments>
+  <ResolutionWidth>1024</ResolutionWidth>
+  <ResolutionHeight>1024</ResolutionHeight>
+  <InputDirectory>C:\temp\in</InputDirectory>
+  <InputFilename>Plot.plot</InputFilename>
+  <OutputDirectory>C:\temp\out</OutputDirectory>
+  <OutputFilename>Buddhabrot</OutputFilename>
+</RenderingArguments>

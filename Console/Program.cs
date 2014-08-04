@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
+using Fractals.Arguments;
 using Fractals.Model;
 using Fractals.Renderer;
 using Fractals.Utility;
@@ -54,7 +56,7 @@ namespace Console
                 case OperationType.RenderMandelbrotDistance:
                     RenderMandelbrot<MandelbrotDistanceRenderer>(options);
                     break;
-                case OperationType.RenderInterestingPointsMandelbrot:
+                case OperationType.RenderMandelbrotEdges:
                     RenderMandelbrot<InterestingPointsRenderer>(options);
                     break;
                 case OperationType.FindPoints:
@@ -63,13 +65,10 @@ namespace Console
                 case OperationType.PlotPoints:
                     PlotPoints(options);
                     break;
-                case OperationType.RenderPoints:
+                case OperationType.RenderPlot:
                     RenderPoints(options);
                     break;
-                case OperationType.PlotAntiBuddhabrot:
-                    PlotAntiBuddhabrot(options);
-                    break;
-                case OperationType.RenderNebulabrot:
+                case OperationType.RenderNebulaPlots:
                     RenderNebulabrot(options);
                     break;
             }
@@ -81,10 +80,21 @@ namespace Console
             }
         }
 
+        private static T DeserializeArguments<T>(string path)
+        {
+            var serializer = new XmlSerializer(typeof (T));
+
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                return (T) serializer.Deserialize(stream);
+            }
+        }
+
         private void RenderMandelbrot<T>(Options options)
             where T : IGenerator, new()
         {
-            var resolution = new Size(options.ResolutionWidth, options.ResolutionHeight);
+            var arguments = DeserializeArguments<ExampleImageRendererArguments>(options.ConfigurationFilepath);
+            var resolution = new Size(arguments.ResolutionWidth, arguments.ResolutionHeight);
             var realAxis = new InclusiveRange(-2, 1);
             var imaginaryAxis = new InclusiveRange(-1.5, 1.5);
 
@@ -94,27 +104,29 @@ namespace Console
 
             Bitmap image = ImageUtility.ColorMatrixToBitmap(output);
 
-            image.Save(Path.Combine(options.OutputDirectory, String.Format("{0}.png", options.Filename)));
+            image.Save(Path.Combine(arguments.OutputDirectory, String.Format("{0}.png", arguments.OutputFilename)));
         }
 
         private void FindPoints(Options options)
         {
+            var arguments = DeserializeArguments<PointFinderArguments>(options.ConfigurationFilepath);
+
             RandomPointGenerator generator;
-            switch (options.Strategy)
+            switch (arguments.SelectionStrategy)
             {
-                case PointStrategy.CompletelyRandom:
+                case PointSelectionStrategy.Random:
                     generator = new RandomPointGenerator();
                     break;
-                case PointStrategy.ExcludeBulbs:
+                case PointSelectionStrategy.BulbsExcluded:
                     generator = new ExcludingBulbPointGenerator();
                     break;
-                case PointStrategy.AreasAndBulbExclusion:
+                case PointSelectionStrategy.EdgesWithBulbsExcluded:
                     generator = new InterestingAreasPointGenerator();
                     break;
                 default:
                     throw new ArgumentException();
             }
-            var finder = new BuddhabrotNumberFinder(options.Miniumum, options.Maxiumum, options.OutputDirectory, options.Filename, generator);
+            var finder = new BuddhabrotNumberFinder(arguments.MinimumThreshold, arguments.MaximumThreshold, arguments.OutputDirectory, arguments.OutputFilenamePrefix, generator);
 
             System.Console.WriteLine("Press <ENTER> to stop...");
 
@@ -129,130 +141,52 @@ namespace Console
 
         private void PlotPoints(Options options)
         {
-            var plotter = new FilePlotter(options.InputDirectory, options.InputFilenamePattern, options.OutputDirectory, options.Filename, options.ResolutionWidth, options.ResolutionHeight);
-            plotter.Plot();
-        }
-
-        private void PlotAntiBuddhabrot(Options options)
-        {
-            var plotter = new AntiBuddhabrotPlotter(options.OutputDirectory, options.Filename, options.ResolutionWidth, options.ResolutionHeight);
+            var arguments = DeserializeArguments<PointPlottingArguments>(options.ConfigurationFilepath);
+            var plotter = new FilePlotter(arguments.InputDirectory, arguments.InputFilePattern, arguments.OutputDirectory, arguments.OutputFilename, arguments.ResolutionWidth, arguments.ResolutionHeight);
             plotter.Plot();
         }
 
         private void RenderPoints(Options options)
         {
+            var arguments = DeserializeArguments<RenderingArguments>(options.ConfigurationFilepath);
             var renderer = new PointRenderer(
-                inputDirectory: options.InputDirectory,
-                inputFilename: options.InputFilenamePattern,
-                width: options.ResolutionWidth,
-                height: options.ResolutionHeight);
+                inputDirectory: arguments.InputDirectory,
+                inputFilename: arguments.InputFilename,
+                width: arguments.ResolutionWidth,
+                height: arguments.ResolutionHeight);
 
-            renderer.Render(outputDirectory: options.OutputDirectory, outputFilename: options.Filename);
+            renderer.Render(outputDirectory: arguments.OutputDirectory, outputFilename: arguments.OutputFilename);
         }
 
         private void RenderNebulabrot(Options options)
         {
-            var inputFiles = options.InputFilenamePattern.Split(',');
+            var arguments = DeserializeArguments<NebulaRenderingArguments>(options.ConfigurationFilepath);
             var renderer = new NebulaPointRenderer(
-                inputDirectory: options.InputDirectory,
-                inputFilenameRed: inputFiles[0],
-                inputFilenameGreen: inputFiles[1],
-                inputFilenameBlue: inputFiles[2],
-                width: options.ResolutionWidth,
-                height: options.ResolutionHeight);
+                inputDirectory: arguments.InputDirectory,
+                inputFilenameRed: arguments.RedInputFilename,
+                inputFilenameGreen: arguments.GreenInputFilename,
+                inputFilenameBlue: arguments.BlueInputFilename,
+                width: arguments.ResolutionWidth,
+                height: arguments.ResolutionHeight);
 
-            renderer.Render(outputDirectory: options.OutputDirectory, outputFilename: options.Filename);
+            renderer.Render(outputDirectory: arguments.OutputDirectory, outputFilename: arguments.OutputFilename);
         }
 
         private string[] GetDebuggingArguments()
         {
-            //return new[]
-            //    {
-            //        "-t", "RenderMandelbrot",
-            //        "-w", "1024",
-            //        "-h", "1024",
-            //        "-d", @"C:\temp\out",
-            //        "-f", "mandelbrot"
-            //    };
-            //return new[]
-            //    {
-            //        "-t", "RenderMandelbrotEscapePlain",
-            //        "-w", "2048",
-            //        "-h", "2048",
-            //        "-d", @"C:\temp\out",
-            //        "-f", "mandelbrot_escape"
-            //    };
-            //return new[]
-            //    {
-            //        "-t", "RenderMandelbrotEscapeFancy",
-            //        "-w", "1024",
-            //        "-h", "1024",
-            //        "-d", @"C:\temp\out",
-            //        "-f", "mandelbrot_escape_fancy"
-            //    }; 
-            //return new[]
-            //    {
-            //        "-t", "RenderMandelbrotDistance",
-            //        "-w", "1024",
-            //        "-h", "1024",
-            //        "-d", @"C:\temp\out",
-            //        "-f", "mandelbrot_distance"
-            //    };
-            //return new[]
-            //    {
-            //        "-t", "RenderInterestingPointsMandelbrot",
-            //        "-w", "1024",
-            //        "-h", "1024",
-            //        "-d", @"C:\temp\out",
-            //        "-f", "mandelbrot-areas"
-            //    };
-            //return new[]
-            //    {
-            //        "-t", "FindPoints",
-            //        "-d", @"C:\temp\out",
-            //        "-f", "points",
-            //        "-n", "20000",
-            //        "-x", "30000",
-            //        "-s", "AreasAndBulbExclusion"
-            //    };
-            //return new[]
-            //    {
-            //        "-t", "PlotPoints",
-            //        "-w", "1000",
-            //        "-h", "1000",
-            //        "-d", @"C:\temp\out",
-            //        "-f", "buddhabrot.plot",
-            //        "-i", @"C:\temp\in",
-            //        "-p", "bulb.orthanc.0"
-            //    };
-            return new[]
-                {
-                    "-t", "RenderPoints",
-                    "-w", "1000",
-                    "-h", "1000",
-                    "-d", @"C:\temp\out",
-                    "-f", "buddhabrot",
-                    "-i", @"C:\temp\out",
-                    "-p", "buddhabrot.plot"
-                };
-            //return new[]
-            //    {
-            //        "-t", "PlotAntiBuddhabrot",
-            //        "-d", @"C:\temp\out",
-            //        "-f", "anti-buddhabrot",
-            //        "-w", "2048",
-            //        "-h", "2048"
-            //    };
-            //return new[]
-            //    {
-            //        "-t", "RenderNebulabrot",
-            //        "-w", "4096",
-            //        "-h", "4096",
-            //        "-d", @"C:\temp\out",
-            //        "-f", "nebulabrot",
-            //        "-i", @"C:\temp\out",
-            //        "-p", "red-0x10000.plot,green-0x1000.plot,blue-0x100.plot"
-            //    };
+            //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };
+            //return new[] { "-t", "RenderMandelbrotEscapePlain", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEscapePlain.xml" };
+            //return new[] { "-t", "RenderMandelbrotEscapeFancy", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEscapeFancy.xml" };
+            //return new[] { "-t", "RenderMandelbrotDistance", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotDistance.xml" };
+            //return new[] { "-t", "RenderMandelbrotEdges", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEdges.xml" };
+            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindBuddhabrotPoints.xml" };
+            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindAntiBuddhabrotPoints.xml" };
+            //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotPoints.xml" };
+            //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderPlot.xml" };
+            //return new[] { "-t", "RenderNebulaPlots", "-c", @"..\..\..\..\Argument Files\RenderNebulaPlot.xml" };
+            //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };
+            //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };
+            return new string[0];
         }
     }
 }

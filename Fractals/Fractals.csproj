@@ -66,6 +66,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arguments\ExampleImageRendererArguments.cs" />
+    <Compile Include="Arguments\NebulaRenderingArguments.cs" />
+    <Compile Include="Arguments\PointFinderArguments.cs" />
+    <Compile Include="Arguments\PointPlottingArguments.cs" />
+    <Compile Include="Arguments\PointSelectionStrategy.cs" />
+    <Compile Include="Arguments\RenderingArguments.cs" />
     <Compile Include="Model\BailoutRange.cs" />
     <Compile Include="Model\Complex.cs" />
     <Compile Include="Model\InclusiveRange.cs" />
