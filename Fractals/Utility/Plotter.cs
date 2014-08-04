@@ -1,4 +1,5 @@
-﻿using Fractals.Arguments;
+﻿using System.Threading;
+using Fractals.Arguments;
 using Fractals.Model;
 using log4net;
 using System.Collections.Generic;
@@ -56,6 +57,7 @@ namespace Fractals.Utility
 
             _log.Info("Calculating trajectories");
 
+            var processedCount = 0;
             Parallel.ForEach(GetNumbers(), new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, number =>
             {
                 foreach (var c in GetTrajectory(number))
@@ -69,7 +71,14 @@ namespace Fractals.Utility
 
                     _hitPlot.IncrementPoint(point);
                 }
+
+                Interlocked.Increment(ref processedCount);
+                if (processedCount % 10000 == 0)
+                {
+                    _log.DebugFormat("Plotted {0} points' trajectories", processedCount);
+                }
             });
+            _log.DebugFormat("Plotted {0} points' trajectories", processedCount);
 
             _log.Info("Done plotting trajectories");
 
