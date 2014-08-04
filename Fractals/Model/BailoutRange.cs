@@ -2,21 +2,21 @@
 {
     public sealed class BailoutRange
     {
-        public readonly int Minimum;
-        public readonly int Maximum;
+        public readonly uint Minimum;
+        public readonly uint Maximum;
 
-        public BailoutRange(int maximum)
+        public BailoutRange(uint maximum)
         {
             Maximum = maximum;
         }
 
-        public BailoutRange(int minimum, int maximum)
+        public BailoutRange(uint minimum, uint maximum)
         {
             Minimum = minimum;
             Maximum = maximum;
         }
 
-        public bool IsInside(int escapeTime)
+        public bool IsInside(uint escapeTime)
         {
             return
                 escapeTime >= Minimum &&

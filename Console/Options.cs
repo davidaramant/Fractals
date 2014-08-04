@@ -27,10 +27,10 @@ namespace Console
         public string InputFilenamePattern { get; set; }
 
         [Option('n', "minimum", Required = false, HelpText = "The minimum")]
-        public int Miniumum { get; set; }
+        public uint Miniumum { get; set; }
 
         [Option('x', "maximum", Required = false, HelpText = "The maxiumum")]
-        public int Maxiumum { get; set; }
+        public uint Maxiumum { get; set; }
 
         [Option('s', "strategy", Required = false, HelpText = "The point finding strategy")]
         public PointStrategy Strategy { get; set; }

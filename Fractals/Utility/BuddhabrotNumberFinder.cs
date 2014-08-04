@@ -11,8 +11,8 @@ namespace Fractals.Utility
         private static bool _shouldStop = false;
         private readonly static object ShouldStopLock = new object();
 
-        private readonly int _minimum;
-        private readonly int _maximum;
+        private readonly uint _minimum;
+        private readonly uint _maximum;
         private readonly string _outputDirectory;
         private readonly string _outputFile;
 
@@ -38,7 +38,7 @@ namespace Fractals.Utility
             }
         }
 
-        public BuddhabrotNumberFinder(int minimum, int maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
+        public BuddhabrotNumberFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
         {
             _minimum = minimum;
             _maximum = maximum;

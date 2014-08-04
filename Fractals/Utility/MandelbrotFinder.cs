@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Fractals.Utility
 {
     public class MandelbrotFinder
     {
-        private const int Bailout = 10000;
+        private static readonly BailoutRange Bailout = new BailoutRange(10 * 1000);
 
         private static ILog _log;
 
@@ -48,26 +49,63 @@ namespace Fractals.Utility
 
         public static bool IsInSet(Complex c)
         {
-            var rePrev = c.Real;
-            var imPrev = c.Imaginary;
+            if (MandelbulbChecker.IsInsideBulbs(c))
+            {
+                return true;
+            }
 
             double re = 0;
             double im = 0;
 
-            for (int i = 0; i < Bailout; i++)
+            // Check for orbits
+            // - Check re/im against an old point
+            // - Only check every power of 2
+            double oldRe = 0;
+            double oldIm = 0;
+
+            uint checkNum = 1;
+
+            // Cache the squares
+            // They are used to find the magnitude; reuse these values when computing the next re/im
+            double re2 = 0;
+            double im2 = 0;
+
+            for (uint i = 0; i < Bailout.Maximum; i++)
             {
-                var reTemp = re * re - im * im + rePrev;
-                im = 2 * re * im + imPrev;
+                var reTemp = re2 - im2 + c.Real;
+                im = 2 * re * im + c.Imaginary;
                 re = reTemp;
 
-                var magnitudeSquared = re * re + im * im;
-                if (magnitudeSquared > 4)
+                // Orbit check
+                if (checkNum == i)
+                {
+                    if (IsPracticallyTheSame(oldRe, re) && IsPracticallyTheSame(oldIm, im))
+                    {
+                        return true;
+                    }
+
+                    oldRe = re;
+                    oldIm = im;
+
+                    checkNum = checkNum << 1;
+                }
+
+                re2 = re * re;
+                im2 = im * im;
+
+                // Check the magnitude squared against 2^2
+                if ((re2 + im2) > 4)
                 {
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private static bool IsPracticallyTheSame(double v1, double v2)
+        {
+            return Math.Abs(v1 - v2) <= 1e-17;
         }
     }
 }
