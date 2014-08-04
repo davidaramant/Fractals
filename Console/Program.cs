@@ -228,21 +228,41 @@ namespace Fractals.Console
 
         private string[] GetDebuggingArguments()
         {
+            /*--------------------------------------------------------------------------------------
+            |  The following items are used to render explanatory images.                          |
+            --------------------------------------------------------------------------------------*/
+
             //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };
             //return new[] { "-t", "RenderMandelbrotEscapePlain", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEscapePlain.xml" };
             //return new[] { "-t", "RenderMandelbrotEscapeFancy", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEscapeFancy.xml" };
             //return new[] { "-t", "RenderMandelbrotDistance", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotDistance.xml" };
             //return new[] { "-t", "RenderMandelbrotEdges", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEdges.xml" };
-            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindBuddhabrotPoints.xml" };
-            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindMandelbrotPoints.xml" };
-            //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotBuddhabrotPoints.xml" };
-            //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotMandelbrotPoints.xml" };
-            //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderBuddhabrotPlot.xml" };
-            //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotPlot.xml" };
-            //return new[] { "-t", "RenderNebulaPlots", "-c", @"..\..\..\..\Argument Files\RenderNebulaPlot.xml" };
-            //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };
-            //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };
+            
+            /*--------------------------------------------------------------------------------------
+            |  The following set of operations (done in order) generate a buddhabrot image.        |
+            --------------------------------------------------------------------------------------*/
+
             //return new[] { "-t", "FindEdgeAreas", "-c", @"..\..\..\..\Argument Files\EdgeAreas.xml" };
+            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindBuddhabrotPoints.xml" };
+            //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotBuddhabrotPoints.xml" };
+            //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderBuddhabrotPlot.xml" };
+
+            /*--------------------------------------------------------------------------------------
+            |  The following set of operations (done in order) generate an anti-buddhabrot image.  |
+            --------------------------------------------------------------------------------------*/
+
+            //return new[] { "-t", "FindEdgeAreas", "-c", @"..\..\..\..\Argument Files\EdgeAreas.xml" };
+            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindMandelbrotPoints.xml" };
+            //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotMandelbrotPoints.xml" };
+            //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotPlot.xml" };
+
+            /*--------------------------------------------------------------------------------------
+            |  After generating three separate plots (with different maximum bailout values, the   |
+            |  following operation generates an anti-buddhabrot image.                             |
+            --------------------------------------------------------------------------------------*/
+
+            //return new[] { "-t", "RenderNebulaPlots", "-c", @"..\..\..\..\Argument Files\RenderNebulaPlot.xml" };
+
             return new string[0];
         }
     }
