@@ -1,8 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Fractals.Model;
 using Fractals.PointGenerator;
-using Fractals.Renderer;
 using log4net;
 
 namespace Fractals.Utility
@@ -77,7 +77,7 @@ namespace Fractals.Utility
             Parallel.ForEach(_pointGenerator.GetRandomComplexNumbers(viewPort),
                 (number, state) =>
                 {
-                    if (BuddhabrotPointGenerator.IsPointInBuddhabrot(number, bailout))
+                    if (IsPointInBuddhabrot(number, bailout))
                     {
                         Interlocked.Increment(ref num);
                         list.SaveNumber(number);
@@ -102,6 +102,63 @@ namespace Fractals.Utility
         public void Stop()
         {
             ShouldStop = true;
+        }
+
+
+        public static bool IsPointInBuddhabrot(Complex c, BailoutRange bailoutRange)
+        {
+            double re = 0;
+            double im = 0;
+
+            // Check for orbits
+            // - Check re/im against an old point
+            // - Only check every power of 2
+            double oldRe = 0;
+            double oldIm = 0;
+
+            uint checkNum = 1;
+
+            // Cache the squares
+            // They are used to find the magnitude; reuse these values when computing the next re/im
+            double re2 = 0;
+            double im2 = 0;
+
+            for (uint i = 0; i < bailoutRange.Maximum; i++)
+            {
+                var reTemp = re2 - im2 + c.Real;
+                im = 2 * re * im + c.Imaginary;
+                re = reTemp;
+
+                // Orbit check
+                if (checkNum == i)
+                {
+                    if (IsPracticallyTheSame(oldRe, re) && IsPracticallyTheSame(oldIm, im))
+                    {
+                        return false;
+                    }
+
+                    oldRe = re;
+                    oldIm = im;
+
+                    checkNum = checkNum << 1;
+                }
+
+                re2 = re * re;
+                im2 = im * im;
+
+                // Check the magnitude squared against 2^2
+                if ((re2 + im2) > 4)
+                {
+                    return i >= bailoutRange.Minimum;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsPracticallyTheSame(double v1, double v2)
+        {
+            return Math.Abs(v1 - v2) <= 1e-17;
         }
     }
 }

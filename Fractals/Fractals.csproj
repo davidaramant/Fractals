@@ -79,7 +79,6 @@
     <Compile Include="Model\MandelbulbChecker.cs" />
     <Compile Include="Model\Area.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Renderer\BuddhabrotPointGenerator.cs" />
     <Compile Include="Renderer\NebulaPointRenderer.cs" />
     <Compile Include="Renderer\PointRenderer.cs" />
     <Compile Include="Renderer\IGenerator.cs" />
