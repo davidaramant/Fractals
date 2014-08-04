@@ -176,9 +176,10 @@ namespace Fractals.Console
 
         private static void SetupParallelismLimits(Options options)
         {
+            var processorCount = Environment.ProcessorCount;
             if (options.Utilization.HasValue)
             {
-                var numberToUse = Environment.ProcessorCount*options.Utilization.Value/100;
+                var numberToUse = processorCount * options.Utilization.Value / 100;
                 if (numberToUse == 0)
                 {
                     numberToUse = 1;
@@ -186,10 +187,12 @@ namespace Fractals.Console
 
                 GlobalArguments.DegreesOfParallelism = numberToUse;
 
-                _log.InfoFormat("Parallel operations set to use {0} of {1} processors", numberToUse, Environment.ProcessorCount);
+                _log.InfoFormat("Parallel operations set to use {0} of {1} processors", numberToUse, processorCount);
             }
             else
             {
+                GlobalArguments.DegreesOfParallelism = processorCount;
+
                 _log.DebugFormat("Parallel options set to use all processors available");
             }
         }
