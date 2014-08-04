@@ -36,19 +36,17 @@ namespace Fractals.Renderer
             var checkForEdges = areasToInclude.Length > 1;
 
             var output = new Color[resolution.Width, resolution.Height];
-
+            
             _log.Debug("Rendering points");
-            for (int y = 0; y < resolution.Height; y++)
+
+            var processedPixels = GetAllPoints(resolution)
+                .AsParallel()
+                .Select(p => PickColorForPoint(p, viewPort, resolution, checkForEdges, areasToInclude))
+                .AsEnumerable();
+
+            foreach (var result in processedPixels)
             {
-                for (int x = 0; x < resolution.Width; x++)
-                {
-                    var number = viewPort.GetNumberFromPoint(resolution, new Point(x, y));
-                    Color color = PickColor(
-                        () => checkForEdges && areasToInclude.Any(a => a.IsInside(number)),
-                        () => MandelbrotFinder.IsInSet(number),
-                        () => MandelbulbChecker.IsInsideBulbs(number));
-                    output[x, y] = color;
-                }
+                output[result.Item1.X, result.Item1.Y] = result.Item2;
             }
 
             if (ShouldIncludeGrid)
@@ -61,6 +59,27 @@ namespace Fractals.Renderer
             RenderAxis(resolution, viewPort, output);
 
             return output;
+        }
+
+        private IEnumerable<Point> GetAllPoints(Size resolution)
+        {
+            for (int y = 0; y < resolution.Height; y++)
+            {
+                for (int x = 0; x < resolution.Width; x++)
+                {
+                    yield return new Point(x, y);
+                }
+            }
+        }
+
+        private Tuple<Point, Color> PickColorForPoint(Point point, Area viewPort, Size resolution, bool checkForEdges, IEnumerable<Area> areasToInclude)
+        {
+            var number = viewPort.GetNumberFromPoint(resolution, point);
+            var color = PickColor(
+                () => checkForEdges && areasToInclude.Any(a => a.IsInside(number)),
+                () => MandelbrotFinder.IsInSet(number),
+                () => MandelbulbChecker.IsInsideBulbs(number));
+            return Tuple.Create(point, color);
         }
 
         protected virtual IEnumerable<Area> GetAreasToInclude(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
