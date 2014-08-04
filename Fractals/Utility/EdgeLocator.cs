@@ -12,7 +12,7 @@ namespace Fractals.Utility
 {
     public class EdgeLocator
     {
-        private static ILog _log;
+        private readonly static ILog _log;
 
         static EdgeLocator()
         {
