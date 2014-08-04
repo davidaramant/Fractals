@@ -14,9 +14,9 @@ namespace Fractals.Renderer
             get { return false; }
         }
 
-        protected override IEnumerable<Area> GetAreasToInclude(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        protected override IEnumerable<Area> GetAreasToInclude(Size resolution, Area viewPort)
         {
-            return EdgeLocator.LocateEdges(resolution, GridSize, realAxis, imaginaryAxis);
+            return EdgeLocator.LocateEdges(resolution, GridSize, viewPort);
         }
     }
 }

@@ -25,15 +25,13 @@ namespace Fractals.Renderer
             _log = LogManager.GetLogger(GetType());
         }
 
-        public Color[,] Render(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        public Color[,] Render(Size resolution, Area viewPort)
         {
             _log.InfoFormat("Starting to render ({0}x{1})", resolution.Width, resolution.Height);
 
-            var viewPort = new Area(realAxis, imaginaryAxis);
-
             viewPort.LogViewport();
 
-            var areasToInclude = GetAreasToInclude(resolution, realAxis, imaginaryAxis).ToArray();
+            var areasToInclude = GetAreasToInclude(resolution, viewPort).ToArray();
             var checkForEdges = areasToInclude.Length > 1;
 
             var output = new Color[resolution.Width, resolution.Height];
@@ -84,9 +82,9 @@ namespace Fractals.Renderer
             return Tuple.Create(point, color);
         }
 
-        protected virtual IEnumerable<Area> GetAreasToInclude(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        protected virtual IEnumerable<Area> GetAreasToInclude(Size resolution, Area viewPort)
         {
-            yield return new Area(realAxis, imaginaryAxis);
+            yield return viewPort;
         }
 
         protected virtual Color PickColor(Func<bool> isInEdgeRegion , Func<bool> isInSet, Func<bool> isInBulbs)

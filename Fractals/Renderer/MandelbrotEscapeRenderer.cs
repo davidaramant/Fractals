@@ -14,13 +14,11 @@ namespace Fractals.Renderer
             _log = LogManager.GetLogger(GetType());
         }
 
-        public Color[,] Render(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        public Color[,] Render(Size resolution, Area viewPort)
         {
             _log.InfoFormat("Starting to render ({0}x{1})", resolution.Width, resolution.Height);
 
-            var viewPort = new Area(
-                realRange: new InclusiveRange(-2, 2),
-                imaginaryRange: new InclusiveRange(-2, 2));
+            viewPort = AreaFactory.MandelbrotRadiusArea;
 
             viewPort.LogViewport();
 

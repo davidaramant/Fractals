@@ -63,9 +63,7 @@ namespace Fractals.Utility
                 minimum: _minimum,
                 maximum: _maximum);
 
-            var viewPort = new Area(
-                realRange: new InclusiveRange(-2, 1),
-                imaginaryRange: new InclusiveRange(-1.5, 1.5));
+            var viewPort = AreaFactory.SearchArea;
 
             viewPort.LogViewport();
 

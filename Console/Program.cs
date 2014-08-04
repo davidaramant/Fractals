@@ -97,12 +97,11 @@ namespace Fractals.Console
             where T : IGenerator, new()
         {
             var arguments = DeserializeArguments<ExampleImageRendererArguments>(options.ConfigurationFilepath);
-            var realAxis = new InclusiveRange(-2, 1);
-            var imaginaryAxis = new InclusiveRange(-1.5, 1.5);
+            var viewPort = AreaFactory.SearchArea;
 
             var renderer = Activator.CreateInstance<T>();
 
-            Color[,] output = renderer.Render(arguments.Resolution.ToSize(), realAxis, imaginaryAxis);
+            Color[,] output = renderer.Render(arguments.Resolution.ToSize(), viewPort);
 
             Bitmap image = ImageUtility.ColorMatrixToBitmap(output);
 

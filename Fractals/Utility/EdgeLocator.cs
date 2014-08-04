@@ -19,14 +19,14 @@ namespace Fractals.Utility
             _log = LogManager.GetLogger(typeof (EdgeLocator));
         }
 
-        public static List<Area> LocateEdges(Size resolution, double gridSize, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        public static List<Area> LocateEdges(Size resolution, double gridSize, Area viewPort)
         {
             _log.DebugFormat("Looking for intersting areas ({0}x{1})", resolution.Width, resolution.Height);
 
-            var allAreas = AllPossibleAreas(realAxis, imaginaryAxis, gridSize);
+            var allAreas = AllPossibleAreas(viewPort.RealRange, viewPort.ImaginaryRange, gridSize);
             _log.DebugFormat("Found {0} total areas", allAreas.Count);
 
-            var numbers = new MandelbrotFinder().FindPoints(resolution, realAxis, imaginaryAxis);
+            var numbers = new MandelbrotFinder().FindPoints(resolution, viewPort);
             _log.DebugFormat("Found {0} points within the region", numbers.Count);
 
             var areasWithSomeNumbers = FindAreasWithNumbers(allAreas, numbers);

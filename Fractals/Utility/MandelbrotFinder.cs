@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading.Tasks;
 using Fractals.Arguments;
@@ -22,16 +21,15 @@ namespace Fractals.Utility
             _log = LogManager.GetLogger(GetType());
         }
 
-        public List<Complex> FindPoints(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        public List<Complex> FindPoints(Size resolution, Area viewPort)
         {
             _log.InfoFormat("Looking for points ({0}x{1})", resolution.Width, resolution.Height);
 
             var results = new ConcurrentBag<Complex>();
-            var viewPoint = new Area(realAxis, imaginaryAxis);
 
             Parallel.ForEach(GetAllPoints(resolution), new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, point =>
             {
-                var number = viewPoint.GetNumberFromPoint(resolution, point);
+                var number = viewPort.GetNumberFromPoint(resolution, point);
 
                 if (IsInSet(number))
                 {

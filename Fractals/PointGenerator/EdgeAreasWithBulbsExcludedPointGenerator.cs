@@ -15,7 +15,7 @@ namespace Fractals.PointGenerator
  
         public override void Initialize(Area viewPort)
         {
-            _edgeAreas = EdgeLocator.LocateEdges(new Size(1000, 1000), GridSize, viewPort.RealRange, viewPort.ImaginaryRange);
+            _edgeAreas = EdgeLocator.LocateEdges(new Size(1000, 1000), GridSize, viewPort);
 
             _random = new Random();
         }

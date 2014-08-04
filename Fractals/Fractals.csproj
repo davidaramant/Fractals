@@ -87,6 +87,7 @@
     <Compile Include="Renderer\MandelbrotEscapeRenderer.cs" />
     <Compile Include="Renderer\MandelbrotEscapeRendererFancy.cs" />
     <Compile Include="Renderer\MandelbrotRenderer.cs" />
+    <Compile Include="Utility\AreaFactory.cs" />
     <Compile Include="Utility\ColorRamp.cs" />
     <Compile Include="Utility\ColorRampFactory.cs" />
     <Compile Include="Utility\ComplexNumberListWriter.cs" />

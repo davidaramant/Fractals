@@ -48,9 +48,7 @@ namespace Fractals.Utility
         {
             _log.InfoFormat("Plotting image ({0}x{1})", _resolution.Width, _resolution.Height);
 
-            var viewPort = new Area(
-                            realRange: new InclusiveRange(-1.75, 1),
-                            imaginaryRange: new InclusiveRange(-1.3, 1.3));
+            var viewPort = AreaFactory.RenderingArea;
 
             viewPort.LogViewport();
 
