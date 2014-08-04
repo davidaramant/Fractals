@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ExampleImageRendererArguments>
-  <ResolutionWidth>1024</ResolutionWidth>
-  <ResolutionHeight>1024</ResolutionHeight>
+  <Resolution>
+    <Width>1024</Width>
+    <Height>1024</Height>
+  </Resolution>
   <OutputDirectory>C:\temp\out</OutputDirectory>
   <OutputFilename>Mandelbrot</OutputFilename>
 </ExampleImageRendererArguments>

@@ -5,9 +5,7 @@ namespace Fractals.Arguments
     [Serializable]
     public class PointPlottingArguments
     {
-        public int ResolutionWidth { get; set; }
-
-        public int ResolutionHeight { get; set; }
+        public Resolution Resolution { get; set; }
 
         public string InputDirectory { get; set; }
 

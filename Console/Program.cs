@@ -94,13 +94,12 @@ namespace Console
             where T : IGenerator, new()
         {
             var arguments = DeserializeArguments<ExampleImageRendererArguments>(options.ConfigurationFilepath);
-            var resolution = new Size(arguments.ResolutionWidth, arguments.ResolutionHeight);
             var realAxis = new InclusiveRange(-2, 1);
             var imaginaryAxis = new InclusiveRange(-1.5, 1.5);
 
             var renderer = Activator.CreateInstance<T>();
 
-            Color[,] output = renderer.Render(resolution, realAxis, imaginaryAxis);
+            Color[,] output = renderer.Render(arguments.Resolution.ToSize(), realAxis, imaginaryAxis);
 
             Bitmap image = ImageUtility.ColorMatrixToBitmap(output);
 
@@ -142,7 +141,7 @@ namespace Console
         private void PlotPoints(Options options)
         {
             var arguments = DeserializeArguments<PointPlottingArguments>(options.ConfigurationFilepath);
-            var plotter = new FilePlotter(arguments.InputDirectory, arguments.InputFilePattern, arguments.OutputDirectory, arguments.OutputFilename, arguments.ResolutionWidth, arguments.ResolutionHeight);
+            var plotter = new FilePlotter(arguments.InputDirectory, arguments.InputFilePattern, arguments.OutputDirectory, arguments.OutputFilename, arguments.Resolution.Width, arguments.Resolution.Height);
             plotter.Plot();
         }
 
@@ -152,8 +151,8 @@ namespace Console
             var renderer = new PointRenderer(
                 inputDirectory: arguments.InputDirectory,
                 inputFilename: arguments.InputFilename,
-                width: arguments.ResolutionWidth,
-                height: arguments.ResolutionHeight);
+                width: arguments.Resolution.Width,
+                height: arguments.Resolution.Height);
 
             renderer.Render(outputDirectory: arguments.OutputDirectory, outputFilename: arguments.OutputFilename);
         }
@@ -166,8 +165,8 @@ namespace Console
                 inputFilenameRed: arguments.RedInputFilename,
                 inputFilenameGreen: arguments.GreenInputFilename,
                 inputFilenameBlue: arguments.BlueInputFilename,
-                width: arguments.ResolutionWidth,
-                height: arguments.ResolutionHeight);
+                width: arguments.Resolution.Width,
+                height: arguments.Resolution.Height);
 
             renderer.Render(outputDirectory: arguments.OutputDirectory, outputFilename: arguments.OutputFilename);
         }
