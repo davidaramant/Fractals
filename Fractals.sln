@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Argument Files", "Argument 
 		Argument Files\RenderMandelbrotEscapeFancy.xml = Argument Files\RenderMandelbrotEscapeFancy.xml
 		Argument Files\RenderMandelbrotEscapePlain.xml = Argument Files\RenderMandelbrotEscapePlain.xml
 		Argument Files\RenderMandelbrotPlot.xml = Argument Files\RenderMandelbrotPlot.xml
+		Argument Files\RenderMandelbrotPoints.xml = Argument Files\RenderMandelbrotPoints.xml
 		Argument Files\RenderNebulaPlot.xml = Argument Files\RenderNebulaPlot.xml
 	EndProjectSection
 EndProject

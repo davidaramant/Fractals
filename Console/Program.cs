@@ -68,13 +68,16 @@ namespace Fractals.Console
                     PlotPoints(options);
                     break;
                 case OperationType.RenderPlot:
-                    RenderPoints(options);
+                    RenderPlot(options);
                     break;
                 case OperationType.RenderNebulaPlots:
                     RenderNebulabrot(options);
                     break;
                 case OperationType.FindEdgeAreas:
                     FindEdgeAreas(options);
+                    break;
+                case OperationType.RenderPoints:
+                    RenderPoints(options);
                     break;
             }
 
@@ -170,7 +173,7 @@ namespace Fractals.Console
             plotter.Plot();
         }
 
-        private void RenderPoints(Options options)
+        private void RenderPlot(Options options)
         {
             var arguments = DeserializeArguments<RenderingArguments>(options.ConfigurationFilepath);
             var renderer = new PlotRenderer(
@@ -201,6 +204,13 @@ namespace Fractals.Console
             var arguments = DeserializeArguments<EdgeAreaArguments>(options.ConfigurationFilepath);
             var locator = new EdgeLocator(arguments.OutputDirectory, arguments.OutputFilename);
             locator.StoreEdges(arguments.Resolution.ToSize(), arguments.GridSize, AreaFactory.SearchArea);
+        }
+
+        private void RenderPoints(Options options)
+        {
+            var arguments = DeserializeArguments<PointRenderingArguments>(options.ConfigurationFilepath);
+            var renderer = new PointRenderer(arguments.InputDirectory, arguments.InputFilePattern, arguments.Resolution.Width, arguments.Resolution.Height);
+            renderer.Render(arguments.OutputDirectory, arguments.OutputFilename);
         }
 
         private static void SetupParallelismLimits(Options options)
@@ -239,7 +249,7 @@ namespace Fractals.Console
             //return new[] { "-t", "RenderMandelbrotEdges", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEdges.xml" };
             
             /*--------------------------------------------------------------------------------------
-            |  The following set of operations (done in order) generate a buddhabrot image.        |
+            |  The following set of operations (done in order) generates a buddhabrot image.       |
             --------------------------------------------------------------------------------------*/
 
             //return new[] { "-t", "FindEdgeAreas", "-c", @"..\..\..\..\Argument Files\EdgeAreas.xml" };
@@ -248,13 +258,21 @@ namespace Fractals.Console
             //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderBuddhabrotPlot.xml" };
 
             /*--------------------------------------------------------------------------------------
-            |  The following set of operations (done in order) generate an anti-buddhabrot image.  |
+            |  The following set of operations (done in order) generates an anti-buddhabrot image. |
             --------------------------------------------------------------------------------------*/
 
             //return new[] { "-t", "FindEdgeAreas", "-c", @"..\..\..\..\Argument Files\EdgeAreas.xml" };
             //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindMandelbrotPoints.xml" };
             //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotMandelbrotPoints.xml" };
             //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotPlot.xml" };
+
+            /*--------------------------------------------------------------------------------------
+            |  The following set of operations (done in order) generates a mandelbrot image.       |
+            --------------------------------------------------------------------------------------*/
+
+            //return new[] { "-t", "FindEdgeAreas", "-c", @"..\..\..\..\Argument Files\EdgeAreas.xml" };
+            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindMandelbrotPoints.xml" };
+            //return new[] { "-t", "RenderPoints", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotPoints.xml" };
 
             /*--------------------------------------------------------------------------------------
             |  After generating three separate plots (with different maximum bailout values, the   |
