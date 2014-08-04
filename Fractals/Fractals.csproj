@@ -90,7 +90,6 @@
     <Compile Include="Utility\ColorRampFactory.cs" />
     <Compile Include="Utility\ComplexNumberListWriter.cs" />
     <Compile Include="Utility\ComplexNumberListReader.cs" />
-    <Compile Include="Utility\FilePlotter.cs" />
     <Compile Include="PointGenerator\BulbsExcludedPointGenerator.cs" />
     <Compile Include="Utility\HitPlot.cs" />
     <Compile Include="Utility\HsvColor.cs" />

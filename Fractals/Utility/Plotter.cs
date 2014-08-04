@@ -7,24 +7,27 @@ using System.Threading.Tasks;
 
 namespace Fractals.Utility
 {
-    public abstract class Plotter
+    public sealed class Plotter
     {
-        private readonly string _directory;
-        private readonly string _filename;
-        private readonly int _bailout;
+        private const int Bailout = 30000;
 
-        protected readonly Size Resolution;
+        private readonly string _inputDirectory;
+        private readonly string _inputFilenamePattern;
+        private readonly string _outputDirectory;
+        private readonly string _outputFilename;
+        private readonly Size _resolution;
 
         private readonly HitPlot _hitPlot;
 
         private static ILog _log;
 
-        protected Plotter(string directory, string filename, int width, int height, int bailout)
+        public Plotter(string inputDirectory, string inputFilenamePattern, string outputDirectory, string outputFilename, int width, int height)
         {
-            _directory = directory;
-            _filename = filename;
-            Resolution = new Size(width, height);
-            _bailout = bailout;
+            _inputDirectory = inputDirectory;
+            _inputFilenamePattern = inputFilenamePattern;
+            _outputDirectory = outputDirectory;
+            _outputFilename = outputFilename;
+            _resolution = new Size(width, height);
 
             _log = LogManager.GetLogger(GetType());
 
@@ -37,14 +40,12 @@ namespace Fractals.Utility
                 _log.Warn("The height should be evenly divisible by 4");
             }
 
-            _hitPlot = new HitPlot(Resolution);
+            _hitPlot = new HitPlot(_resolution);
         }
-
-        protected abstract IEnumerable<Complex> GetNumbers();
 
         public void Plot()
         {
-            _log.InfoFormat("Plotting image ({0}x{1})", Resolution.Width, Resolution.Height);
+            _log.InfoFormat("Plotting image ({0}x{1})", _resolution.Width, _resolution.Height);
 
             var viewPort = new Area(
                             realRange: new InclusiveRange(-1.75, 1),
@@ -52,7 +53,7 @@ namespace Fractals.Utility
 
             viewPort.LogViewport();
 
-            var rotatedResolution = new Size(Resolution.Height, Resolution.Width);
+            var rotatedResolution = new Size(_resolution.Height, _resolution.Width);
 
             _log.Info("Calculating trajectories");
 
@@ -62,7 +63,7 @@ namespace Fractals.Utility
                 {
                     var point = viewPort.GetPointFromNumber(rotatedResolution, c).Rotate();
 
-                    if (!Resolution.IsInside(point))
+                    if (!_resolution.IsInside(point))
                     {
                         continue;
                     }
@@ -73,7 +74,13 @@ namespace Fractals.Utility
 
             _log.Info("Done plotting trajectories");
 
-            _hitPlot.SaveTrajectories(Path.Combine(_directory, _filename));
+            _hitPlot.SaveTrajectories(Path.Combine(_outputDirectory, _outputFilename));
+        }
+
+        private IEnumerable<Complex> GetNumbers()
+        {
+            var list = new ComplexNumberListReader(_inputDirectory, _inputFilenamePattern);
+            return list.GetNumbers();
         }
 
         private IEnumerable<Complex> GetTrajectory(Complex c)
@@ -84,7 +91,7 @@ namespace Fractals.Utility
             double re = 0;
             double im = 0;
 
-            for (int i = 0; i < _bailout; i++)
+            for (int i = 0; i < Bailout; i++)
             {
                 var reTemp = re * re - im * im + rePrev;
                 im = 2 * re * im + imPrev;
