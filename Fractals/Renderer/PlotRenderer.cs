@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Fractals.Renderer
 {
-    public sealed class PointRenderer
+    public sealed class PlotRenderer
     {
         private readonly string _inputInputDirectory;
         private readonly string _inputFilename;
@@ -21,7 +21,7 @@ namespace Fractals.Renderer
 
         private readonly ColorRamp _colorRamp = ColorRampFactory.Blue;
 
-        public PointRenderer(string inputDirectory, string inputFilename, int width, int height)
+        public PlotRenderer(string inputDirectory, string inputFilename, int width, int height)
         {
             _inputInputDirectory = inputDirectory;
             _inputFilename = inputFilename;

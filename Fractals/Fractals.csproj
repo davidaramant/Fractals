@@ -84,7 +84,7 @@
     <Compile Include="PointGenerator\EdgeAreasAndBulbsPointGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderer\NebulaPointRenderer.cs" />
-    <Compile Include="Renderer\PointRenderer.cs" />
+    <Compile Include="Renderer\PlotRenderer.cs" />
     <Compile Include="Renderer\IGenerator.cs" />
     <Compile Include="Renderer\MandelbrotDistanceRenderer.cs" />
     <Compile Include="Renderer\MandelbrotEscapeRenderer.cs" />

@@ -173,7 +173,7 @@ namespace Fractals.Console
         private void RenderPoints(Options options)
         {
             var arguments = DeserializeArguments<RenderingArguments>(options.ConfigurationFilepath);
-            var renderer = new PointRenderer(
+            var renderer = new PlotRenderer(
                 inputDirectory: arguments.InputDirectory,
                 inputFilename: arguments.InputFilename,
                 width: arguments.Resolution.Width,
