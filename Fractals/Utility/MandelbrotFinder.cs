@@ -27,7 +27,7 @@ namespace Fractals.Utility
 
             var results = new ConcurrentBag<Complex>();
 
-            Parallel.ForEach(GetAllPoints(resolution), new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, point =>
+            Parallel.ForEach(resolution.GetAllPoints(), new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, point =>
             {
                 var number = viewPort.GetNumberFromPoint(resolution, point);
 
@@ -42,17 +42,6 @@ namespace Fractals.Utility
             _log.DebugFormat("Found {0} points", resultList.Count);
 
             return resultList;
-        }
-
-        private static IEnumerable<Point> GetAllPoints(Size resolution)
-        {
-            for (int y = 0; y < resolution.Height; y++)
-            {
-                for (int x = 0; x < resolution.Width; x++)
-                {
-                    yield return new Point(x, y);
-                }
-            }
         }
 
         public static bool IsInSet(Complex c)

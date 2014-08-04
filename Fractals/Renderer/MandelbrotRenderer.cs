@@ -38,7 +38,8 @@ namespace Fractals.Renderer
             
             _log.Debug("Rendering points");
 
-            var processedPixels = GetAllPoints(resolution)
+            var processedPixels = resolution
+                .GetAllPoints()
                 .AsParallel()
                 .WithDegreeOfParallelism(GlobalArguments.DegreesOfParallelism)
                 .Select(p => PickColorForPoint(p, viewPort, resolution, checkForEdges, areasToInclude))
@@ -59,17 +60,6 @@ namespace Fractals.Renderer
             RenderAxis(resolution, viewPort, output);
 
             return output;
-        }
-
-        private static IEnumerable<Point> GetAllPoints(Size resolution)
-        {
-            for (int y = 0; y < resolution.Height; y++)
-            {
-                for (int x = 0; x < resolution.Width; x++)
-                {
-                    yield return new Point(x, y);
-                }
-            }
         }
 
         private Tuple<Point, Color> PickColorForPoint(Point point, Area viewPort, Size resolution, bool checkForEdges, IEnumerable<Area> areasToInclude)
