@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PointFinderArguments>
   <OutputDirectory>C:\temp\out</OutputDirectory>
-  <OutputFilenamePrefix>BuddhabrotPoints</OutputFilenamePrefix>
+  <OutputFilenamePrefix>MandelbrotPoints</OutputFilenamePrefix>
   <MinimumThreshold>10000</MinimumThreshold>
   <MaximumThreshold>20000</MaximumThreshold>
-  <SelectionStrategy>EdgesWithBulbsExcluded</SelectionStrategy>
+  <SelectionStrategy>EdgesAndBulbsOnly</SelectionStrategy>
   <!--The following are only required with the strategy includes edge detection-->
   <InputDirectory>C:\temp\in</InputDirectory>
   <InputEdgeFilename>Edge.edge</InputEdgeFilename>

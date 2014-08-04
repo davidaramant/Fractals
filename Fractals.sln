@@ -10,16 +10,18 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Argument Files", "Argument Files", "{498E9873-A385-4378-B0A6-CE0A2DCE1EC4}"
 	ProjectSection(SolutionItems) = preProject
 		Argument Files\EdgeAreas.xml = Argument Files\EdgeAreas.xml
-		Argument Files\FindAntiBuddhabrotPoints.xml = Argument Files\FindAntiBuddhabrotPoints.xml
 		Argument Files\FindBuddhabrotPoints.xml = Argument Files\FindBuddhabrotPoints.xml
-		Argument Files\PlotPoints.xml = Argument Files\PlotPoints.xml
+		Argument Files\FindMandelbrotPoints.xml = Argument Files\FindMandelbrotPoints.xml
+		Argument Files\PlotBuddhabrotPoints.xml = Argument Files\PlotBuddhabrotPoints.xml
+		Argument Files\PlotMandelbrotPoints.xml = Argument Files\PlotMandelbrotPoints.xml
+		Argument Files\RenderBuddhabrotPlot.xml = Argument Files\RenderBuddhabrotPlot.xml
 		Argument Files\RenderMandelbrot.xml = Argument Files\RenderMandelbrot.xml
 		Argument Files\RenderMandelbrotDistance.xml = Argument Files\RenderMandelbrotDistance.xml
 		Argument Files\RenderMandelbrotEdges.xml = Argument Files\RenderMandelbrotEdges.xml
 		Argument Files\RenderMandelbrotEscapeFancy.xml = Argument Files\RenderMandelbrotEscapeFancy.xml
 		Argument Files\RenderMandelbrotEscapePlain.xml = Argument Files\RenderMandelbrotEscapePlain.xml
+		Argument Files\RenderMandelbrotPlot.xml = Argument Files\RenderMandelbrotPlot.xml
 		Argument Files\RenderNebulaPlot.xml = Argument Files\RenderNebulaPlot.xml
-		Argument Files\RenderPlot.xml = Argument Files\RenderPlot.xml
 	EndProjectSection
 EndProject
 Global

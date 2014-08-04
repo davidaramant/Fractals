@@ -57,6 +57,11 @@ namespace Fractals.Utility
 
         public static bool IsInSet(Complex c)
         {
+            return IsInSet(c, Bailout);
+        }
+
+        public static bool IsInSet(Complex c, BailoutRange bailout)
+        {
             if (MandelbulbChecker.IsInsideBulbs(c))
             {
                 return true;
@@ -78,7 +83,7 @@ namespace Fractals.Utility
             double re2 = 0;
             double im2 = 0;
 
-            for (uint i = 0; i < Bailout.Maximum; i++)
+            for (uint i = 0; i < bailout.Maximum; i++)
             {
                 var reTemp = re2 - im2 + c.Real;
                 im = 2 * re * im + c.Imaginary;

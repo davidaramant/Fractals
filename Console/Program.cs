@@ -126,10 +126,31 @@ namespace Fractals.Console
                 case PointSelectionStrategy.EdgesWithBulbsExcluded:
                     generator = new EdgeAreasWithBulbsExcludedPointGenerator(arguments.InputDirectory, arguments.InputEdgeFilename);
                     break;
+                case PointSelectionStrategy.BulbsOnly:
+                    generator = new BulbsOnlyPointGenerator();
+                    break;
+                case PointSelectionStrategy.EdgesAndBulbsOnly:
+                    generator = new EdgeAreasAndBulbsPointGenerator(arguments.InputDirectory, arguments.InputEdgeFilename);
+                    break;
                 default:
                     throw new ArgumentException();
             }
-            var finder = new PointFinder(arguments.MinimumThreshold, arguments.MaximumThreshold, arguments.OutputDirectory, arguments.OutputFilenamePrefix, generator);
+
+            PointFinder finder;
+            switch (arguments.SelectionStrategy)
+            {
+                case PointSelectionStrategy.Random:
+                case PointSelectionStrategy.BulbsExcluded:
+                case PointSelectionStrategy.EdgesWithBulbsExcluded:
+                    finder = new BuddhabrotPointFinder(arguments.MinimumThreshold, arguments.MaximumThreshold, arguments.OutputDirectory, arguments.OutputFilenamePrefix, generator);
+                    break;
+                case PointSelectionStrategy.BulbsOnly:
+                case PointSelectionStrategy.EdgesAndBulbsOnly:
+                    finder = new MandelbrotPointFinder(arguments.MinimumThreshold, arguments.MaximumThreshold, arguments.OutputDirectory, arguments.OutputFilenamePrefix, generator);
+                    break;
+                default:
+                    throw new ArgumentException();
+            }
 
             System.Console.WriteLine("Press <ENTER> to stop...");
 
@@ -213,9 +234,11 @@ namespace Fractals.Console
             //return new[] { "-t", "RenderMandelbrotDistance", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotDistance.xml" };
             //return new[] { "-t", "RenderMandelbrotEdges", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEdges.xml" };
             //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindBuddhabrotPoints.xml" };
-            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindAntiBuddhabrotPoints.xml" };
-            //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotPoints.xml" };
-            //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderPlot.xml" };
+            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindMandelbrotPoints.xml" };
+            //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotBuddhabrotPoints.xml" };
+            //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotMandelbrotPoints.xml" };
+            //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderBuddhabrotPlot.xml" };
+            //return new[] { "-t", "RenderPlot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotPlot.xml" };
             //return new[] { "-t", "RenderNebulaPlots", "-c", @"..\..\..\..\Argument Files\RenderNebulaPlot.xml" };
             //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };
             //return new[] { "-t", "RenderMandelbrot", "-c", @"..\..\..\..\Argument Files\RenderMandelbrot.xml" };

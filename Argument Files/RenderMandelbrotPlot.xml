@@ -5,7 +5,7 @@
     <Height>1024</Height>
   </Resolution>
   <InputDirectory>C:\temp\in</InputDirectory>
-  <InputFilename>Plot.plot</InputFilename>
+  <InputFilename>Mandelbrot.plot</InputFilename>
   <OutputDirectory>C:\temp\out</OutputDirectory>
-  <OutputFilename>Buddhabrot</OutputFilename>
+  <OutputFilename>AntiBuddhabrot</OutputFilename>
 </RenderingArguments>

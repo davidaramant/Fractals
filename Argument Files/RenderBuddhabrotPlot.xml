@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RenderingArguments>
+  <Resolution>
+    <Width>1024</Width>
+    <Height>1024</Height>
+  </Resolution>
+  <InputDirectory>C:\temp\in</InputDirectory>
+  <InputFilename>Buddhabrot.plot</InputFilename>
+  <OutputDirectory>C:\temp\out</OutputDirectory>
+  <OutputFilename>Buddhabrot</OutputFilename>
+</RenderingArguments>

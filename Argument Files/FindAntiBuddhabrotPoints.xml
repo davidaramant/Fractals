@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<PointFinderArguments>
-  <OutputDirectory>C:\temp\out</OutputDirectory>
-  <OutputFilenamePrefix>Points</OutputFilenamePrefix>
-  <MinimumThreshold>1000</MinimumThreshold>
-  <MaximumThreshold>2000</MaximumThreshold>
-  <SelectionStrategy>BulbsOnly</SelectionStrategy>
-</PointFinderArguments>
