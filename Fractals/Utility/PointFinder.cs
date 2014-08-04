@@ -1,12 +1,13 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Fractals.Model;
+using Fractals.PointGenerator;
 using Fractals.Renderer;
 using log4net;
 
 namespace Fractals.Utility
 {
-    public class BuddhabrotNumberFinder
+    public class PointFinder
     {
         private static bool _shouldStop = false;
         private readonly static object ShouldStopLock = new object();
@@ -38,7 +39,7 @@ namespace Fractals.Utility
             }
         }
 
-        public BuddhabrotNumberFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
+        public PointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
         {
             _minimum = minimum;
             _maximum = maximum;

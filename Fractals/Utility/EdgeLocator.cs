@@ -8,18 +8,18 @@ using log4net;
 
 namespace Fractals.Utility
 {
-    public class AreaCalculator
+    public class EdgeLocator
     {
         const double GridSize = 0.04;
 
         private static ILog _log;
 
-        public AreaCalculator()
+        public EdgeLocator()
         {
             _log = LogManager.GetLogger(GetType());
         }
 
-        public List<Area> InterestingAreas(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
+        public List<Area> LocateEdges(Size resolution, InclusiveRange realAxis, InclusiveRange imaginaryAxis)
         {
             _log.DebugFormat("Looking for intersting areas ({0}x{1})", resolution.Width, resolution.Height);
 

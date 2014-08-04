@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using Fractals.Model;
+using Fractals.Utility;
 
-namespace Fractals.Utility
+namespace Fractals.PointGenerator
 {
     public class RandomPointGenerator
     {

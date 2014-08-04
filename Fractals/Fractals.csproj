@@ -82,7 +82,6 @@
     <Compile Include="Renderer\BuddhabrotPointGenerator.cs" />
     <Compile Include="Renderer\NebulaPointRenderer.cs" />
     <Compile Include="Renderer\PointRenderer.cs" />
-    <Compile Include="Utility\AntiBuddhabrotPlotter.cs" />
     <Compile Include="Renderer\IGenerator.cs" />
     <Compile Include="Renderer\MandelbrotDistanceRenderer.cs" />
     <Compile Include="Renderer\MandelbrotEscapeRenderer.cs" />
@@ -93,18 +92,18 @@
     <Compile Include="Utility\ComplexNumberListWriter.cs" />
     <Compile Include="Utility\ComplexNumberListReader.cs" />
     <Compile Include="Utility\FilePlotter.cs" />
-    <Compile Include="Utility\ExcludingBulbPointGenerator.cs" />
+    <Compile Include="PointGenerator\BulbsExcludedPointGenerator.cs" />
     <Compile Include="Utility\HitPlot.cs" />
     <Compile Include="Utility\HsvColor.cs" />
     <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\CryptoRandom.cs" />
-    <Compile Include="Renderer\InterestingPointsRenderer.cs" />
-    <Compile Include="Utility\AreaCalculator.cs" />
-    <Compile Include="Utility\InterestingAreasPointGenerator.cs" />
+    <Compile Include="Renderer\EdgeAreasRenderer.cs" />
+    <Compile Include="Utility\EdgeLocator.cs" />
+    <Compile Include="PointGenerator\EdgeAreasWithBulbsExcludedPointGenerator.cs" />
     <Compile Include="Utility\MandelbrotFinder.cs" />
     <Compile Include="Utility\Plotter.cs" />
-    <Compile Include="Utility\BuddhabrotNumberFinder.cs" />
-    <Compile Include="Utility\RandomPointGenerator.cs" />
+    <Compile Include="Utility\PointFinder.cs" />
+    <Compile Include="PointGenerator\RandomPointGenerator.cs" />
     <Compile Include="Utility\SystemDrawingExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

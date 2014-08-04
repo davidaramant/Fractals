@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Fractals.Arguments;
 using Fractals.Model;
+using Fractals.PointGenerator;
 using Fractals.Renderer;
 using Fractals.Utility;
 using log4net;
@@ -57,7 +58,7 @@ namespace Console
                     RenderMandelbrot<MandelbrotDistanceRenderer>(options);
                     break;
                 case OperationType.RenderMandelbrotEdges:
-                    RenderMandelbrot<InterestingPointsRenderer>(options);
+                    RenderMandelbrot<EdgeAreasRenderer>(options);
                     break;
                 case OperationType.FindPoints:
                     FindPoints(options);
@@ -117,15 +118,15 @@ namespace Console
                     generator = new RandomPointGenerator();
                     break;
                 case PointSelectionStrategy.BulbsExcluded:
-                    generator = new ExcludingBulbPointGenerator();
+                    generator = new BulbsExcludedPointGenerator();
                     break;
                 case PointSelectionStrategy.EdgesWithBulbsExcluded:
-                    generator = new InterestingAreasPointGenerator();
+                    generator = new EdgeAreasWithBulbsExcludedPointGenerator();
                     break;
                 default:
                     throw new ArgumentException();
             }
-            var finder = new BuddhabrotNumberFinder(arguments.MinimumThreshold, arguments.MaximumThreshold, arguments.OutputDirectory, arguments.OutputFilenamePrefix, generator);
+            var finder = new PointFinder(arguments.MinimumThreshold, arguments.MaximumThreshold, arguments.OutputDirectory, arguments.OutputFilenamePrefix, generator);
 
             System.Console.WriteLine("Press <ENTER> to stop...");
 

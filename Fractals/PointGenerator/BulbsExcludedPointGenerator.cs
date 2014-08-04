@@ -1,8 +1,8 @@
 ﻿using Fractals.Model;
 
-namespace Fractals.Utility
+namespace Fractals.PointGenerator
 {
-    public class ExcludingBulbPointGenerator : RandomPointGenerator
+    public class BulbsExcludedPointGenerator : RandomPointGenerator
     {
         protected override bool ValidatePoint(Complex point)
         {
