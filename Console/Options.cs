@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 using CommandLine.Text;
 
-namespace Console
+namespace Fractals.Console
 {
     public class Options
     {

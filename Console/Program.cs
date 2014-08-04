@@ -10,7 +10,7 @@ using Fractals.Renderer;
 using Fractals.Utility;
 using log4net;
 
-namespace Console
+namespace Fractals.Console
 {
     class Program
     {

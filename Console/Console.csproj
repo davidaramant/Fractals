@@ -7,8 +7,8 @@
     <ProjectGuid>{EDCD72FB-E05F-4031-83FD-4DF5BCCD5008}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Console</RootNamespace>
-    <AssemblyName>Console</AssemblyName>
+    <RootNamespace>Fractals.Console</RootNamespace>
+    <AssemblyName>Fractals.Console</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
