@@ -5,7 +5,7 @@
     <Height>1024</Height>
   </Resolution>
   <InputDirectory>C:\temp\in</InputDirectory>
-  <InputFilePattern>BuddhabrotPoints.*.dat</InputFilePattern>
   <OutputDirectory>C:\temp\out</OutputDirectory>
+  <InputFilePattern>BuddhabrotPoints.*.point</InputFilePattern>
   <OutputFilename>Buddhabrot.plot</OutputFilename>
 </PointPlottingArguments>

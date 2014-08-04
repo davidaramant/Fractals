@@ -5,7 +5,7 @@
     <Height>1024</Height>
   </Resolution>
   <InputDirectory>C:\temp\in</InputDirectory>
-  <InputFilePattern>MandelbrotPoints.*.dat</InputFilePattern>
   <OutputDirectory>C:\temp\out</OutputDirectory>
+  <InputFilePattern>MandelbrotPoints.*.point</InputFilePattern>
   <OutputFilename>Mandelbrot.plot</OutputFilename>
 </PointPlottingArguments>
