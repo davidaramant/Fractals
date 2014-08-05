@@ -26,12 +26,12 @@ namespace Fractals.Renderer
         {
             var renderer = new PlotRenderer(_inputDirectory, _inputFilename, _width, _height);
 
-            for (double current = startingColor; current <= endingColor; current += stepSize)
+            for (double current = startingColor; current <= endingColor && current < 100; current += stepSize)
             {
                 _log.InfoFormat("Rendering for color: {0}", current);
 
                 var ramp = ColorRampFactory.GetIntensityRamp(current);
-                var outputFilename = string.Format("{0}-{1}", outputFilenamePrefix, current);
+                var outputFilename = string.Format("{0}-{1,3:000.##}", outputFilenamePrefix, current);
 
                 renderer.Render(outputDirectory, outputFilename, ramp);
             }
