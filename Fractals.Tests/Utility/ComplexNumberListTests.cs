@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using Fractals.Model;
 using Fractals.Utility;
@@ -31,7 +32,7 @@ namespace Fractals.Tests.Utility
                     listWriter.SaveNumber(n);
                 }
 
-                var listReader = new ComplexNumberListReader(file.DirectoryName, file.Name);
+                var listReader = new ComplexNumberListReader(file.DirectoryName, String.Format("{0}*.point", file.Name));
 
                 Complex[] roundTripped = listReader.GetNumbers().ToArray();
 
