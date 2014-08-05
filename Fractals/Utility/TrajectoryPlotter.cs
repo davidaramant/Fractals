@@ -83,6 +83,8 @@ namespace Fractals.Utility
             _log.Info("Done plotting trajectories");
 
             _hitPlot.SaveTrajectories(Path.Combine(_outputDirectory, _outputFilename));
+
+            _log.DebugFormat("Maximum point hit count: {0}", _hitPlot.Max());
         }
 
         private IEnumerable<Complex> GetNumbers()
