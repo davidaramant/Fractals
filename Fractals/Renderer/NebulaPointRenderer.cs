@@ -32,9 +32,9 @@ namespace Fractals.Renderer
 
             _resolution = new Size(width, height);
 
-            _hitPlotRed = new HitPlot(_resolution);
-            _hitPlotGreen = new HitPlot(_resolution);
-            _hitPlotBlue = new HitPlot(_resolution);
+            _hitPlotRed = new HitPlot4x4(_resolution);
+            _hitPlotGreen = new HitPlot4x4(_resolution);
+            _hitPlotBlue = new HitPlot4x4(_resolution);
 
             _log = LogManager.GetLogger(GetType());
         }

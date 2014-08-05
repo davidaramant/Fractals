@@ -42,7 +42,7 @@ namespace Fractals.Utility
                 _log.Warn("The height should be evenly divisible by 4");
             }
 
-            _hitPlot = new HitPlot(_resolution);
+            _hitPlot = new HitPlot4x4(_resolution);
         }
 
         public void Plot()

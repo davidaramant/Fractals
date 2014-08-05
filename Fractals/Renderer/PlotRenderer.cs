@@ -28,7 +28,7 @@ namespace Fractals.Renderer
 
             _resolution = new Size(width, height);
 
-            _hitPlot = new HitPlot(_resolution);
+            _hitPlot = new HitPlot4x4(_resolution);
 
             _log = LogManager.GetLogger(GetType());
         }
