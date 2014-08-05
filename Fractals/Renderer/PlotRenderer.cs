@@ -47,7 +47,7 @@ namespace Fractals.Renderer
 
             _log.Info("Done loading; finding maximum...");
 
-            var max = _hitPlot.FindMaximumHit();
+            var max = _hitPlot.Max();
 
             _log.DebugFormat("Found maximum: {0}", max);
 

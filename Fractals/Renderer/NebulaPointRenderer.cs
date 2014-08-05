@@ -49,9 +49,9 @@ namespace Fractals.Renderer
 
             _log.Info("Done loading; finding maximums...");
 
-            var maxRed = _hitPlotRed.FindMaximumHit();
-            var maxGreen = _hitPlotGreen.FindMaximumHit();
-            var maxBlue = _hitPlotBlue.FindMaximumHit();
+            var maxRed = _hitPlotRed.Max();
+            var maxGreen = _hitPlotGreen.Max();
+            var maxBlue = _hitPlotBlue.Max();
 
             _log.DebugFormat("Found maximum red: {0}", maxRed);
             _log.DebugFormat("Found maximum green: {0}", maxGreen);
