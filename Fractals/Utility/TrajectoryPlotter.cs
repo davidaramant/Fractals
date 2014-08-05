@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Fractals.Utility
 {
-    public sealed class Plotter
+    public sealed class TrajectoryPlotter
     {
         private const int Bailout = 30000;
 
@@ -23,7 +23,7 @@ namespace Fractals.Utility
 
         private static ILog _log;
 
-        public Plotter(string inputDirectory, string inputFilenamePattern, string outputDirectory, string outputFilename, int width, int height)
+        public TrajectoryPlotter(string inputDirectory, string inputFilenamePattern, string outputDirectory, string outputFilename, int width, int height)
         {
             _inputDirectory = inputDirectory;
             _inputFilenamePattern = inputFilenamePattern;

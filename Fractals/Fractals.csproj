@@ -110,7 +110,7 @@
     <Compile Include="PointGenerator\EdgeAreasWithBulbsExcludedPointGenerator.cs" />
     <Compile Include="Utility\MandelbrotFinder.cs" />
     <Compile Include="Utility\MandelbrotPointFinder.cs" />
-    <Compile Include="Utility\Plotter.cs" />
+    <Compile Include="Utility\TrajectoryPlotter.cs" />
     <Compile Include="Utility\PointFinder.cs" />
     <Compile Include="PointGenerator\RandomPointGenerator.cs" />
     <Compile Include="Utility\SystemDrawingExtensions.cs" />
