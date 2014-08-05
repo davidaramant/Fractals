@@ -228,15 +228,9 @@ namespace Fractals.Console
             var processorCount = Environment.ProcessorCount;
             if (options.Utilization.HasValue)
             {
-                var numberToUse = processorCount * options.Utilization.Value / 100;
-                if (numberToUse == 0)
-                {
-                    numberToUse = 1;
-                }
+                GlobalArguments.DegreesOfParallelism = options.Utilization.Value;
 
-                GlobalArguments.DegreesOfParallelism = numberToUse;
-
-                _log.InfoFormat("Parallel operations set to use {0} of {1} processors", numberToUse, processorCount);
+                _log.InfoFormat("Parallel operations set to use {0} of {1} processors", options.Utilization.Value, processorCount);
             }
             else
             {
