@@ -172,32 +172,20 @@ namespace Fractals.Utility
 
         public int Max()
         {
-            return GetMergedCollection().Max();
-        }
-
-        public long Sum()
-        {
-            return GetMergedCollection().Sum(i => (long) i);
-        }
-
-        private IEnumerable<int> GetMergedCollection()
-        {
-            return GetCollections().SelectMany(i => i);
-        }
-
-        private IEnumerable<int[]> GetCollections()
-        {
+            return new []
+            {
 <#
     foreach( var row in Enumerable.Range(0,4) )
     {
         foreach( var col in Enumerable.Range(0,4) )
         {
 #>
-            yield return _hits<#= col #><#= row #>;
+                _hits<#= col #><#= row #>.Max(),
 <#            
         }
     }
 #>
+            }.Max();
         }
     }
 }

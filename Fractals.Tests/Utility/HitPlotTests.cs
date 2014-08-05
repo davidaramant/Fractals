@@ -11,48 +11,84 @@ namespace Fractals.Tests.Utility
     public class HitPlotTests
     {
         [Test]
-        public void Reversibility()
+        public void ReversibilityMax()
         {
-            var generatedPlot = GenerateHitPlot();
             var tempPath = Path.GetTempFileName();
-            generatedPlot.SaveTrajectories(tempPath);
 
-            var loadedPlot = new HitPlot4x4(generatedPlot.Resolution);
-            loadedPlot.LoadTrajectories(tempPath);
+            try
+            {
+                var generatedPlot = GenerateHitPlot();
 
-            Assert.That(loadedPlot.Max(), Is.EqualTo(generatedPlot.Max()));
-            Assert.That(loadedPlot.Sum(), Is.EqualTo(generatedPlot.Sum()));
+                generatedPlot.SaveTrajectories(tempPath);
 
-            File.Delete(tempPath);
+                var loadedPlot = new HitPlot4x4(generatedPlot.Resolution);
+                loadedPlot.LoadTrajectories(tempPath);
+
+                Assert.That(loadedPlot.Max(), Is.EqualTo(generatedPlot.Max()));
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
+        }
+
+        [Test]
+        public void ReversibilityPoints()
+        {
+            var tempPath = Path.GetTempFileName();
+
+            try
+            {
+                var generatedPlot = GenerateHitPlot();
+
+                generatedPlot.SaveTrajectories(tempPath);
+
+                var loadedPlot = new HitPlot4x4(generatedPlot.Resolution);
+                loadedPlot.LoadTrajectories(tempPath);
+
+                foreach (var point in generatedPlot.Resolution.GetAllPoints())
+                {
+                    Assert.That(loadedPlot.GetHitsForPoint(point), Is.EqualTo(generatedPlot.GetHitsForPoint(point)));
+                }
+            }
+            finally
+            {
+                File.Delete(tempPath);
+            }
         }
 
         [Test]
         public void FilesAreSeparate()
         {
-            var generatedPlot1 = GenerateHitPlot();
             var tempPath1 = Path.GetTempFileName();
-            generatedPlot1.SaveTrajectories(tempPath1);
-
-            var generatedPlot2 = GenerateHitPlot();
             var tempPath2 = Path.GetTempFileName();
-            generatedPlot2.SaveTrajectories(tempPath2);
 
-            var loadedPlot1 = new HitPlot4x4(generatedPlot1.Resolution);
-            loadedPlot1.LoadTrajectories(tempPath1);
+            try
+            {
+                var generatedPlot1 = GenerateHitPlot();
+                generatedPlot1.SaveTrajectories(tempPath1);
 
-            var loadedPlot2 = new HitPlot4x4(generatedPlot2.Resolution);
-            loadedPlot2.LoadTrajectories(tempPath2);
+                var generatedPlot2 = GenerateHitPlot();
+                generatedPlot2.SaveTrajectories(tempPath2);
 
-            Assert.That(loadedPlot1.Max(), Is.Not.EqualTo(loadedPlot2.Max()));
-            Assert.That(loadedPlot1.Sum(), Is.Not.EqualTo(loadedPlot2.Sum()));
+                var loadedPlot1 = new HitPlot4x4(generatedPlot1.Resolution);
+                loadedPlot1.LoadTrajectories(tempPath1);
 
-            File.Delete(tempPath1);
-            File.Delete(tempPath2);
+                var loadedPlot2 = new HitPlot4x4(generatedPlot2.Resolution);
+                loadedPlot2.LoadTrajectories(tempPath2);
+
+                Assert.That(loadedPlot1.Max(), Is.Not.EqualTo(loadedPlot2.Max()));
+            }
+            finally
+            {
+                File.Delete(tempPath1);
+                File.Delete(tempPath2);
+            }
         }
 
         private HitPlot4x4 GenerateHitPlot()
         {
-            const int size = 2048;
+            const int size = 1024;
             var hitPlot = new HitPlot4x4(new Size(size, size));
 
             var random = new Random();

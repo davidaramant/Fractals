@@ -341,37 +341,25 @@ namespace Fractals.Utility
 
         public int Max()
         {
-            return GetMergedCollection().Max();
-        }
-
-        public long Sum()
-        {
-            return GetMergedCollection().Sum(i => (long) i);
-        }
-
-        private IEnumerable<int> GetMergedCollection()
-        {
-            return GetCollections().SelectMany(i => i);
-        }
-
-        private IEnumerable<int[]> GetCollections()
-        {
-            yield return _hits00;
-            yield return _hits10;
-            yield return _hits20;
-            yield return _hits30;
-            yield return _hits01;
-            yield return _hits11;
-            yield return _hits21;
-            yield return _hits31;
-            yield return _hits02;
-            yield return _hits12;
-            yield return _hits22;
-            yield return _hits32;
-            yield return _hits03;
-            yield return _hits13;
-            yield return _hits23;
-            yield return _hits33;
+            return new []
+            {
+                _hits00.Max(),
+                _hits10.Max(),
+                _hits20.Max(),
+                _hits30.Max(),
+                _hits01.Max(),
+                _hits11.Max(),
+                _hits21.Max(),
+                _hits31.Max(),
+                _hits02.Max(),
+                _hits12.Max(),
+                _hits22.Max(),
+                _hits32.Max(),
+                _hits03.Max(),
+                _hits13.Max(),
+                _hits23.Max(),
+                _hits33.Max(),
+            }.Max();
         }
     }
 }

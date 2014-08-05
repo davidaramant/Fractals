@@ -11,6 +11,5 @@ namespace Fractals.Utility
         void IncrementPoint(Point p);
         int GetHitsForPoint(Point p);
         int Max();
-        long Sum();
     }
 }
