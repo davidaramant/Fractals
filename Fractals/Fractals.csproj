@@ -103,6 +103,7 @@
     <Compile Include="Utility\AreaListWriter.cs" />
     <Compile Include="Utility\HitPlot.cs" />
     <Compile Include="Utility\HsvColor.cs" />
+    <Compile Include="Utility\IHitPlot.cs" />
     <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\CryptoRandom.cs" />
     <Compile Include="Renderer\EdgeAreasRenderer.cs" />

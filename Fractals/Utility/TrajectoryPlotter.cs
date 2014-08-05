@@ -19,7 +19,7 @@ namespace Fractals.Utility
         private readonly string _outputFilename;
         private readonly Size _resolution;
 
-        private readonly HitPlot _hitPlot;
+        private readonly IHitPlot _hitPlot;
 
         private static ILog _log;
 

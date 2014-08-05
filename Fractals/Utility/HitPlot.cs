@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Fractals.Utility
 {
-    public sealed class HitPlot
+    public sealed class HitPlot : IHitPlot
     {
         private readonly int _fourthWidth;
         private readonly int _fourthHeight;

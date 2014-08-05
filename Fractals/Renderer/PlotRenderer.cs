@@ -17,7 +17,7 @@ namespace Fractals.Renderer
 
         private static ILog _log;
 
-        private readonly HitPlot _hitPlot;
+        private readonly IHitPlot _hitPlot;
 
         private readonly ColorRamp _colorRamp = ColorRampFactory.Blue;
 

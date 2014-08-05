@@ -19,9 +19,9 @@ namespace Fractals.Renderer
 
         private static ILog _log;
 
-        private readonly HitPlot _hitPlotRed;
-        private readonly HitPlot _hitPlotGreen;
-        private readonly HitPlot _hitPlotBlue;
+        private readonly IHitPlot _hitPlotRed;
+        private readonly IHitPlot _hitPlotGreen;
+        private readonly IHitPlot _hitPlotBlue;
 
         public NebulaPointRenderer(string inputDirectory, string inputFilenameRed, string inputFilenameGreen, string inputFilenameBlue, int width, int height)
         {
