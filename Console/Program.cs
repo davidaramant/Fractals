@@ -285,8 +285,10 @@ namespace Fractals.Console
             //return new[] { "-t", "RenderPoints", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotPoints.xml" };
 
             /*--------------------------------------------------------------------------------------
-            |  After generating three separate plots (with different maximum bailout values, the   |
+            |  After generating three separate plots (with different maximum bailout values), the  |
             |  following operation generates an anti-buddhabrot image.                             |
+            |                                                                                      |
+            |  Note: The image is cleaner if the random strategy is used to gather the points.     |
             --------------------------------------------------------------------------------------*/
 
             //return new[] { "-t", "RenderNebulaPlots", "-c", @"..\..\..\..\Argument Files\RenderNebulaPlot.xml" };
