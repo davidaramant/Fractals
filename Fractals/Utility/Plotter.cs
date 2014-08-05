@@ -93,22 +93,27 @@ namespace Fractals.Utility
 
         private IEnumerable<Complex> GetTrajectory(Complex c)
         {
-            var rePrev = c.Real;
-            var imPrev = c.Imaginary;
-
             double re = 0;
             double im = 0;
 
-            for (int i = 0; i < Bailout; i++)
+            // Cache the squares
+            // They are used to find the magnitude; reuse these values when computing the next re/im
+            double re2 = 0;
+            double im2 = 0;
+
+            for (uint i = 0; i < Bailout; i++)
             {
-                var reTemp = re * re - im * im + rePrev;
-                im = 2 * re * im + imPrev;
+                var reTemp = re2 - im2 + c.Real;
+                im = 2 * re * im + c.Imaginary;
                 re = reTemp;
 
                 yield return new Complex(re, im);
 
-                var magnitudeSquared = re * re + im * im;
-                if (magnitudeSquared > 4)
+                re2 = re * re;
+                im2 = im * im;
+
+                // Check the magnitude squared against 2^2
+                if ((re2 + im2) > 4)
                 {
                     yield break;
                 }
