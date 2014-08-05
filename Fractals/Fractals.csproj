@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arguments\SpectrumRenderingArguments.cs" />
     <Compile Include="Arguments\PointRenderingArguments.cs" />
     <Compile Include="Arguments\EdgeAreaArguments.cs" />
     <Compile Include="Arguments\ExampleImageRendererArguments.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Renderer\MandelbrotEscapeRenderer.cs" />
     <Compile Include="Renderer\MandelbrotEscapeRendererFancy.cs" />
     <Compile Include="Renderer\MandelbrotRenderer.cs" />
+    <Compile Include="Renderer\SpectrumPlotRenderer.cs" />
     <Compile Include="Utility\AreaFactory.cs" />
     <Compile Include="Utility\BuddhabrotPointFinder.cs" />
     <Compile Include="Utility\ColorRamp.cs" />

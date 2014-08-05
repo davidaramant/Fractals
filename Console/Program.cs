@@ -79,6 +79,9 @@ namespace Fractals.Console
                 case OperationType.RenderPoints:
                     RenderPoints(options);
                     break;
+                case OperationType.RenderSpectrumPlot:
+                    RenderSpectrumPlot(options);
+                    break;
             }
 
             if (System.Diagnostics.Debugger.IsAttached)
@@ -213,6 +216,13 @@ namespace Fractals.Console
             renderer.Render(arguments.OutputDirectory, arguments.OutputFilename);
         }
 
+        private void RenderSpectrumPlot(Options options)
+        {
+            var arguments = DeserializeArguments<SpectrumRenderingArguments>(options.ConfigurationFilepath);
+            var renderer = new SpectrumPlotRenderer(arguments.InputDirectory, arguments.InputFilename, arguments.Resolution.Width, arguments.Resolution.Height);
+            renderer.Render(arguments.OutputDirectory, arguments.OutputFilenamePrefix, arguments.StartingColor, arguments.EndingColor, arguments.StepSize);
+        }
+
         private static void SetupParallelismLimits(Options options)
         {
             var processorCount = Environment.ProcessorCount;
@@ -280,6 +290,16 @@ namespace Fractals.Console
             --------------------------------------------------------------------------------------*/
 
             //return new[] { "-t", "RenderNebulaPlots", "-c", @"..\..\..\..\Argument Files\RenderNebulaPlot.xml" };
+
+            /*--------------------------------------------------------------------------------------
+            |  The following set of operations (done in order) generates a set of buddhabrot       |
+            |  images spanning a color spectrum.                                                   |
+            --------------------------------------------------------------------------------------*/
+
+            //return new[] { "-t", "FindEdgeAreas", "-c", @"..\..\..\..\Argument Files\EdgeAreas.xml" };
+            //return new[] { "-t", "FindPoints", "-c", @"..\..\..\..\Argument Files\FindBuddhabrotPoints.xml" };
+            //return new[] { "-t", "PlotPoints", "-c", @"..\..\..\..\Argument Files\PlotBuddhabrotPoints.xml" };
+            //return new[] { "-t", "RenderSpectrumPlot", "-c", @"..\..\..\..\Argument Files\RenderBuddhabrotPointsSpectrum.xml" };
 
             return new string[0];
         }

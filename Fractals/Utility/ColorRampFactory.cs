@@ -9,12 +9,7 @@ namespace Fractals.Utility
         {
             get
             {
-                return new ColorRamp(new[]
-                {
-                    Tuple.Create(new HsvColor(196.0/360.0, 1, 0), 0.0),
-                    Tuple.Create(new HsvColor(196.0/360.0, 1, 1), 0.5),
-                    Tuple.Create(new HsvColor(196.0/360.0, 0, 1), 1.0),
-                });
+                return GetIntensityRamp(196.0);
             }
         }
 
@@ -49,6 +44,16 @@ namespace Fractals.Utility
 
                 return new ColorRamp(colorRanges);
             }
+        }
+
+        public static ColorRamp GetIntensityRamp(double color)
+        {
+            return new ColorRamp(new[]
+            {
+                Tuple.Create(new HsvColor(color / 360.0, 1, 0), 0.0),
+                Tuple.Create(new HsvColor(color / 360.0, 1, 1), 0.5),
+                Tuple.Create(new HsvColor(color / 360.0, 0, 1), 1.0),
+            });
         }
     }
 }

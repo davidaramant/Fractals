@@ -33,6 +33,7 @@ namespace Fractals.Console
         RenderPlot,
         RenderNebulaPlots,
         FindEdgeAreas,
-        RenderPoints
+        RenderPoints,
+        RenderSpectrumPlot
     }
 }

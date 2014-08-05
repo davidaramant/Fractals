@@ -19,8 +19,6 @@ namespace Fractals.Renderer
 
         private readonly IHitPlot _hitPlot;
 
-        private readonly ColorRamp _colorRamp = ColorRampFactory.Blue;
-
         public PlotRenderer(string inputDirectory, string inputFilename, int width, int height)
         {
             _inputInputDirectory = inputDirectory;
@@ -33,7 +31,13 @@ namespace Fractals.Renderer
             _log = LogManager.GetLogger(GetType());
         }
 
+
         public void Render(string outputDirectory, string outputFilename)
+        {
+            Render(outputDirectory, outputFilename, ColorRampFactory.Blue);
+        }
+
+        public void Render(string outputDirectory, string outputFilename, ColorRamp colorRamp)
         {
             _log.InfoFormat("Creating image ({0}x{1})", _resolution.Width, _resolution.Height);
 
@@ -56,7 +60,7 @@ namespace Fractals.Renderer
                 .GetAllPoints()
                 .AsParallel()
                 .WithDegreeOfParallelism(GlobalArguments.DegreesOfParallelism)
-                .Select(p => ComputeColor(p, max))
+                .Select(p => ComputeColor(p, max, colorRamp))
                 .AsEnumerable();
 
             foreach (var result in processedPixels)
@@ -72,13 +76,13 @@ namespace Fractals.Renderer
 
         }
 
-        private Tuple<Point, Color> ComputeColor(Point p, int max)
+        private Tuple<Point, Color> ComputeColor(Point p, int max, ColorRamp colorRamp)
         {
             var current = _hitPlot.GetHitsForPoint(p);
 
             var ratio = Gamma(1.0 - Math.Pow(Math.E, -10.0 * current / max));
 
-            return Tuple.Create(p, _colorRamp.GetColor(ratio).ToColor());
+            return Tuple.Create(p, colorRamp.GetColor(ratio).ToColor());
         }
 
         private static double Gamma(double x, double exp = 1.2)
