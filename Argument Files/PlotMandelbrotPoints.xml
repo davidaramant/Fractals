@@ -4,6 +4,7 @@
     <Width>1024</Width>
     <Height>1024</Height>
   </Resolution>
+  <Bailout>30000</Bailout>
   <InputDirectory>C:\temp</InputDirectory>
   <InputFilePattern>MandelbrotPoints.*.point</InputFilePattern>
   <OutputDirectory>C:\temp</OutputDirectory>

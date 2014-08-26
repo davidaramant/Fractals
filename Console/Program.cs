@@ -172,7 +172,7 @@ namespace Fractals.Console
         private void PlotPoints(Options options)
         {
             var arguments = DeserializeArguments<PointPlottingArguments>(options.ConfigurationFilepath);
-            var plotter = new TrajectoryPlotter(arguments.InputDirectory, arguments.InputFilePattern, arguments.OutputDirectory, arguments.OutputFilename, arguments.Resolution.Width, arguments.Resolution.Height);
+            var plotter = new TrajectoryPlotter(arguments.InputDirectory, arguments.InputFilePattern, arguments.OutputDirectory, arguments.OutputFilename, arguments.Resolution.Width, arguments.Resolution.Height, arguments.Bailout);
             plotter.Plot();
         }
 

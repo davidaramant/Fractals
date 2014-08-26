@@ -14,5 +14,7 @@ namespace Fractals.Arguments
         public string OutputDirectory { get; set; }
         
         public string OutputFilename { get; set; }
+
+        public uint Bailout { get; set; }
     }
 }

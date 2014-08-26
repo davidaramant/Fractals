@@ -11,25 +11,25 @@ namespace Fractals.Utility
 {
     public sealed class TrajectoryPlotter
     {
-        private const int Bailout = 30000;
-
         private readonly string _inputDirectory;
         private readonly string _inputFilenamePattern;
         private readonly string _outputDirectory;
         private readonly string _outputFilename;
         private readonly Size _resolution;
+        private readonly uint _bailout;
 
         private readonly IHitPlot _hitPlot;
 
         private static ILog _log;
 
-        public TrajectoryPlotter(string inputDirectory, string inputFilenamePattern, string outputDirectory, string outputFilename, int width, int height)
+        public TrajectoryPlotter(string inputDirectory, string inputFilenamePattern, string outputDirectory, string outputFilename, int width, int height, uint bailout)
         {
             _inputDirectory = inputDirectory;
             _inputFilenamePattern = inputFilenamePattern;
             _outputDirectory = outputDirectory;
             _outputFilename = outputFilename;
             _resolution = new Size(width, height);
+            _bailout = bailout;
 
             _log = LogManager.GetLogger(GetType());
 
@@ -48,6 +48,7 @@ namespace Fractals.Utility
         public void Plot()
         {
             _log.InfoFormat("Plotting image ({0}x{1})", _resolution.Width, _resolution.Height);
+            _log.DebugFormat("Iterating {0} times per point", _bailout);
 
             var viewPort = AreaFactory.RenderingArea;
 
@@ -73,7 +74,7 @@ namespace Fractals.Utility
                 }
 
                 Interlocked.Increment(ref processedCount);
-                if (processedCount % 10000 == 0)
+                if (processedCount % 1000 == 0)
                 {
                     _log.DebugFormat("Plotted {0} points' trajectories", processedCount);
                 }
@@ -81,11 +82,11 @@ namespace Fractals.Utility
             _log.DebugFormat("Plotted {0} points' trajectories", processedCount);
 
             _log.Info("Done plotting trajectories");
+            _log.DebugFormat("Maximum point hit count: {0}", _hitPlot.Max());
 
             _hitPlot.SaveTrajectories(Path.Combine(_outputDirectory, _outputFilename));
 
             _log.DebugFormat("Saved plot as: {0}", _outputFilename);
-            _log.DebugFormat("Maximum point hit count: {0}", _hitPlot.Max());
         }
 
         private IEnumerable<Complex> GetNumbers()
@@ -104,7 +105,7 @@ namespace Fractals.Utility
             double re2 = 0;
             double im2 = 0;
 
-            for (uint i = 0; i < Bailout; i++)
+            for (uint i = 0; i < _bailout; i++)
             {
                 var reTemp = re2 - im2 + c.Real;
                 im = 2 * re * im + c.Imaginary;
