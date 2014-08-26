@@ -55,8 +55,8 @@ namespace Fractals.Utility
         {
             _log.Info("Starting to find points");
             _log.DebugFormat("Random Generator: {0}", _pointGenerator.GetType().Name);
-            _log.DebugFormat("Minimum Threshold: {0}", _minimum);
-            _log.DebugFormat("Maximum Threshold: {0}", _maximum);
+            _log.DebugFormat("Minimum Threshold: {0:N0}", _minimum);
+            _log.DebugFormat("Maximum Threshold: {0:N0}", _maximum);
 
             var bailout = new BailoutRange(
                 minimum: _minimum,
@@ -80,7 +80,7 @@ namespace Fractals.Utility
 
                         if (num % 100 == 0)
                         {
-                            _log.DebugFormat("Found {0} points", num);
+                            _log.DebugFormat("Found {0:N0} points", num);
                         }
                     }
 
@@ -91,7 +91,7 @@ namespace Fractals.Utility
                     }
                 });
 
-            _log.DebugFormat("Found {0} points", num);
+            _log.DebugFormat("Found {0:N0} points", num);
             _log.Info("Stopped finding points");
         }
 

@@ -29,7 +29,7 @@ namespace Fractals.Utility
             _log.DebugFormat("Looking in '{0}' for '{1}' files", _directory, _filenamePattern);
 
             var files = Directory.GetFiles(_directory, _filenamePattern);
-            _log.DebugFormat("Found {0} files", files.Length);
+            _log.DebugFormat("Found {0:N0} files", files.Length);
 
             foreach (var file in files)
             {

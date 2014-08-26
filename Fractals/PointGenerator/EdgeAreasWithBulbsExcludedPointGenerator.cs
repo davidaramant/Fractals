@@ -27,7 +27,7 @@ namespace Fractals.PointGenerator
             _edgeAreas = listReader
                 .GetAreas()
                 .ToList();
-            _log.DebugFormat("Loaded {0} edge areas", _edgeAreas.Count);
+            _log.DebugFormat("Loaded {0:N0} edge areas", _edgeAreas.Count);
         }
 
         public override Area SelectArea(Area viewPoint)

@@ -19,7 +19,7 @@ namespace Fractals.Renderer
 
         public Color[,] Render(Size resolution, Area viewPort)
         {
-            _log.InfoFormat("Starting to render ({0}x{1})", resolution.Width, resolution.Height);
+            _log.InfoFormat("Starting to render ({0:N0}x{1:N0})", resolution.Width, resolution.Height);
 
             viewPort.LogViewport();
 

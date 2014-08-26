@@ -41,13 +41,13 @@ namespace Fractals.Utility
 
         public static IEnumerable<Area> LocateEdges(Size resolution, double gridSize, Area viewPort)
         {
-            _log.DebugFormat("Looking for intersting areas ({0}x{1})", resolution.Width, resolution.Height);
+            _log.DebugFormat("Looking for intersting areas ({0:N0}x{1:N0})", resolution.Width, resolution.Height);
 
             var allAreas = AllPossibleAreas(viewPort.RealRange, viewPort.ImaginaryRange, gridSize);
-            _log.DebugFormat("Found {0} total areas", allAreas.Count);
+            _log.DebugFormat("Found {0:N0} total areas", allAreas.Count);
 
             var numbers = new MandelbrotFinder().FindPoints(resolution, viewPort);
-            _log.DebugFormat("Found {0} points within the region", numbers.Count);
+            _log.DebugFormat("Found {0:N0} points within the region", numbers.Count);
 
             var areasWithSomeNumbers = FindAreasWithNumbers(allAreas, numbers);
 
@@ -70,12 +70,12 @@ namespace Fractals.Utility
                 Interlocked.Increment(ref processedCount);
                 if (processedCount % 10000 == 0)
                 {
-                    _log.DebugFormat("Checked {0} points", processedCount);
+                    _log.DebugFormat("Checked {0:N0} points", processedCount);
                 }
             });
-            _log.DebugFormat("Checked {0} points", processedCount);
+            _log.DebugFormat("Checked {0:N0} points", processedCount);
 
-            _log.InfoFormat("Found {0} areas bordering points", results.Count);
+            _log.InfoFormat("Found {0:N0} areas bordering points", results.Count);
 
             return results.Keys;
         }

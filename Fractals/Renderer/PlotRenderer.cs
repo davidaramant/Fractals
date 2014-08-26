@@ -39,7 +39,7 @@ namespace Fractals.Renderer
 
         public void Render(string outputDirectory, string outputFilename, ColorRamp colorRamp)
         {
-            _log.InfoFormat("Creating image ({0}x{1})", _resolution.Width, _resolution.Height);
+            _log.InfoFormat("Creating image ({0:N0}x{1:N0})", _resolution.Width, _resolution.Height);
 
             _log.Info("Loading trajectory...");
 
@@ -49,7 +49,7 @@ namespace Fractals.Renderer
 
             var max = _hitPlot.Max();
 
-            _log.DebugFormat("Found maximum: {0}", max);
+            _log.DebugFormat("Found maximum: {0:N0}", max);
 
             _log.Info("Starting to render");
 

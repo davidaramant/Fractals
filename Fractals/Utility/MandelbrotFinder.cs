@@ -23,7 +23,7 @@ namespace Fractals.Utility
 
         public List<Complex> FindPoints(Size resolution, Area viewPort)
         {
-            _log.InfoFormat("Looking for points ({0}x{1})", resolution.Width, resolution.Height);
+            _log.InfoFormat("Looking for points ({0:N0}x{1:N0})", resolution.Width, resolution.Height);
 
             var results = new ConcurrentBag<Complex>();
 
@@ -39,7 +39,7 @@ namespace Fractals.Utility
 
             var resultList = results.ToList();
 
-            _log.DebugFormat("Found {0} points", resultList.Count);
+            _log.DebugFormat("Found {0:N0} points", resultList.Count);
 
             return resultList;
         }

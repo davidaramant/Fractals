@@ -47,8 +47,8 @@ namespace Fractals.Utility
 
         public void Plot()
         {
-            _log.InfoFormat("Plotting image ({0}x{1})", _resolution.Width, _resolution.Height);
-            _log.DebugFormat("Iterating {0} times per point", _bailout);
+            _log.InfoFormat("Plotting image ({0:N0}x{1:N0})", _resolution.Width, _resolution.Height);
+            _log.DebugFormat("Iterating {0:N0} times per point", _bailout);
 
             var viewPort = AreaFactory.RenderingArea;
 
@@ -76,13 +76,13 @@ namespace Fractals.Utility
                 Interlocked.Increment(ref processedCount);
                 if (processedCount % 1000 == 0)
                 {
-                    _log.DebugFormat("Plotted {0} points' trajectories", processedCount);
+                    _log.DebugFormat("Plotted {0:N0} points' trajectories", processedCount);
                 }
             });
-            _log.DebugFormat("Plotted {0} points' trajectories", processedCount);
+            _log.DebugFormat("Plotted {0:N0} points' trajectories", processedCount);
 
             _log.Info("Done plotting trajectories");
-            _log.DebugFormat("Maximum point hit count: {0}", _hitPlot.Max());
+            _log.DebugFormat("Maximum point hit count: {0:N0}", _hitPlot.Max());
 
             _hitPlot.SaveTrajectories(Path.Combine(_outputDirectory, _outputFilename));
 
