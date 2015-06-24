@@ -43,7 +43,8 @@ EdgesWithBulbsExcluded | Only use points from the grids on the edge of the Mande
 
 ### Mandelbrot Selection Strategies
 
-Strategy               | Description ---------------------- | -----------------------------------------------------------------------------------------------------------------------
+Strategy               | Description
+---------------------- | -----------------------------------------------------------------------------------------------------------------------
 Random                 | Generate a random complex number
 BulbsOnly              | Only uses points within the "bulbs" from the Mandelbrot set (computationally cheap)
 EdgesAndBulbsOnly      | Only use points from the grids on the edge of the Mandelbrot or within the "bulbs"
