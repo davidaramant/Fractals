@@ -26,10 +26,7 @@ namespace Fractals.Model
             Imaginary = imaginary;
         }
 
-        public override string ToString()
-        {
-            return String.Format("({0},{1}i)", Real, Imaginary);
-        }
+        public override string ToString() => $"({Real},{Imaginary}i)";
 
         /// <summary>
         /// Returns the magnitude squared.

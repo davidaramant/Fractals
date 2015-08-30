@@ -60,6 +60,11 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.1.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -118,13 +123,16 @@
     <Compile Include="PointGenerator\EdgeAreasWithBulbsExcludedPointGenerator.cs" />
     <Compile Include="Utility\MandelbrotFinder.cs" />
     <Compile Include="Utility\MandelbrotPointFinder.cs" />
+    <Compile Include="Utility\MemoryMappedHitPlot.cs" />
     <Compile Include="Utility\TrajectoryPlotter.cs" />
     <Compile Include="Utility\PointFinder.cs" />
     <Compile Include="PointGenerator\RandomPointGenerator.cs" />
     <Compile Include="Utility\SystemDrawingExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Utility\HitPlot4x4.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>HitPlot4x4.Generated.cs</LastGenOutput>

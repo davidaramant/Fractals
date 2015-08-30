@@ -18,7 +18,8 @@ namespace Fractals.Utility
         private readonly Size _resolution;
         private readonly uint _bailout;
 
-        private readonly IHitPlot _hitPlot;
+        //private readonly IHitPlot _hitPlot;
+        private readonly MemoryMappedHitPlot _hitPlot;
 
         private static ILog _log;
 
@@ -42,7 +43,8 @@ namespace Fractals.Utility
                 _log.Warn("The height should be evenly divisible by 4");
             }
 
-            _hitPlot = new HitPlot4x4(_resolution);
+            //_hitPlot = new HitPlot4x4(_resolution);
+            _hitPlot = MemoryMappedHitPlot.OpenForSaving(Path.Combine(_outputDirectory, _outputFilename), _resolution);
         }
 
         public void Plot()
@@ -74,17 +76,18 @@ namespace Fractals.Utility
                 }
 
                 Interlocked.Increment(ref processedCount);
-                if (processedCount % 1000 == 0)
+                if (processedCount % 100 == 0)
                 {
                     _log.DebugFormat("Plotted {0:N0} points' trajectories", processedCount);
                 }
             });
+            _hitPlot.Dispose();
             _log.DebugFormat("Plotted {0:N0} points' trajectories", processedCount);
 
             _log.Info("Done plotting trajectories");
-            _log.DebugFormat("Maximum point hit count: {0:N0}", _hitPlot.Max());
+            //_log.DebugFormat("Maximum point hit count: {0:N0}", _hitPlot.Max());
 
-            _hitPlot.SaveTrajectories(Path.Combine(_outputDirectory, _outputFilename));
+            //_hitPlot.SaveTrajectories(Path.Combine(_outputDirectory, _outputFilename));
 
             _log.DebugFormat("Saved plot as: {0}", _outputFilename);
         }
