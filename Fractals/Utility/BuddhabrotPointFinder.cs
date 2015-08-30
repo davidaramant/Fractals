@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Fractals.Model;
 using Fractals.PointGenerator;
 
@@ -16,6 +17,7 @@ namespace Fractals.Utility
             return IsPointInBuddhabrot(c, bailoutRange);
         }
 
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
         public static bool IsPointInBuddhabrot(Complex c, BailoutRange bailoutRange)
         {
             double re = 0;
@@ -43,7 +45,9 @@ namespace Fractals.Utility
                 // Orbit check
                 if (checkNum == i)
                 {
-                    if (IsPracticallyTheSame(oldRe, re) && IsPracticallyTheSame(oldIm, im))
+                    // This is a safe comparison because in an orbit the points will literally be the same.
+                    // If they differed at all, the error would compound upon iteration.
+                    if (oldRe == re && oldIm == im)
                     {
                         return false;
                     }
@@ -65,11 +69,6 @@ namespace Fractals.Utility
             }
 
             return false;
-        }
-
-        private static bool IsPracticallyTheSame(double v1, double v2)
-        {
-            return Math.Abs(v1 - v2) <= 1e-17;
         }
     }
 }
