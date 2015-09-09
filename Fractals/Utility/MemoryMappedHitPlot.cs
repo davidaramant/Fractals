@@ -96,8 +96,6 @@ namespace Fractals.Utility
             _file.Dispose();
         }
 
-        private readonly object _incrementLock = new object();
-
         public void IncrementPoint(Point p)
         {
             var position = PointToPosition(p);
@@ -118,7 +116,6 @@ namespace Fractals.Utility
             var segmentIndex = PositionToSegmentIndex(position);
             var segmentPosition = position % SegmentSize;
 
-            // This is horrible
             return _accessors[segmentIndex].ReadInt32(segmentPosition);
         }
 
