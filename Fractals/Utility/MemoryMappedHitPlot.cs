@@ -10,14 +10,17 @@ namespace Fractals.Utility
     {
         private readonly MemoryMappedFile _file;
 
-        private const int SegmentCount = 10;
+        private const int SegmentCount = 500;
         private readonly long SegmentSize;
 
         private readonly object[] _accessorLocks;
         private readonly MemoryMappedViewAccessor[] _accessors;
 
-        private const long PlotSizeOffset = 2 * sizeof(int);
+        private const long PlotSizeOffset = 4 * sizeof(int);
         private const long HitCountSize = sizeof(int);
+
+        private int _max = 0;
+        private readonly bool _openedForWrite;
 
         public Size Resolution { get; private set; }
 
@@ -28,6 +31,7 @@ namespace Fractals.Utility
 
         private MemoryMappedHitPlot(string filePath, Size resolution)
         {
+            _openedForWrite = true;
             Resolution = resolution;
 
             Console.Out.WriteLine("Creating MMF: " + filePath);
@@ -44,7 +48,7 @@ namespace Fractals.Utility
             }
             _file = MemoryMappedFile.CreateFromFile(filePath);
 
-            using (var plotSizeAccessor = _file.CreateViewAccessor())
+            using (var plotSizeAccessor = _file.CreateViewAccessor(0, 2 * sizeof(int)))
             {
                 plotSizeAccessor.Write(0, Resolution.Width);
                 plotSizeAccessor.Write(sizeof(int), Resolution.Height);
@@ -68,10 +72,11 @@ namespace Fractals.Utility
         {
             Console.Out.WriteLine("Reading MMF: " + filePath);
             _file = MemoryMappedFile.CreateFromFile(filePath);
-            using (var plotSizeAccessor = _file.CreateViewAccessor())
+            using (var plotSizeAccessor = _file.CreateViewAccessor(0, PlotSizeOffset))
             {
                 var width = plotSizeAccessor.ReadInt32(0);
                 var height = plotSizeAccessor.ReadInt32(sizeof(int));
+                _max = plotSizeAccessor.ReadInt32(2 * sizeof(int));
 
                 Resolution = new Size(width, height);
             }
@@ -93,6 +98,15 @@ namespace Fractals.Utility
             {
                 _accessors[i].Dispose();
             }
+
+            if (_openedForWrite)
+            {
+                using (var maxAccessor = _file.CreateViewAccessor(2 * sizeof(int), sizeof(int)))
+                {
+                    maxAccessor.Write(0, _max);
+                }
+            }
+
             _file.Dispose();
         }
 
@@ -129,31 +143,37 @@ namespace Fractals.Utility
             return (position - PlotSizeOffset) / SegmentSize;
         }
 
-        public int Max()
+        public int GetMax()
         {
-            return
-                ParallelEnumerable.Range(0, SegmentCount).
-                Select(segmentIndex =>
-                {
-                    var bufferCount = 100;
-                    var maxes = new int[bufferCount];
-                    long bufferSize = SegmentSize / bufferCount;
-                    var buffer = new int[bufferSize];
+            if (_max == 0)
+            {
+                const int bufferCount = 100;
+                long bufferSizeInBytes = SegmentSize / bufferCount;
+                long numberOfElementsInBuffer = bufferSizeInBytes/HitCountSize;
 
-                    for (int bufferIndex = 0; bufferIndex < bufferCount; bufferIndex++)
-                    {
-                        _accessors[segmentIndex].ReadArray(
-                            position: bufferIndex * bufferSize,
-                            array: buffer,
-                            offset: 0,
-                            count: (int)bufferSize);
+                _max = ParallelEnumerable.Range(0, SegmentCount).
+                   Select(segmentIndex =>
+                   {
+                       var maxes = new int[bufferCount];
+                       var buffer = new int[numberOfElementsInBuffer];
 
-                        maxes[bufferIndex] = buffer.Max();
-                    }
+                       for (int bufferIndex = 0; bufferIndex < bufferCount; bufferIndex++)
+                       {
+                           _accessors[segmentIndex].ReadArray(
+                               position: bufferIndex * bufferSizeInBytes,
+                               array: buffer,
+                               offset: 0,
+                               count: (int)numberOfElementsInBuffer);
 
-                    return maxes.Max();
-                }).
-                Max();
+                           maxes[bufferIndex] = buffer.Max();
+                       }
+
+                       return maxes.Max();
+                   }).
+                   Max();
+            }
+
+            return _max;
         }
     }
 }

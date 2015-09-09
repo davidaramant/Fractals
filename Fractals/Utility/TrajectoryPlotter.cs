@@ -81,11 +81,11 @@ namespace Fractals.Utility
                     _log.DebugFormat("Plotted {0:N0} points' trajectories", processedCount);
                 }
             });
-            _hitPlot.Dispose();
             _log.DebugFormat("Plotted {0:N0} points' trajectories", processedCount);
+            _log.DebugFormat("Maximum point hit count: {0:N0}", _hitPlot.GetMax());
+            _hitPlot.Dispose();
 
             _log.Info("Done plotting trajectories");
-            //_log.DebugFormat("Maximum point hit count: {0:N0}", _hitPlot.Max());
 
             //_hitPlot.SaveTrajectories(Path.Combine(_outputDirectory, _outputFilename));
 

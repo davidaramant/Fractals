@@ -52,7 +52,7 @@ namespace Fractals.Renderer
 
             _log.Info("Done loading; finding maximum...");
 
-            var max = _hitPlot.Max();
+            var max = _hitPlot.GetMax();
 
             _log.DebugFormat("Found maximum: {0:N0}", max);
 
@@ -63,8 +63,6 @@ namespace Fractals.Renderer
 
             Parallel.For(0, rows, rowIndex =>
             {
-                var startY = rowIndex * TileSize;
-
                 var outputDir = Path.Combine(outputDirectory, rowIndex.ToString());
                 Directory.CreateDirectory(outputDir);
 
