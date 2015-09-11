@@ -109,6 +109,7 @@
     <Compile Include="PointGenerator\BulbsExcludedPointGenerator.cs" />
     <Compile Include="Utility\AreaListReader.cs" />
     <Compile Include="Utility\AreaListWriter.cs" />
+    <Compile Include="Utility\Histogram.cs" />
     <Compile Include="Utility\HitPlot4x4.Generated.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

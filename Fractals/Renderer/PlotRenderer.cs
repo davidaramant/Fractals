@@ -61,6 +61,35 @@ namespace Fractals.Renderer
             var rows = _resolution.Height / TileSize;
             var cols = _resolution.Width / TileSize;
 
+            //Histogram totalHistogram =
+            //    ParallelEnumerable.Range(0, rows).
+            //    Select(
+            //        rowIndex =>
+            //        {
+            //            var histogram = new Histogram(max);
+            //            for (int y = 0; y < TileSize; y++)
+            //            {
+            //                for (int x = 0; x < _resolution.Width; x++)
+            //                {
+            //                    var pointInPlot = new Point(x, rowIndex * TileSize + y);
+
+            //                    var current = _hitPlot.GetHitsForPoint(pointInPlot);
+
+            //                    histogram.IncrementBin(current);
+            //                }
+            //            }
+
+            //            _log.Info($"Done with row index {rowIndex}");
+
+            //            return histogram;
+            //        }).Aggregate(new Histogram(max), (a, b) => a + b);
+
+            //totalHistogram.SaveToCsv("histogram.csv");
+
+            //_hitPlot.Dispose();
+            //_log.Info("Done getting histogram!");
+            //return;
+
             Parallel.For(0, rows, rowIndex =>
             {
                 var outputDir = Path.Combine(outputDirectory, rowIndex.ToString());
