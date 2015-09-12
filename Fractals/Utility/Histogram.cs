@@ -10,24 +10,36 @@ namespace Fractals.Utility
     {
         public const int Count = 100;
         private readonly ulong[] _bins = new ulong[Count];
+        private ulong _zeroBin;
+        private readonly int _max;
 
         public int BinSize { get; }
 
         public Histogram(int maxValue)
         {
+            _max = maxValue;
             BinSize = maxValue / Count;
         }
 
-        private Histogram(int binSize, ulong[] bins)
+        private Histogram(int binSize, int maxValue, ulong zeroBin, ulong[] bins)
         {
             BinSize = binSize;
+            _max = maxValue;
+            _zeroBin = zeroBin;
             _bins = bins;
         }
 
         public void IncrementBin(int value)
         {
-            var index = value / BinSize;
-            _bins[Math.Min(index, Count - 1)]++;
+            if (value == 0)
+            {
+                _zeroBin++;
+            }
+            else
+            {
+                var index = value / BinSize;
+                _bins[Math.Min(index, Count - 1)]++;
+            }
         }
 
         public static Histogram operator +(Histogram h1, Histogram h2)
@@ -39,16 +51,21 @@ namespace Fractals.Utility
                 added[i] = h1._bins[i] + h2._bins[i];
             }
 
-            return new Histogram(h1.BinSize, added);
+            return new Histogram(
+                binSize: h1.BinSize,
+                maxValue: h1._max,
+                zeroBin: h1._zeroBin + h2._zeroBin,
+                bins: added);
         }
 
         public void SaveToCsv(string filePath)
         {
-            File.WriteAllText(
+            File.WriteAllLines(
                 filePath,
-                String.Join(
-                    Environment.NewLine, 
-                    this.Select((value, index) => $"\"{index * BinSize} - {(index + 1) * BinSize}\",{value}")));
+                new[] { "Min,Max,Count", $"0,0,{_zeroBin}", $"1,{BinSize - 1},{_bins[0]}" }.
+                Concat(this.Skip(1).Take(Count - 2).Select((value, index) => $"{(index + 1) * BinSize},{(index + 2) * BinSize - 1},{value}")).
+                Concat(new[] { $"{(Count - 1) * BinSize},{_max},{_bins[Count - 1]}" })
+                );
         }
 
         public IEnumerator<ulong> GetEnumerator()
