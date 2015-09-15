@@ -143,7 +143,7 @@ namespace Fractals.Utility
             return (position - PlotSizeOffset) / _segmentSizeInBytes;
         }
 
-        public uint GetMax()
+        public ushort GetMax()
         {
             if (_max == 0)
             {

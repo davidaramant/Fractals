@@ -11,17 +11,17 @@ namespace Fractals.Utility
         public const int Count = 100;
         private readonly ulong[] _bins = new ulong[Count];
         private ulong _zeroBin;
-        private readonly int _max;
+        private readonly ushort _max;
 
         public int BinSize { get; }
 
-        public Histogram(int maxValue)
+        public Histogram(ushort maxValue)
         {
             _max = maxValue;
             BinSize = maxValue / Count;
         }
 
-        private Histogram(int binSize, int maxValue, ulong zeroBin, ulong[] bins)
+        private Histogram(int binSize, ushort maxValue, ulong zeroBin, ulong[] bins)
         {
             BinSize = binSize;
             _max = maxValue;
