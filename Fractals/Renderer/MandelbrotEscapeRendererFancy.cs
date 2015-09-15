@@ -55,7 +55,7 @@ namespace Fractals.Renderer
                 return Color.Black;
             }
 
-            var exp = Gamma(1.0 - Math.Pow(Math.E, -10.0 * escapeTime / Bailout));
+            var exp = Gamma(1.0 - Math.Pow(Math.E, -40.0 * escapeTime / Bailout));
 
             return new HsvColor(
                 hue:0.85,
