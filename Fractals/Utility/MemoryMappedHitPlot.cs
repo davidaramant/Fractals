@@ -10,16 +10,16 @@ namespace Fractals.Utility
     {
         private readonly MemoryMappedFile _file;
 
-        private const int SegmentCount = 500;
-        private readonly long SegmentSize;
+        private const int SegmentCount = 400;
+        private readonly long _segmentSizeInBytes;
 
         private readonly object[] _accessorLocks;
         private readonly MemoryMappedViewAccessor[] _accessors;
 
         private const long PlotSizeOffset = 4 * sizeof(int);
-        private const long HitCountSize = sizeof(int);
+        private const long HitCountSize = sizeof(ushort);
 
-        private int _max = 0;
+        private ushort _max = 0;
         private readonly bool _openedForWrite;
 
         public Size Resolution { get; private set; }
@@ -55,11 +55,11 @@ namespace Fractals.Utility
             }
 
             _accessorLocks = Enumerable.Range(0, SegmentCount).Select(_ => new object()).ToArray();
-            SegmentSize = dataSize / SegmentCount;
+            _segmentSizeInBytes = dataSize / SegmentCount;
             _accessors =
                 Enumerable.Range(0, SegmentCount).
-                Select(i => PlotSizeOffset + i * SegmentSize).
-                Select(offset => _file.CreateViewAccessor(offset, SegmentSize)).
+                Select(i => PlotSizeOffset + i * _segmentSizeInBytes).
+                Select(offset => _file.CreateViewAccessor(offset, _segmentSizeInBytes)).
                 ToArray();
         }
 
@@ -76,7 +76,7 @@ namespace Fractals.Utility
             {
                 var width = plotSizeAccessor.ReadInt32(0);
                 var height = plotSizeAccessor.ReadInt32(sizeof(int));
-                _max = plotSizeAccessor.ReadInt32(2 * sizeof(int));
+                _max = plotSizeAccessor.ReadUInt16(2 * sizeof(int));
 
                 Resolution = new Size(width, height);
             }
@@ -84,11 +84,11 @@ namespace Fractals.Utility
             long dataSize = (long)Resolution.Width * (long)Resolution.Height * HitCountSize;
 
             _accessorLocks = Enumerable.Range(0, SegmentCount).Select(_ => new object()).ToArray();
-            SegmentSize = dataSize / SegmentCount;
+            _segmentSizeInBytes = dataSize / SegmentCount;
             _accessors =
                 Enumerable.Range(0, SegmentCount).
-                Select(i => PlotSizeOffset + i * SegmentSize).
-                Select(offset => _file.CreateViewAccessor(offset, SegmentSize)).
+                Select(i => PlotSizeOffset + i * _segmentSizeInBytes).
+                Select(offset => _file.CreateViewAccessor(offset, _segmentSizeInBytes)).
                 ToArray();
         }
 
@@ -101,7 +101,7 @@ namespace Fractals.Utility
 
             if (_openedForWrite)
             {
-                using (var maxAccessor = _file.CreateViewAccessor(2 * sizeof(int), sizeof(int)))
+                using (var maxAccessor = _file.CreateViewAccessor(2 * sizeof(int), sizeof(ushort)))
                 {
                     maxAccessor.Write(0, _max);
                 }
@@ -114,23 +114,23 @@ namespace Fractals.Utility
         {
             var position = PointToPosition(p);
             var segmentIndex = PositionToSegmentIndex(position);
-            var segmentPosition = position % SegmentSize;
+            var segmentPosition = position % _segmentSizeInBytes;
 
             lock (_accessorLocks[segmentIndex])
             {
-                var currentCount = _accessors[segmentIndex].ReadInt32(segmentPosition);
+                var currentCount = _accessors[segmentIndex].ReadUInt16(segmentPosition);
                 currentCount++;
                 _accessors[segmentIndex].Write(segmentPosition, currentCount);
             }
         }
 
-        public int GetHitsForPoint(Point p)
+        public ushort GetHitsForPoint(Point p)
         {
             var position = PointToPosition(p);
             var segmentIndex = PositionToSegmentIndex(position);
-            var segmentPosition = position % SegmentSize;
+            var segmentPosition = position % _segmentSizeInBytes;
 
-            return _accessors[segmentIndex].ReadInt32(segmentPosition);
+            return _accessors[segmentIndex].ReadUInt16(segmentPosition);
         }
 
         private long PointToPosition(Point p)
@@ -140,22 +140,22 @@ namespace Fractals.Utility
 
         private long PositionToSegmentIndex(long position)
         {
-            return (position - PlotSizeOffset) / SegmentSize;
+            return (position - PlotSizeOffset) / _segmentSizeInBytes;
         }
 
-        public int GetMax()
+        public uint GetMax()
         {
             if (_max == 0)
             {
                 const int bufferCount = 100;
-                long bufferSizeInBytes = SegmentSize / bufferCount;
+                long bufferSizeInBytes = _segmentSizeInBytes / bufferCount;
                 long numberOfElementsInBuffer = bufferSizeInBytes/HitCountSize;
 
                 _max = ParallelEnumerable.Range(0, SegmentCount).
                    Select(segmentIndex =>
                    {
-                       var maxes = new int[bufferCount];
-                       var buffer = new int[numberOfElementsInBuffer];
+                       var maxes = new ushort[bufferCount];
+                       var buffer = new ushort[numberOfElementsInBuffer];
 
                        for (int bufferIndex = 0; bufferIndex < bufferCount; bufferIndex++)
                        {

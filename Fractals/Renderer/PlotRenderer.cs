@@ -84,7 +84,7 @@ namespace Fractals.Renderer
             //            return histogram;
             //        }).Aggregate(new Histogram(max), (a, b) => a + b);
 
-            //totalHistogram.SaveToCsv("histogram.csv");
+            //totalHistogram.SaveToCsv("bighistogram.csv");
 
             //_hitPlot.Dispose();
             //_log.Info("Done getting histogram!");

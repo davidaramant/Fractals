@@ -60,7 +60,7 @@ namespace Fractals.Utility
 
             _log.Info("Calculating trajectories");
 
-            var processedCount = 0;
+            long processedCount = 0;
             Parallel.ForEach(GetNumbers(), new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, number =>
             {
                 foreach (var c in GetTrajectory(number))
@@ -76,7 +76,7 @@ namespace Fractals.Utility
                 }
 
                 Interlocked.Increment(ref processedCount);
-                if (processedCount % 100 == 0)
+                if (processedCount % 1000 == 0)
                 {
                     _log.DebugFormat("Plotted {0:N0} points' trajectories", processedCount);
                 }
