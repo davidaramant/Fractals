@@ -5,26 +5,14 @@ namespace Fractals.Utility
 {
     public class ColorRampFactory
     {
-        public static ColorRamp Blue
-        {
-            get
-            {
-                return GetIntensityRamp(196.0);
-            }
-        }
+        public static ColorRamp Blue => GetIntensityRamp(196);
 
-        public static ColorRamp Psychadelic
+        public static ColorRamp Psychadelic => new ColorRamp(new[]
         {
-            get
-            {
-                return new ColorRamp(new[]
-                {
-                    Tuple.Create(new HsvColor(0, 1, 0), 0.0),
-                    Tuple.Create(new HsvColor(0, 1, 1), 0.2),
-                    Tuple.Create(new HsvColor(1, 1, 1), 1.0),
-                });
-            }
-        }
+            Tuple.Create(new HsvColor(0, 1, 0), 0.0),
+            Tuple.Create(new HsvColor(0, 1, 1), 0.1),
+            Tuple.Create(new HsvColor(1, 1, 1), 1.0),
+        });
 
         public static ColorRamp Rainbow
         {
@@ -51,7 +39,7 @@ namespace Fractals.Utility
             return new ColorRamp(new[]
             {
                 Tuple.Create(new HsvColor(color / 360.0, 1, 0), 0.0),
-                Tuple.Create(new HsvColor(color / 360.0, 1, 1), 0.5),
+                Tuple.Create(new HsvColor(color / 360.0, 1, 1), 0.97),
                 Tuple.Create(new HsvColor(color / 360.0, 0, 1), 1.0),
             });
         }

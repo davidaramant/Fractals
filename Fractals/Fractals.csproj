@@ -125,6 +125,7 @@
     <Compile Include="Utility\MandelbrotFinder.cs" />
     <Compile Include="Utility\MandelbrotPointFinder.cs" />
     <Compile Include="Utility\MemoryMappedHitPlot.cs" />
+    <Compile Include="Utility\ImageTile.cs" />
     <Compile Include="Utility\TrajectoryPlotter.cs" />
     <Compile Include="Utility\PointFinder.cs" />
     <Compile Include="PointGenerator\RandomPointGenerator.cs" />

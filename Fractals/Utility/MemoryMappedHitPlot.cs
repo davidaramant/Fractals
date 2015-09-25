@@ -10,7 +10,9 @@ namespace Fractals.Utility
     {
         private readonly MemoryMappedFile _file;
 
-        private const int SegmentCount = 400;
+        private const int TileSize = 256;
+
+        private const int SegmentCount = 256;
         private readonly long _segmentSizeInBytes;
 
         private readonly object[] _accessorLocks;

@@ -56,7 +56,7 @@ namespace Fractals.Utility
             var newFilename = String.Format("{0}.{1}.point", _filename, Guid.NewGuid().ToString().Replace("-", "").ToLower());
             _currentFilename = Path.Combine(_directory, newFilename);
 
-            _log.InfoFormat("Swithing file to: {0}", newFilename);
+            _log.InfoFormat("Switching file to: {0}", newFilename);
         }
     }
 }
