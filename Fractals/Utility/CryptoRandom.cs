@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 
 namespace Fractals.Utility
 {
+    // TODO: Replace this
     public sealed class CryptoRandom
     {
         private readonly RNGCryptoServiceProvider _cryptoServiceProvider = new RNGCryptoServiceProvider(Guid.NewGuid().ToByteArray());
