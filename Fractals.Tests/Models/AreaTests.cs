@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Numerics;
 using Fractals.Model;
 using NUnit.Framework;
 

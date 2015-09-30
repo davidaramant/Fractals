@@ -84,7 +84,6 @@
     <Compile Include="Arguments\RenderingArguments.cs" />
     <Compile Include="Arguments\Resolution.cs" />
     <Compile Include="Model\BailoutRange.cs" />
-    <Compile Include="Model\Complex.cs" />
     <Compile Include="Model\InclusiveRange.cs" />
     <Compile Include="Model\MandelbulbChecker.cs" />
     <Compile Include="Model\Area.cs" />

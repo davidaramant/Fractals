@@ -2,6 +2,7 @@
 using Fractals.Utility;
 using log4net;
 using System.Drawing;
+using System.Numerics;
 
 namespace Fractals.Renderer
 {

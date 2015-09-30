@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
 using Fractals.Model;
 using Fractals.Utility;
 

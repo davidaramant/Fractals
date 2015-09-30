@@ -1,4 +1,6 @@
-﻿namespace Fractals.Model
+﻿using System.Numerics;
+
+namespace Fractals.Model
 {
     public static class MandelbulbChecker
     {

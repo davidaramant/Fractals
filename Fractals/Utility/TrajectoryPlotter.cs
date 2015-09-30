@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 
 namespace Fractals.Utility

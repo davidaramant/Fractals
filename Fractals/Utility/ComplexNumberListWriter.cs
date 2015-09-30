@@ -1,6 +1,7 @@
 ﻿using Fractals.Model;
 using System;
 using System.IO;
+using System.Numerics;
 using log4net;
 
 namespace Fractals.Utility

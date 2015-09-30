@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Fractals.Model;
@@ -32,7 +33,7 @@ namespace Fractals.Tests
             {
                 z = z * z + c;
 
-                junk += z.MagnitudeSquared();
+                junk += (z.Real * z.Real + z.Imaginary * z.Imaginary);
             }
 
             complexTimer.Stop();

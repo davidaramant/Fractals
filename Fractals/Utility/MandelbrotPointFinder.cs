@@ -1,4 +1,5 @@
-﻿using Fractals.Model;
+﻿using System.Numerics;
+using Fractals.Model;
 using Fractals.PointGenerator;
 
 namespace Fractals.Utility

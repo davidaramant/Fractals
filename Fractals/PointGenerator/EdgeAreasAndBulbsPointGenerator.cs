@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Fractals.Model;
 using Fractals.Utility;
 using log4net;

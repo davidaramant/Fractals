@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using Fractals.Model;
 using Fractals.Utility;
 using NUnit.Framework;
