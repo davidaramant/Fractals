@@ -82,7 +82,7 @@ namespace Fractals.Utility
                 // Orbit check
                 if (checkNum == i)
                 {
-                    if (IsPracticallyTheSame(oldRe, re) && IsPracticallyTheSame(oldIm, im))
+                    if (oldRe == re && oldIm == im)
                     {
                         return true;
                     }
@@ -104,11 +104,6 @@ namespace Fractals.Utility
             }
 
             return true;
-        }
-
-        private static bool IsPracticallyTheSame(double v1, double v2)
-        {
-            return Math.Abs(v1 - v2) <= 1e-17;
         }
     }
 }

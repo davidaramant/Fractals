@@ -47,8 +47,8 @@ namespace Fractals.Utility
         {
             var realMinBytes = BitConverter.GetBytes(area.RealRange.Minimum);
             var realMaxBytes = BitConverter.GetBytes(area.RealRange.Maximum);
-            var imagMinBytes = BitConverter.GetBytes(area.ImaginaryRange.Minimum);
-            var imagMaxBytes = BitConverter.GetBytes(area.ImaginaryRange.Maximum);
+            var imagMinBytes = BitConverter.GetBytes(area.ImagRange.Minimum);
+            var imagMaxBytes = BitConverter.GetBytes(area.ImagRange.Maximum);
 
             stream.Write(realMinBytes, 0, realMinBytes.Length);
             stream.Write(realMaxBytes, 0, realMaxBytes.Length);

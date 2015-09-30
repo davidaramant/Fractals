@@ -1,17 +1,13 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
-using Fractals.Arguments;
 using Fractals.Model;
 using log4net;
 
 namespace Fractals.Utility
 {
-    public class EdgeLocator
+    public sealed class EdgeLocator
     {
         private readonly string _outputDirectory;
         private readonly string _outputFilename;
@@ -20,7 +16,7 @@ namespace Fractals.Utility
 
         static EdgeLocator()
         {
-            _log = LogManager.GetLogger(typeof (EdgeLocator));
+            _log = LogManager.GetLogger(typeof(EdgeLocator));
         }
 
         public EdgeLocator(string outputDirectory, string outputFilename)
@@ -34,84 +30,64 @@ namespace Fractals.Utility
             var writer = new AreaListWriter(_outputDirectory, _outputFilename);
             writer.Truncate();
 
-            foreach (var area in LocateEdges(resolution, gridSize, viewPort))
+            ulong count = 0;
+            foreach (var area in LocateEdges(resolution, viewPort))
             {
+                count++;
                 writer.SaveArea(area);
             }
+            _log.Info($"Found {count:N0} total areas");
         }
 
-        public static IEnumerable<Area> LocateEdges(Size resolution, double gridSize, Area viewPort)
+        private static IEnumerable<Area> LocateEdges(Size resolution, Area viewPort)
         {
             _log.DebugFormat("Looking for intersting areas ({0:N0}x{1:N0})", resolution.Width, resolution.Height);
 
-            var allAreas = AllPossibleAreas(viewPort.RealRange, viewPort.ImaginaryRange, gridSize);
-            _log.DebugFormat("Found {0:N0} total areas", allAreas.Count);
+            double realIncrement = viewPort.RealRange.Magnitude / resolution.Width;
+            double imagIncrement = viewPort.ImagRange.Magnitude / resolution.Height;
 
-            var numbers = new MandelbrotFinder().FindPoints(resolution, viewPort);
-            _log.DebugFormat("Found {0:N0} points within the region", numbers.Count);
+            return
+                GetAllPoints(resolution).
+                    AsParallel().
+                    Select(point => new Area(
+                        new InclusiveRange(viewPort.RealRange.Minimum + point.X * realIncrement, viewPort.RealRange.Minimum + (point.X + 1) * realIncrement),
+                        new InclusiveRange(viewPort.ImagRange.Minimum + point.Y * imagIncrement, viewPort.ImagRange.Minimum + (point.Y + 1) * imagIncrement))).
+                    Where(searchArea =>
+                    {
+                        var isLastCornerIn = MandelbrotFinder.IsInSet(new Complex(searchArea.RealRange.Minimum, searchArea.ImagRange.Minimum));
+                        var isCornerIn = MandelbrotFinder.IsInSet(new Complex(searchArea.RealRange.Maximum, searchArea.ImagRange.Minimum));
 
-            var areasWithSomeNumbers = FindAreasWithNumbers(allAreas, numbers);
+                        if (isCornerIn != isLastCornerIn)
+                        {
+                            return true;
+                        }
+                        isLastCornerIn = isCornerIn;
 
-            return areasWithSomeNumbers;
+                        isCornerIn = MandelbrotFinder.IsInSet(new Complex(searchArea.RealRange.Minimum, searchArea.ImagRange.Maximum));
+                        if (isCornerIn != isLastCornerIn)
+                        {
+                            return true;
+                        }
+                        isLastCornerIn = isCornerIn;
+
+                        isCornerIn = MandelbrotFinder.IsInSet(new Complex(searchArea.RealRange.Maximum, searchArea.ImagRange.Maximum));
+                        if (isCornerIn != isLastCornerIn)
+                        {
+                            return true;
+                        }
+                        return false;
+                    });
         }
 
-        private static IEnumerable<Area> FindAreasWithNumbers(IEnumerable<Area> allAreas, IEnumerable<Complex> numbers)
+        private static IEnumerable<Point> GetAllPoints(Size resolution)
         {
-            var results = new ConcurrentDictionary<Area, byte>();
-
-            var processedCount = 0;
-            Parallel.ForEach(numbers, new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism }, number =>
+            for (int x = 0; x < resolution.Width; x++)
             {
-                var containingAreas = allAreas.Where(a => a.IsInside(number));
-                foreach (var containingArea in containingAreas)
+                for (int y = 0; y < resolution.Height; y++)
                 {
-                    results.GetOrAdd(containingArea, 0x00);
-                }
-
-                Interlocked.Increment(ref processedCount);
-                if (processedCount % 10000 == 0)
-                {
-                    _log.DebugFormat("Checked {0:N0} points", processedCount);
-                }
-            });
-            _log.DebugFormat("Checked {0:N0} points", processedCount);
-
-            _log.InfoFormat("Found {0:N0} areas bordering points", results.Count);
-
-            return results.Keys;
-        }
-
-        private static List<Area> AllPossibleAreas(InclusiveRange realAxis, InclusiveRange imaginaryAxis, double gridSize)
-        {
-            var allAreas = new List<Area>();
-
-            var realPoints = new List<double>();
-            for (var realPoint = realAxis.Minimum; realPoint <= realAxis.Maximum; realPoint += gridSize)
-            {
-                realPoints.Add(realPoint);
-            }
-
-            var imaginaryPoints = new List<double>();
-            for (var imaginaryPoint = imaginaryAxis.Minimum; imaginaryPoint <= imaginaryAxis.Maximum; imaginaryPoint += gridSize)
-            {
-                imaginaryPoints.Add(imaginaryPoint);
-            }
-
-            for (var realIndex = 0; realIndex < realPoints.Count - 1; realIndex++)
-            {
-                for (var imaginaryIndex = 0; imaginaryIndex < imaginaryPoints.Count - 1; imaginaryIndex++)
-                {
-                    var realRange = new InclusiveRange(realPoints[realIndex], realPoints[realIndex + 1]);
-                    var imaginaryRange = new InclusiveRange(imaginaryPoints[imaginaryIndex], imaginaryPoints[imaginaryIndex + 1]);
-
-                    var gridBox = new Area(
-                        realRange,
-                        imaginaryRange);
-                    allAreas.Add(gridBox);
+                    yield return new Point(x, y);
                 }
             }
-
-            return allAreas;
         }
     }
 }

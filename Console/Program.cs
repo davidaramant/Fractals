@@ -93,11 +93,11 @@ namespace Fractals.Console
 
         private static T DeserializeArguments<T>(string path)
         {
-            var serializer = new XmlSerializer(typeof (T));
+            var serializer = new XmlSerializer(typeof(T));
 
             using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                return (T) serializer.Deserialize(stream);
+                return (T)serializer.Deserialize(stream);
             }
         }
 
@@ -111,9 +111,10 @@ namespace Fractals.Console
 
             Color[,] output = renderer.Render(arguments.Resolution.ToSize(), viewPort);
 
-            Bitmap image = ImageUtility.ColorMatrixToBitmap(output);
-
-            image.Save(Path.Combine(arguments.OutputDirectory, String.Format("{0}.png", arguments.OutputFilename)));
+            using (var image = ImageUtility.ColorMatrixToBitmap(output))
+            {
+                image.Save(Path.Combine(arguments.OutputDirectory, String.Format("{0}.png", arguments.OutputFilename)));
+            }
         }
 
         private void FindPoints(Options options)
@@ -251,7 +252,7 @@ namespace Fractals.Console
             //return new[] { "-t", "RenderMandelbrotEscapeFancy", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEscapeFancy.xml" };
             //return new[] { "-t", "RenderMandelbrotDistance", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotDistance.xml" };
             //return new[] { "-t", "RenderMandelbrotEdges", "-c", @"..\..\..\..\Argument Files\RenderMandelbrotEdges.xml" };
-            
+
             /*--------------------------------------------------------------------------------------
             |  The following set of operations (done in order) generates a buddhabrot image.       |
             --------------------------------------------------------------------------------------*/

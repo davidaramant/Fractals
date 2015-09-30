@@ -135,7 +135,7 @@ namespace Fractals.Renderer
             }
 
             // Draw horizontal lines
-            for (double imag = 0; imag < viewPoint.ImaginaryRange.Maximum; imag += GridSize)
+            for (double imag = 0; imag < viewPoint.ImagRange.Maximum; imag += GridSize)
             {
                 Point point = viewPoint.GetPointFromNumber(resolution, new Complex(0, imag));
 
@@ -144,7 +144,7 @@ namespace Fractals.Renderer
                     output[x, point.Y] = Color.Green;
                 }
             }
-            for (double imag = 0; imag >= viewPoint.ImaginaryRange.Minimum; imag -= GridSize)
+            for (double imag = 0; imag >= viewPoint.ImagRange.Minimum; imag -= GridSize)
             {
                 Point point = viewPoint.GetPointFromNumber(resolution, new Complex(0, imag));
 
