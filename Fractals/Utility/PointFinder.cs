@@ -10,7 +10,7 @@ namespace Fractals.Utility
 {
     public abstract class PointFinder
     {
-        private static bool _shouldStop = false;
+        private static volatile bool _shouldStop = false;
         private readonly static object ShouldStopLock = new object();
 
         private readonly uint _minimum;
@@ -71,7 +71,9 @@ namespace Fractals.Utility
 
             int num = 0;
 
-            Parallel.ForEach(_pointGenerator.GetRandomComplexNumbers(viewPort), new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism },
+            Parallel.ForEach(
+                _pointGenerator.GetRandomComplexNumbers(viewPort), 
+                new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism },
                 (number, state) =>
                 {
                     if (ValidatePoint(number, bailout))
