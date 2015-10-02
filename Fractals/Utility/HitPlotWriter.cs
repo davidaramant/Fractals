@@ -44,7 +44,7 @@ namespace Fractals.Utility
             _accessorLocks = Enumerable.Range(0, _tileCount).Select(_ => new object()).ToArray();
             _accessors =
                 Enumerable.Range(0, _tileCount).
-                Select(i => i * TileSizeInBytes).
+                Select(i => (long)i * (long)TileSizeInBytes).
                 Select(offset => _file.CreateViewAccessor(offset, TileSizeInBytes)).
                 ToArray();
         }
