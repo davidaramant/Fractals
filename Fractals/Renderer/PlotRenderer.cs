@@ -67,19 +67,15 @@ namespace Fractals.Renderer
                     var outputDir = Path.Combine(outputDirectory, rowIndex.ToString());
                     Directory.CreateDirectory(outputDir);
 
-                    var tileData = new ushort[TileSize * TileSize];
-
                     using (var tile = new ImageTile(TileSize))
-                    using (var rowReader = hitPlot.ReadRow(rowIndex))
                     {
                         for (int columnIndex = 0; columnIndex < rows; columnIndex++)
                         {
-                            rowReader.FillBufferWithTile(tileData);
-
-                            for (int pixelIndex = 0; pixelIndex < tileData.Length; pixelIndex++)
+                            for (int pixelIndex = 0; pixelIndex < TileSize*TileSize; pixelIndex++)
                             {
-                                //var current = tileData[i];
-                                var current = Math.Min(tileData[pixelIndex], cappedMax);
+                                var current = hitPlot.GetCount(rowIndex, columnIndex, pixelIndex);
+
+                                 current = Math.Min(current, cappedMax);
 
                                 var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
                                 //var ratio = 1.0 - Math.Pow(Math.E, -5.0 * current / cappedMax);
