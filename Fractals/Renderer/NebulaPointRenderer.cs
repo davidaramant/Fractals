@@ -10,94 +10,96 @@ namespace Fractals.Renderer
 {
     public class NebulaPointRenderer
     {
-        private readonly string _inputInputDirectory;
-        private readonly string _inputFilenameRed;
-        private readonly string _inputFilenameGreen;
-        private readonly string _inputFilenameBlue;
+        //private readonly string _inputInputDirectory;
+        //private readonly string _inputFilenameRed;
+        //private readonly string _inputFilenameGreen;
+        //private readonly string _inputFilenameBlue;
 
-        private readonly Size _resolution;
+        //private readonly Size _resolution;
 
-        private static ILog _log;
+        //private static ILog _log;
 
-        private readonly IHitPlot _hitPlotRed;
-        private readonly IHitPlot _hitPlotGreen;
-        private readonly IHitPlot _hitPlotBlue;
+        //private readonly IHitPlot _hitPlotRed;
+        //private readonly IHitPlot _hitPlotGreen;
+        //private readonly IHitPlot _hitPlotBlue;
 
         public NebulaPointRenderer(string inputDirectory, string inputFilenameRed, string inputFilenameGreen, string inputFilenameBlue, int width, int height)
         {
-            _inputInputDirectory = inputDirectory;
-            _inputFilenameRed = inputFilenameRed;
-            _inputFilenameGreen = inputFilenameGreen;
-            _inputFilenameBlue = inputFilenameBlue;
+            throw new NotImplementedException();
+            //_inputInputDirectory = inputDirectory;
+            //_inputFilenameRed = inputFilenameRed;
+            //_inputFilenameGreen = inputFilenameGreen;
+            //_inputFilenameBlue = inputFilenameBlue;
 
-            _resolution = new Size(width, height);
+            //_resolution = new Size(width, height);
 
-            _hitPlotRed = new HitPlot4x4(_resolution);
-            _hitPlotGreen = new HitPlot4x4(_resolution);
-            _hitPlotBlue = new HitPlot4x4(_resolution);
+            ////_hitPlotRed = new HitPlot4x4(_resolution);
+            ////_hitPlotGreen = new HitPlot4x4(_resolution);
+            ////_hitPlotBlue = new HitPlot4x4(_resolution);
 
-            _log = LogManager.GetLogger(GetType());
+            //_log = LogManager.GetLogger(GetType());
         }
 
         public void Render(string outputDirectory, string outputFilename)
         {
-            _log.Info("Loading trajectories...");
+            //_log.Info("Loading trajectories...");
 
-            _hitPlotRed.LoadTrajectories(Path.Combine(_inputInputDirectory, _inputFilenameRed));
-            _hitPlotGreen.LoadTrajectories(Path.Combine(_inputInputDirectory, _inputFilenameGreen));
-            _hitPlotBlue.LoadTrajectories(Path.Combine(_inputInputDirectory, _inputFilenameBlue));
+            //_hitPlotRed.LoadTrajectories(Path.Combine(_inputInputDirectory, _inputFilenameRed));
+            //_hitPlotGreen.LoadTrajectories(Path.Combine(_inputInputDirectory, _inputFilenameGreen));
+            //_hitPlotBlue.LoadTrajectories(Path.Combine(_inputInputDirectory, _inputFilenameBlue));
 
-            _log.Info("Done loading; finding maximums...");
+            //_log.Info("Done loading; finding maximums...");
 
-            var maxRed = _hitPlotRed.Max();
-            var maxGreen = _hitPlotGreen.Max();
-            var maxBlue = _hitPlotBlue.Max();
+            //var maxRed = _hitPlotRed.Max();
+            //var maxGreen = _hitPlotGreen.Max();
+            //var maxBlue = _hitPlotBlue.Max();
 
-            _log.DebugFormat("Found maximum red: {0:N0}", maxRed);
-            _log.DebugFormat("Found maximum green: {0:N0}", maxGreen);
-            _log.DebugFormat("Found maximum blue: {0:N0}", maxBlue);
+            //_log.DebugFormat("Found maximum red: {0:N0}", maxRed);
+            //_log.DebugFormat("Found maximum green: {0:N0}", maxGreen);
+            //_log.DebugFormat("Found maximum blue: {0:N0}", maxBlue);
 
-            _log.Info("Starting to render");
+            //_log.Info("Starting to render");
 
-            var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
+            //var outputImg = new Bitmap(_resolution.Width, _resolution.Height);
 
-            var processedPixels =
-                _resolution
-                .GetAllPoints()
-                .AsParallel()
-                .WithDegreeOfParallelism(GlobalArguments.DegreesOfParallelism)
-                .Select(p => ComputeColor(p, maxRed, maxGreen, maxBlue))
-                .AsEnumerable();
+            //var processedPixels =
+            //    _resolution
+            //    .GetAllPoints()
+            //    .AsParallel()
+            //    .WithDegreeOfParallelism(GlobalArguments.DegreesOfParallelism)
+            //    .Select(p => ComputeColor(p, maxRed, maxGreen, maxBlue))
+            //    .AsEnumerable();
 
-            foreach (var result in processedPixels)
-            {
-                outputImg.SetPixel(result.Item1.X, result.Item1.Y, result.Item2);
-            }
+            //foreach (var result in processedPixels)
+            //{
+            //    outputImg.SetPixel(result.Item1.X, result.Item1.Y, result.Item2);
+            //}
 
-            _log.Info("Finished rendering");
+            //_log.Info("Finished rendering");
 
-            _log.Debug("Saving image");
-            outputImg.Save(Path.Combine(outputDirectory, String.Format("{0}.png", outputFilename)));
-            _log.Debug("Done saving image");
+            //_log.Debug("Saving image");
+            //outputImg.Save(Path.Combine(outputDirectory, String.Format("{0}.png", outputFilename)));
+            //_log.Debug("Done saving image");
 
         }
 
         private Tuple<Point, Color> ComputeColor(Point p, int maxRed, int maxGreen, int maxBlue)
         {
-            var currentRed = _hitPlotRed.GetHitsForPoint(p);
-            var currentGreen = _hitPlotGreen.GetHitsForPoint(p);
-            var currentBlue = _hitPlotBlue.GetHitsForPoint(p);
+            throw new NotImplementedException();
+            //var currentRed = _hitPlotRed.GetHitsForPoint(p);
+            //var currentGreen = _hitPlotGreen.GetHitsForPoint(p);
+            //var currentBlue = _hitPlotBlue.GetHitsForPoint(p);
 
-            var expRed = Gamma(1.0 - Math.Pow(Math.E, -10.0 * currentRed / maxRed));
-            var expGreen = Gamma(1.0 - Math.Pow(Math.E, -10.0 * currentGreen / maxGreen));
-            var expBlue = Gamma(1.0 - Math.Pow(Math.E, -10.0 * currentBlue / maxBlue));
+            //var expRed = Gamma(1.0 - Math.Pow(Math.E, -10.0 * currentRed / maxRed));
+            //var expGreen = Gamma(1.0 - Math.Pow(Math.E, -10.0 * currentGreen / maxGreen));
+            //var expBlue = Gamma(1.0 - Math.Pow(Math.E, -10.0 * currentBlue / maxBlue));
 
-            var color = Color.FromArgb(
-                (int)(255 * expRed),
-                (int)(255 * expGreen),
-                (int)(255 * expBlue));
+            //var color = Color.FromArgb(
+            //    (int)(255 * expRed),
+            //    (int)(255 * expGreen),
+            //    (int)(255 * expBlue));
 
-            return Tuple.Create(p, color);
+            //return Tuple.Create(p, color);
         }
 
         private static double Gamma(double x, double exp = 1.2)

@@ -24,119 +24,118 @@ namespace Fractals.Renderer
         private const int TileSize = 256;
 
 
-        public PlotRenderer( string inputDirectory, string inputFilename, int width, int height )
+        public PlotRenderer(string inputDirectory, string inputFilename, int width, int height)
         {
             _inputInputDirectory = inputDirectory;
             _inputFilename = inputFilename;
 
-            _resolution = new Size( width, height );
+            _resolution = new Size(width, height);
 
-            _log = LogManager.GetLogger( GetType() );
+            _log = LogManager.GetLogger(GetType());
         }
 
 
-        public void Render( string outputDirectory, string outputFilename )
+        public void Render(string outputDirectory, string outputFilename)
         {
             //Render( outputDirectory, outputFilename, ColorRampFactory.Blue );
-            Render( outputDirectory, outputFilename, ColorRampFactory.Psychadelic );
+            Render(outputDirectory, outputFilename, ColorRampFactory.Psychadelic);
         }
 
-        public void Render( string outputDirectory, string outputFilename, ColorRamp colorRamp )
+        public void Render(string outputDirectory, string outputFilename, ColorRamp colorRamp)
         {
             var timer = Stopwatch.StartNew();
 
-            _log.InfoFormat( "Creating image ({0:N0}x{1:N0})", _resolution.Width, _resolution.Height );
+            _log.InfoFormat("Creating image ({0:N0}x{1:N0})", _resolution.Width, _resolution.Height);
 
-            _log.Info( "Loading trajectory..." );
+            _log.Info("Loading trajectory...");
 
-            using( var hitPlot = MemoryMappedHitPlot.OpenForReading( Path.Combine( _inputInputDirectory, _inputFilename ) ) )
+            using (var hitPlot = new HitPlotReader(Path.Combine(_inputInputDirectory, _inputFilename), _resolution))
             {
-                _log.Info( "Done loading; finding maximum..." );
-
-                var max = hitPlot.GetMax();
-
-                _log.DebugFormat( "Found maximum: {0:N0}", max );
-
-                _log.Info( "Starting to render" );
-
-                var rows = _resolution.Height / TileSize;
-                var cols = _resolution.Width / TileSize;
-
                 const ushort cappedMax = 2500;
 
-                Parallel.For( 0, rows, rowIndex =>
+                _log.Debug($"Using maximum: {cappedMax:N0}");
+
+                _log.Info("Starting to render");
+
+                var rows = _resolution.Height / TileSize;
+
+                Parallel.For(0, rows,
+                    new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism },
+                    //new ParallelOptions { MaxDegreeOfParallelism = 1 },
+                    rowIndex =>
                 {
-                    var outputDir = Path.Combine( outputDirectory, rowIndex.ToString() );
-                    Directory.CreateDirectory( outputDir );
+                    var outputDir = Path.Combine(outputDirectory, rowIndex.ToString());
+                    Directory.CreateDirectory(outputDir);
 
-                    using( var tile = new ImageTile( TileSize ) )
+                    var tileData = new ushort[TileSize * TileSize];
+
+                    using (var tile = new ImageTile(TileSize))
+                    using (var rowReader = hitPlot.ReadRow(rowIndex))
                     {
-                        for( int columnIndex = 0; columnIndex < cols; columnIndex++ )
+                        for (int columnIndex = 0; columnIndex < rows; columnIndex++)
                         {
-                            for( int y = 0; y < TileSize; y++ )
+                            rowReader.FillBufferWithTile(tileData);
+
+                            for (int pixelIndex = 0; pixelIndex < tileData.Length; pixelIndex++)
                             {
-                                for( int x = 0; x < TileSize; x++ )
-                                {
-                                    var pointInPlot = new Point( columnIndex * TileSize + x, rowIndex * TileSize + y );
+                                //var current = tileData[i];
+                                var current = Math.Min(tileData[pixelIndex], cappedMax);
 
-                                    //var current = hitPlot.GetHitsForPoint( pointInPlot );
-                                    var current = Math.Min( hitPlot.GetHitsForPoint( pointInPlot ), cappedMax );
+                                var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
+                                //var ratio = 1.0 - Math.Pow(Math.E, -5.0 * current / cappedMax);
 
-                                    var ratio = Gamma( 1.0 - Math.Pow( Math.E, -15.0 * current / max ) );
-                                    //var ratio = 1.0 - Math.Pow(Math.E, -5.0 * current / cappedMax);
-
-                                    var color = colorRamp.GetColor( ratio ).ToColor();
-                                    tile.SetPixel( x, y, color );
-                                }
+                                var color = colorRamp.GetColor(ratio).ToColor();
+                                tile.SetPixel(pixelIndex, color);
                             }
-                            tile.Save(
-                                Path.Combine( outputDir, columnIndex + ".png" ) );
+                            tile.Save(Path.Combine(outputDir, columnIndex + ".png"));
+
                         }
                     }
-                } );
+                });
             }
 
             timer.Stop();
 
-            _log.Info( $"Finished rendering tiles. Took: {timer.Elapsed}" );
+            _log.Info($"Finished rendering tiles. Took: {timer.Elapsed}");
         }
 
-        private static double Gamma( double x, double exp = 1.2 )
+        private static double Gamma(double x, double exp = 1.2)
         {
-            return Math.Pow( x, 1.0 / exp );
+            return Math.Pow(x, 1.0 / exp);
         }
 
-        private void ComputeHistogram( int rows, ushort max, MemoryMappedHitPlot hitPlot )
+        private void ComputeHistogram(int rows, ushort max, HitPlotReader hitPlotWriter)
         {
             Histogram totalHistogram =
-                ParallelEnumerable.Range( 0, rows ).
+                ParallelEnumerable.Range(0, rows).
                 Select(
                     rowIndex =>
                     {
-                        var histogram = new Histogram( max );
-                        for( int y = 0; y < TileSize; y++ )
+                        var histogram = new Histogram(max);
+                        for (int y = 0; y < TileSize; y++)
                         {
-                            for( int x = 0; x < _resolution.Width; x++ )
+                            for (int x = 0; x < _resolution.Width; x++)
                             {
-                                var pointInPlot = new Point( x, rowIndex * TileSize + y );
+                                //HACK
+                                var pointInPlot = new Point(x, rowIndex * TileSize + y);
 
-                                var current = hitPlot.GetHitsForPoint( pointInPlot );
+                                var current = 0;//hitPlotWriter.GetHitsForPoint(pointInPlot);
 
-                                histogram.IncrementBin( current );
+                                histogram.IncrementBin(current);
                             }
                         }
 
-                        _log.Info( $"Done with row index {rowIndex}" );
+                        _log.Info($"Done with row index {rowIndex}");
 
                         return histogram;
-                    } ).Aggregate( new Histogram( max ), ( a, b ) => a + b );
+                    }).Aggregate(new Histogram(max), (a, b) => a + b);
 
-            totalHistogram.SaveToCsv( "bighistogram.csv" );
+            totalHistogram.SaveToCsv("bighistogram.csv");
 
-            _log.Info( "Done getting histogram!" );
+            _log.Info("Done getting histogram!");
         }
 
-        private void RenderSomeTiles( MemoryMappedHitPlot hitPlot, ushort cappedMax, ColorRamp colorRamp, string outputDirectory )
+        private void RenderSomeTiles(HitPlotReader hitPlotWriter, ushort cappedMax, ColorRamp colorRamp, string outputDirectory)
         {
             var tilesToRender = new[]
             {
@@ -149,37 +148,38 @@ namespace Fractals.Renderer
                 Tuple.Create(100,298),
             };
 
-            Parallel.For( 0, tilesToRender.Length, tileIndex =>
-            {
-                 var tileCoordinate = tilesToRender[tileIndex];
-                 var row = tileCoordinate.Item1;
-                 var col = tileCoordinate.Item2;
+            Parallel.For(0, tilesToRender.Length, tileIndex =>
+           {
+               var tileCoordinate = tilesToRender[tileIndex];
+               var row = tileCoordinate.Item1;
+               var col = tileCoordinate.Item2;
 
-                 using( var tile = new ImageTile( TileSize ) )
-                 {
-                     for( int y = 0; y < TileSize; y++ )
-                     {
-                         for( int x = 0; x < TileSize; x++ )
-                         {
-                             var pointInPlot = new Point( col * TileSize + x, row * TileSize + y );
+               using (var tile = new ImageTile(TileSize))
+               {
+                   for (int y = 0; y < TileSize; y++)
+                   {
+                       for (int x = 0; x < TileSize; x++)
+                       {
+                           var pointInPlot = new Point(col * TileSize + x, row * TileSize + y);
 
-                             var current = Math.Min( hitPlot.GetHitsForPoint( pointInPlot ), cappedMax );
+                           // HACK
+                           var current = 0;//Math.Min(hitPlotWriter.GetHitsForPoint(pointInPlot), cappedMax);
 
-                             //var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / max));
-                             //var ratio = Gamma(Math.Sqrt((double)current / cappedMax));
-                             //var ratio = (Math.Sqrt((double)current / cappedMax));
-                             //var ratio = (double)current / cappedMax;
-                             var ratio = 1.0 - Math.Pow( Math.E, -5.0 * current / cappedMax );
+                           //var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / max));
+                           //var ratio = Gamma(Math.Sqrt((double)current / cappedMax));
+                           //var ratio = (Math.Sqrt((double)current / cappedMax));
+                           //var ratio = (double)current / cappedMax;
+                           var ratio = 1.0 - Math.Pow(Math.E, -5.0 * current / cappedMax);
 
-                             var color = colorRamp.GetColor( ratio ).ToColor();
-                             tile.SetPixel( x, y, color );
-                         }
-                     }
+                           var color = colorRamp.GetColor(ratio).ToColor();
+                           tile.SetPixel(x, y, color);
+                       }
+                   }
 
-                     tile.Save(
-                         Path.Combine( outputDirectory, $"{row} {col}.png" ) );
-                 }
-             } );
+                   tile.Save(
+                        Path.Combine(outputDirectory, $"{row} {col}.png"));
+               }
+           });
         }
     }
 }
