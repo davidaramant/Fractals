@@ -2,6 +2,7 @@
 using Fractals.Utility;
 using log4net;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -43,13 +44,13 @@ namespace Fractals.Renderer
 
         public void Render(string outputDirectory, string outputFilename, ColorRamp colorRamp)
         {
+            var numberOfTiles = (_resolution.Width / TileSize) * (_resolution.Height / TileSize);
+
+            _log.Info($"Creating image ({_resolution.Width:N0}x{_resolution.Height:N0}) ({numberOfTiles:N0} tiles)");
+
             var timer = Stopwatch.StartNew();
 
-            _log.InfoFormat("Creating image ({0:N0}x{1:N0})", _resolution.Width, _resolution.Height);
-
-            _log.Info("Loading trajectory...");
-
-            using (var hitPlot = new HitPlotReader(Path.Combine(_inputInputDirectory, _inputFilename), _resolution))
+            using (var hitPlot = new HitPlotStream(Path.Combine(_inputInputDirectory, _inputFilename)))
             {
                 const ushort cappedMax = 2500;
 
@@ -58,41 +59,75 @@ namespace Fractals.Renderer
                 _log.Info("Starting to render");
 
                 var rows = _resolution.Height / TileSize;
+                var cols = _resolution.Width / TileSize;
 
-                Parallel.For(0, rows,
-                    new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism },
-                    //new ParallelOptions { MaxDegreeOfParallelism = 1 },
-                    rowIndex =>
+                for (int rowIndex = 0; rowIndex < rows; rowIndex++)
                 {
-                    var outputDir = Path.Combine(outputDirectory, rowIndex.ToString());
-                    Directory.CreateDirectory(outputDir);
+                    var rowDir = Path.Combine(outputDirectory, rowIndex.ToString());
+                    Directory.CreateDirectory(rowDir);
+                }
 
-                    using (var tile = new ImageTile(TileSize))
-                    {
-                        for (int columnIndex = 0; columnIndex < rows; columnIndex++)
+                Task.WhenAll(
+                        GetAllTileIndexes(rows:rows,cols:cols).
+                        Select(tileIndex =>
                         {
-                            for (int pixelIndex = 0; pixelIndex < TileSize*TileSize; pixelIndex++)
-                            {
-                                var current = hitPlot.GetCount(rowIndex, columnIndex, pixelIndex);
+                            return
+                                hitPlot.ReadTileBufferAsync(cols * tileIndex.Y + tileIndex.X).
+                                ContinueWith(byteBufferTask =>
+                                {
+                                    var byteBuffer = byteBufferTask.Result;
 
-                                 current = Math.Min(current, cappedMax);
+                                    var ushortBuffer = new ushort[TileSize * TileSize];
+                                    for (int i = 0; i < byteBuffer.Length; i += 2)
+                                    {
+                                        ushortBuffer[i / 2] = BitConverter.ToUInt16(byteBuffer, i);
+                                    }
+                                    return ushortBuffer;
+                                }).
+                                ContinueWith(ushortBufferTask =>
+                                {
+                                    var ushortBuffer = ushortBufferTask.Result;
 
-                                var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
-                                //var ratio = 1.0 - Math.Pow(Math.E, -5.0 * current / cappedMax);
+                                    var colorBuffer = new Color[TileSize * TileSize];
+                                    for (int i = 0; i < colorBuffer.Length; i++)
+                                    {
+                                        var current = ushortBuffer[i];
+                                        current = Math.Min(current, cappedMax);
+                                        var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
+                                        colorBuffer[i] = colorRamp.GetColor(ratio).ToColor();
+                                    }
+                                    return colorBuffer;
+                                }).
+                                ContinueWith(colorBufferTask =>
+                                {
+                                    var colorBuffer = colorBufferTask.Result;
 
-                                var color = colorRamp.GetColor(ratio).ToColor();
-                                tile.SetPixel(pixelIndex, color);
-                            }
-                            tile.Save(Path.Combine(outputDir, columnIndex + ".png"));
-
-                        }
-                    }
-                });
+                                    using (var imageTile = new ImageTile(TileSize))
+                                    {
+                                        for (int i = 0; i < TileSize * TileSize; i++)
+                                        {
+                                            imageTile.SetPixel(i, colorBuffer[i]);
+                                        }
+                                        imageTile.Save(Path.Combine(outputDirectory, tileIndex.Y.ToString(), tileIndex.X + ".png"));
+                                    }
+                                });
+                        })).Wait();
             }
 
             timer.Stop();
 
             _log.Info($"Finished rendering tiles. Took: {timer.Elapsed}");
+        }
+
+        private static IEnumerable<Point> GetAllTileIndexes(int rows, int cols)
+        {
+            for (var row = 0; row < rows; row++)
+            {
+                for (var col = 0; col < cols; col++)
+                {
+                    yield return new Point(col, row);
+                }
+            }
         }
 
         private static double Gamma(double x, double exp = 1.2)

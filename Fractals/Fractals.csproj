@@ -111,6 +111,7 @@
     <Compile Include="Utility\EdgeLocator.cs" />
     <Compile Include="Utility\Histogram.cs" />
     <Compile Include="Utility\HitPlotReader.cs" />
+    <Compile Include="Utility\HitPlotStream.cs" />
     <Compile Include="Utility\HsvColor.cs" />
     <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\CryptoRandom.cs" />
