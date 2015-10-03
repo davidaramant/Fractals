@@ -29,7 +29,7 @@ namespace Fractals.Utility
 
             var remaining = estimatedEndTime - DateTime.Now;
 
-            return $"{percentageComplete:P} complete. Estimated end time {estimatedEndTime.TimeOfDay.ToString("hh:mm")} ({remaining.ToString("hh:mm")} remaining)";
+            return $"{percentageComplete:P} complete. Estimated end time {estimatedEndTime.TimeOfDay.ToString(@"hh\:mm")} ({remaining.ToString(@"hh\:mm")} remaining)";
         }
     }
 }
