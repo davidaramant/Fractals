@@ -142,7 +142,7 @@ namespace Fractals.Renderer
                 Select(
                     rowIndex =>
                     {
-                        var histogram = new Histogram(max);
+                        var histogram = new Histogram();
                         for (int y = 0; y < TileSize; y++)
                         {
                             for (int x = 0; x < _resolution.Width; x++)
@@ -150,7 +150,7 @@ namespace Fractals.Renderer
                                 //HACK
                                 var pointInPlot = new Point(x, rowIndex * TileSize + y);
 
-                                var current = 0;//hitPlotWriter.GetHitsForPoint(pointInPlot);
+                                var current = (ushort)0;//hitPlotWriter.GetHitsForPoint(pointInPlot);
 
                                 histogram.IncrementBin(current);
                             }
@@ -159,7 +159,7 @@ namespace Fractals.Renderer
                         _log.Info($"Done with row index {rowIndex}");
 
                         return histogram;
-                    }).Aggregate(new Histogram(max), (a, b) => a + b);
+                    }).Aggregate(new Histogram(), (a, b) => a + b);
 
             totalHistogram.SaveToCsv("bighistogram.csv");
 

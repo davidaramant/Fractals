@@ -8,28 +8,25 @@ namespace Fractals.Utility
 {
     public sealed class Histogram : IEnumerable<ulong>
     {
-        public const int Count = 100;
+        public const ushort Count = 256;
         private readonly ulong[] _bins = new ulong[Count];
         private ulong _zeroBin;
-        private readonly ushort _max;
+        private ushort _max;
 
-        public int BinSize { get; }
+        public const ushort BinSize = ushort.MaxValue / Count;
 
-        public Histogram(ushort maxValue)
+        public Histogram()
         {
-            _max = maxValue;
-            BinSize = maxValue / Count;
         }
 
-        private Histogram(int binSize, ushort maxValue, ulong zeroBin, ulong[] bins)
+        private Histogram(ushort maxValue, ulong zeroBin, ulong[] bins)
         {
-            BinSize = binSize;
             _max = maxValue;
             _zeroBin = zeroBin;
             _bins = bins;
         }
 
-        public void IncrementBin(int value)
+        public void IncrementBin(ushort value)
         {
             if (value == 0)
             {
@@ -39,6 +36,7 @@ namespace Fractals.Utility
             {
                 var index = value / BinSize;
                 _bins[Math.Min(index, Count - 1)]++;
+                _max = Math.Max(_max, value);
             }
         }
 
@@ -52,8 +50,7 @@ namespace Fractals.Utility
             }
 
             return new Histogram(
-                binSize: h1.BinSize,
-                maxValue: h1._max,
+                maxValue: Math.Max(h1._max, h2._max),
                 zeroBin: h1._zeroBin + h2._zeroBin,
                 bins: added);
         }
@@ -62,7 +59,7 @@ namespace Fractals.Utility
         {
             File.WriteAllLines(
                 filePath,
-                new[] { "Min,Max,Count", $"0,0,{_zeroBin}", $"1,{BinSize - 1},{_bins[0]}" }.
+                new[] { $"Max: {_max}", "Min,Max,Count", $"0,0,{_zeroBin}", $"1,{BinSize - 1},{_bins[0]}" }.
                 Concat(this.Skip(1).Take(Count - 2).Select((value, index) => $"{(index + 1) * BinSize},{(index + 2) * BinSize - 1},{value}")).
                 Concat(new[] { $"{(Count - 1) * BinSize},{_max},{_bins[Count - 1]}" })
                 );
@@ -70,7 +67,7 @@ namespace Fractals.Utility
 
         public IEnumerator<ulong> GetEnumerator()
         {
-            return ((IEnumerable<ulong>)_bins).GetEnumerator();
+            return new[] { _zeroBin }.Concat(_bins).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()

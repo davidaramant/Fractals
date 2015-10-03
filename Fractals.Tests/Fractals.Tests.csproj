@@ -78,6 +78,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Utility\CryptoRandomTests.cs" />
+    <Compile Include="Utility\HistogramTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
