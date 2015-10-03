@@ -53,7 +53,7 @@ namespace Fractals.Renderer
             using (var hitPlot = new HitPlotStream(Path.Combine(_inputInputDirectory, _inputFilename), _resolution))
             {
                 //RenderAllTiles(hitPlot, colorRamp, outputDirectory);
-                ComputeHistogram(hitPlot);
+                ComputeHistogram(hitPlot,outputFilename);
             }
 
             timer.Stop();
@@ -152,7 +152,7 @@ namespace Fractals.Renderer
 
         }
 
-        private void ComputeHistogram(HitPlotStream hitPlot)
+        private void ComputeHistogram(HitPlotStream hitPlot,string outputFileName)
         {
             var totalHistogram = new Histogram();
 
@@ -174,7 +174,7 @@ namespace Fractals.Renderer
                 }
             }
 
-            totalHistogram.SaveToCsv("bighistogram.csv");
+            totalHistogram.SaveToCsv($"{outputFileName}.csv");
 
             _log.Info("Done getting histogram!");
         }
