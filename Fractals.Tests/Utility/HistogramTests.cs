@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,16 +34,19 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
+        [Ignore]
         public void ShouldPutThingsInCorrectBin()
         {
             var h = new Histogram();
 
-            h.IncrementBin(255);
-            h.IncrementBin(256);
-            h.IncrementBin(257);
+            h.IncrementBin(127);
+            h.IncrementBin(128);
+            h.IncrementBin(129);
+            h.IncrementBin(ushort.MaxValue);
 
-            Assert.That(h.ElementAt(1), Is.EqualTo(1));
-            Assert.That(h.ElementAt(2), Is.EqualTo(2));
+            h.SaveToCsv(Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                "testhistogram.csv"));
         }
     }
 }

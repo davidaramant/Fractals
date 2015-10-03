@@ -8,12 +8,12 @@ namespace Fractals.Utility
 {
     public sealed class Histogram : IEnumerable<ulong>
     {
-        public const ushort Count = 256;
+        public const ushort Count = 512;
         private readonly ulong[] _bins = new ulong[Count];
         private ulong _zeroBin;
         private ushort _max;
 
-        public const ushort BinSize = ushort.MaxValue / Count;
+        public const ushort BinSize = (int)(ushort.MaxValue + 1) / Count;
 
         public Histogram()
         {
@@ -35,7 +35,7 @@ namespace Fractals.Utility
             else
             {
                 var index = value / BinSize;
-                _bins[Math.Min(index, Count - 1)]++;
+                _bins[index]++;
                 _max = Math.Max(_max, value);
             }
         }
@@ -60,8 +60,7 @@ namespace Fractals.Utility
             File.WriteAllLines(
                 filePath,
                 new[] { $"Max: {_max}", "Min,Max,Count", $"0,0,{_zeroBin}", $"1,{BinSize - 1},{_bins[0]}" }.
-                Concat(this.Skip(1).Take(Count - 2).Select((value, index) => $"{(index + 1) * BinSize},{(index + 2) * BinSize - 1},{value}")).
-                Concat(new[] { $"{(Count - 1) * BinSize},{_max},{_bins[Count - 1]}" })
+                Concat(_bins.Skip(1).Select((value, index) => $"{(index + 1) * BinSize},{(index + 2) * BinSize - 1},{value}"))
                 );
         }
 

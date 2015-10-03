@@ -50,68 +50,10 @@ namespace Fractals.Renderer
 
             var timer = Stopwatch.StartNew();
 
-            using (var hitPlot = new HitPlotStream(Path.Combine(_inputInputDirectory, _inputFilename)))
+            using (var hitPlot = new HitPlotStream(Path.Combine(_inputInputDirectory, _inputFilename), _resolution))
             {
-                const ushort cappedMax = 2500;
-
-                _log.Debug($"Using maximum: {cappedMax:N0}");
-
-                _log.Info("Starting to render");
-
-                var rows = _resolution.Height / TileSize;
-                var cols = _resolution.Width / TileSize;
-
-                for (int rowIndex = 0; rowIndex < rows; rowIndex++)
-                {
-                    var rowDir = Path.Combine(outputDirectory, rowIndex.ToString());
-                    Directory.CreateDirectory(rowDir);
-                }
-
-                Task.WhenAll(
-                        GetAllTileIndexes(rows:rows,cols:cols).
-                        Select(tileIndex =>
-                        {
-                            return
-                                hitPlot.ReadTileBufferAsync(cols * tileIndex.Y + tileIndex.X).
-                                ContinueWith(byteBufferTask =>
-                                {
-                                    var byteBuffer = byteBufferTask.Result;
-
-                                    var ushortBuffer = new ushort[TileSize * TileSize];
-                                    for (int i = 0; i < byteBuffer.Length; i += 2)
-                                    {
-                                        ushortBuffer[i / 2] = BitConverter.ToUInt16(byteBuffer, i);
-                                    }
-                                    return ushortBuffer;
-                                }).
-                                ContinueWith(ushortBufferTask =>
-                                {
-                                    var ushortBuffer = ushortBufferTask.Result;
-
-                                    var colorBuffer = new Color[TileSize * TileSize];
-                                    for (int i = 0; i < colorBuffer.Length; i++)
-                                    {
-                                        var current = ushortBuffer[i];
-                                        current = Math.Min(current, cappedMax);
-                                        var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
-                                        colorBuffer[i] = colorRamp.GetColor(ratio).ToColor();
-                                    }
-                                    return colorBuffer;
-                                }).
-                                ContinueWith(colorBufferTask =>
-                                {
-                                    var colorBuffer = colorBufferTask.Result;
-
-                                    using (var imageTile = new ImageTile(TileSize))
-                                    {
-                                        for (int i = 0; i < TileSize * TileSize; i++)
-                                        {
-                                            imageTile.SetPixel(i, colorBuffer[i]);
-                                        }
-                                        imageTile.Save(Path.Combine(outputDirectory, tileIndex.Y.ToString(), tileIndex.X + ".png"));
-                                    }
-                                });
-                        })).Wait();
+                //RenderAllTiles(hitPlot, colorRamp, outputDirectory);
+                ComputeHistogram(hitPlot);
             }
 
             timer.Stop();
@@ -135,31 +77,102 @@ namespace Fractals.Renderer
             return Math.Pow(x, 1.0 / exp);
         }
 
-        private void ComputeHistogram(int rows, ushort max, HitPlotReader hitPlotWriter)
+        private void RenderAllTiles(HitPlotStream hitPlot, ColorRamp colorRamp, string outputDirectory)
         {
-            Histogram totalHistogram =
-                ParallelEnumerable.Range(0, rows).
-                Select(
-                    rowIndex =>
+            const ushort cappedMax = 2500;
+
+            _log.Debug($"Using maximum: {cappedMax:N0}");
+
+            _log.Info("Starting to render");
+
+            var rows = _resolution.Height / TileSize;
+            var cols = _resolution.Width / TileSize;
+
+            for (int rowIndex = 0; rowIndex < rows; rowIndex++)
+            {
+                var rowDir = Path.Combine(outputDirectory, rowIndex.ToString());
+                Directory.CreateDirectory(rowDir);
+            }
+
+            var totalNumberOfTiles = rows * cols;
+            var whenToCheck = totalNumberOfTiles / 256;
+            var progress = ProgressEstimator.Start();
+
+            Task.WhenAll(
+                    GetAllTileIndexes(rows: rows, cols: cols).
+                    Select(tileIndex =>
                     {
-                        var histogram = new Histogram();
-                        for (int y = 0; y < TileSize; y++)
+                        var currentTileNumber = tileIndex.X + tileIndex.Y * cols;
+                        if (currentTileNumber % whenToCheck == 0)
                         {
-                            for (int x = 0; x < _resolution.Width; x++)
-                            {
-                                //HACK
-                                var pointInPlot = new Point(x, rowIndex * TileSize + y);
-
-                                var current = (ushort)0;//hitPlotWriter.GetHitsForPoint(pointInPlot);
-
-                                histogram.IncrementBin(current);
-                            }
+                            _log.Info(progress.GetEstimate((double)currentTileNumber / totalNumberOfTiles));
                         }
 
-                        _log.Info($"Done with row index {rowIndex}");
+                        return
+                            hitPlot.ReadTileBufferAsync(cols * tileIndex.Y + tileIndex.X).
+                            ContinueWith(byteBufferTask =>
+                            {
+                                var byteBuffer = byteBufferTask.Result;
 
-                        return histogram;
-                    }).Aggregate(new Histogram(), (a, b) => a + b);
+                                var ushortBuffer = new ushort[TileSize * TileSize];
+                                for (int i = 0; i < byteBuffer.Length; i += 2)
+                                {
+                                    ushortBuffer[i / 2] = BitConverter.ToUInt16(byteBuffer, i);
+                                }
+                                return ushortBuffer;
+                            }).
+                            ContinueWith(ushortBufferTask =>
+                            {
+                                var ushortBuffer = ushortBufferTask.Result;
+
+                                var colorBuffer = new Color[TileSize * TileSize];
+                                for (int i = 0; i < colorBuffer.Length; i++)
+                                {
+                                    var current = ushortBuffer[i];
+                                    current = Math.Min(current, cappedMax);
+                                    var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
+                                    colorBuffer[i] = colorRamp.GetColor(ratio).ToColor();
+                                }
+                                return colorBuffer;
+                            }).
+                            ContinueWith(colorBufferTask =>
+                            {
+                                var colorBuffer = colorBufferTask.Result;
+
+                                using (var imageTile = new ImageTile(TileSize))
+                                {
+                                    for (int i = 0; i < TileSize * TileSize; i++)
+                                    {
+                                        imageTile.SetPixel(i, colorBuffer[i]);
+                                    }
+                                    imageTile.Save(Path.Combine(outputDirectory, tileIndex.Y.ToString(), tileIndex.X + ".png"));
+                                }
+                            });
+                    })).Wait();
+
+        }
+
+        private void ComputeHistogram(HitPlotStream hitPlot)
+        {
+            var totalHistogram = new Histogram();
+
+            ulong total = (ulong)_resolution.Width * (ulong)_resolution.Height;
+            ulong whenToCheck = total / 256;
+            ulong pointsProcessed = 0;
+
+            var progress = ProgressEstimator.Start();
+
+            foreach (var count in hitPlot.GetAllCounts())
+            {
+                totalHistogram.IncrementBin(count);
+                pointsProcessed++;
+
+                if (pointsProcessed % whenToCheck == 0)
+                {
+                    var percentageComplete = (double)pointsProcessed / (double)total;
+                    _log.Info(progress.GetEstimate(percentageComplete));
+                }
+            }
 
             totalHistogram.SaveToCsv("bighistogram.csv");
 
