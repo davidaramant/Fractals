@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Fractals.Utility
 {
-    sealed class ProgressEstimator
+    public sealed class ProgressEstimator
     {
         readonly DateTime _startTime = DateTime.Now;
         readonly Stopwatch _timer = Stopwatch.StartNew();
@@ -23,13 +19,22 @@ namespace Fractals.Utility
 
         public string GetEstimate(double percentageComplete)
         {
-            var estimatedTotalTicks = (long)(_timer.ElapsedTicks / percentageComplete);
+            var elapsedTicks = _timer.ElapsedTicks;
+            var estimatedTotalTicks = (long)(elapsedTicks / percentageComplete);
             var estimatedTotalTime = new TimeSpan(estimatedTotalTicks);
-            var estimatedEndTime = _startTime + estimatedTotalTime;
+            try
+            {
+                var estimatedEndTime = _startTime + estimatedTotalTime;
 
-            var remaining = estimatedEndTime - DateTime.Now;
+                var remaining = estimatedEndTime - DateTime.Now;
 
-            return $"{percentageComplete:P} complete. Estimated end time {estimatedEndTime.TimeOfDay.ToString(@"hh\:mm")} ({remaining.ToString(@"hh\:mm")} remaining)";
+                return $"{percentageComplete:P} complete. Estimated end time {estimatedEndTime.TimeOfDay.ToString(@"hh\:mm")} ({remaining.ToString(@"hh\:mm")} remaining)";
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                Console.Out.WriteLine($"% complete {percentageComplete}\telapsed ticks: {elapsedTicks}");
+                throw;
+            }
         }
     }
 }

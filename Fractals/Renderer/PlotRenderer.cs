@@ -39,7 +39,8 @@ namespace Fractals.Renderer
         public void Render(string outputDirectory, string outputFilename)
         {
             //Render( outputDirectory, outputFilename, ColorRampFactory.Blue );
-            Render(outputDirectory, outputFilename, ColorRampFactory.Psychadelic);
+            //Render(outputDirectory, outputFilename, ColorRampFactory.Psychadelic);
+            Render(outputDirectory, outputFilename, ColorRampFactory.EightiesNeonPartDeux);
         }
 
         public void Render(string outputDirectory, string outputFilename, ColorRamp colorRamp)
@@ -52,8 +53,8 @@ namespace Fractals.Renderer
 
             using (var hitPlot = new HitPlotStream(Path.Combine(_inputInputDirectory, _inputFilename), _resolution))
             {
-                //RenderAllTiles(hitPlot, colorRamp, outputDirectory);
-                ComputeHistogram(hitPlot,outputFilename);
+                RenderAllTiles(hitPlot, colorRamp, outputDirectory);
+                //ComputeHistogram(hitPlot,outputFilename);
             }
 
             timer.Stop();
@@ -105,7 +106,10 @@ namespace Fractals.Renderer
                         var currentTileNumber = tileIndex.X + tileIndex.Y * cols;
                         if (currentTileNumber % whenToCheck == 0)
                         {
-                            _log.Info(progress.GetEstimate((double)currentTileNumber / totalNumberOfTiles));
+                            if (currentTileNumber != 0)
+                            {
+                                _log.Info(progress.GetEstimate((double)currentTileNumber / totalNumberOfTiles));
+                            }
                         }
 
                         return
@@ -152,7 +156,7 @@ namespace Fractals.Renderer
 
         }
 
-        private void ComputeHistogram(HitPlotStream hitPlot,string outputFileName)
+        private void ComputeHistogram(HitPlotStream hitPlot, string outputFileName)
         {
             var totalHistogram = new Histogram();
 

@@ -6,17 +6,95 @@ namespace Fractals.Utility
     /// <summary>
     /// A color in HSV format.
     /// </summary>
-    public sealed class HsvColor
+    public struct HsvColor
     {
         public double Hue { get; }
         public double Saturation { get; }
         public double Value { get; }
+
+        public static readonly HsvColor Black = new HsvColor();
 
         public HsvColor(double hue, double saturation, double value)
         {
             Hue = hue;
             Saturation = saturation;
             Value = value;
+        }
+
+        public HsvColor Mutate(
+                            Func<double, double> hx = null,
+                            Func<double, double> sx = null,
+                            Func<double, double> vx = null)
+        {
+            Func<double, double> passthrough = _ => _;
+            hx = hx ?? passthrough;
+            vx = vx ?? passthrough;
+            sx = sx ?? passthrough;
+            return new HsvColor(hx(Hue), sx(Saturation), vx(Value));
+        }
+
+        public static HsvColor FromColor(Color color)
+        {
+            return FromRgbColor(color.R, color.G, color.B);
+        }
+
+        public static HsvColor FromRgbColor(byte r, byte g, byte b)
+        {
+            return FromRgb(r / 255d, g / 255d, b / 255d);
+        }
+
+        public static HsvColor FromRgb(double r, double g, double b)
+        {
+            double h = 0;
+            double s = 0;
+            double v = 0;
+
+
+            var min = Math.Min(r, Math.Min(g, b));
+            var max = Math.Max(r, Math.Max(g, b));
+
+            v = max;
+            var delta = max - min;
+
+            if (max > 0f)
+            { // NOTE: if Max is == 0, this divide would cause a crash
+                s = (delta / max);
+            }
+            else
+            {
+                // if max is 0, then r = g = b = 0              
+                // s = 0, v is undefined
+                return Black;
+            }
+
+            if (r >= max)
+            {
+                // between yellow & magenta
+                h = (g - b) / delta;
+            }
+            else
+            {
+                if (g >= max)
+                {
+                    // between cyan & yellow
+                    h = 2f + (b - r) / delta;
+                }
+                else
+                {
+                    // between magenta & cyan
+                    h = 4f + (r - g) / delta;
+                }
+            }
+
+            // degrees
+            h *= 60d;
+
+            if (h < 0d)
+            {
+                h += 360d;
+            }
+
+            return new HsvColor(h/360d, s, v);
         }
 
         public Color ToColor()

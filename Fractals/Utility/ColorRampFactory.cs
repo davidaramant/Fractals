@@ -1,18 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace Fractals.Utility
 {
     public class ColorRampFactory
     {
-        public static ColorRamp Blue => GetIntensityRamp(196);
+        public static readonly ColorRamp Blue = GetIntensityRamp(196);
 
-        public static ColorRamp Psychadelic => new ColorRamp(new[]
+        public static readonly ColorRamp Psychadelic = new ColorRamp(new[]
         {
             Tuple.Create(new HsvColor(0, 1, 0), 0.0),
             Tuple.Create(new HsvColor(0, 1, 1), 0.1),
             Tuple.Create(new HsvColor(1, 1, 1), 1.0),
         });
+
+        public static readonly ColorRamp EightiesNeonPartDeux = new ColorRamp(new[] {
+            Tuple.Create(HsvColor.FromColor(Color.FromArgb(217, 150, 193)).Mutate(vx: v => 0d), 0d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(217, 150, 193)), 0.33d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(43, 241, 255)), 0.66d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(43, 241, 255)).Mutate(sx: s => 0d), 1d)
+            }
+            );
 
         public static ColorRamp Rainbow
         {
