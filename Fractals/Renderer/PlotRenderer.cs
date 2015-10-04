@@ -139,7 +139,7 @@ namespace Fractals.Renderer
                             {
                                 var colorBuffer = colorBufferTask.Result;
 
-                                using (var imageTile = new ImageTile(TileSize))
+                                using (var imageTile = new FastBitmap(TileSize))
                                 {
                                     for (int i = 0; i < TileSize * TileSize; i++)
                                     {
@@ -198,7 +198,7 @@ namespace Fractals.Renderer
                var row = tileCoordinate.Item1;
                var col = tileCoordinate.Item2;
 
-               using (var tile = new ImageTile(TileSize))
+               using (var tile = new FastBitmap(TileSize))
                {
                    for (int y = 0; y < TileSize; y++)
                    {

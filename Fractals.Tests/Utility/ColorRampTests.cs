@@ -51,19 +51,20 @@ namespace Fractals.Tests.Utility
         {
             var ramp = new ColorRamp(colorPoints);
 
-            var image = new Bitmap(500, 50);
-
-            for (int x = 0; x < image.Width; x++)
+            using (var image = new FastBitmap(500, 50))
             {
-                var color = ramp.GetColor((double)x / image.Width).ToColor();
-
-                for (int y = 0; y < image.Height; y++)
+                for (int x = 0; x < image.Width; x++)
                 {
-                    image.SetPixel(x, y, color);
-                }
-            }
+                    var color = ramp.GetColor((double)x / image.Width).ToColor();
 
-            image.Save(filePath);
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        image.SetPixel(x, y, color);
+                    }
+                }
+
+                image.Save(filePath);
+            }
         }
     }
 }

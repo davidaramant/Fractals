@@ -8,9 +8,9 @@ namespace Fractals.Utility
     /// </summary>
     public sealed class HsvColor
     {
-        public double Hue;
-        public double Saturation;
-        public double Value;
+        public double Hue { get; }
+        public double Saturation { get; }
+        public double Value { get; }
 
         public HsvColor(double hue, double saturation, double value)
         {
@@ -37,29 +37,21 @@ namespace Fractals.Utility
             // Scale Hue to be between 0 and 360.
             double hueDegrees = ((double)Hue * 360) % 360;
 
-            double p;
-            double q;
-            double t;
-
-            double fractionalSector;
-            int sectorNumber;
-            double sectorPos;
-
             // The color wheel consists of 6 sectors.
             // Figure out which sector you're in.
-            sectorPos = hueDegrees / 60;
-            sectorNumber = (int)(Math.Floor(sectorPos));
+            var sectorPos = hueDegrees / 60;
+            var sectorNumber = (int)(Math.Floor(sectorPos));
 
             // get the fractional part of the sector.
             // That is, how many degrees into the sector
             // are you?
-            fractionalSector = sectorPos - sectorNumber;
+            var fractionalSector = sectorPos - sectorNumber;
 
             // Calculate values for the three axes
             // of the color. 
-            p = Value * (1 - Saturation);
-            q = Value * (1 - (Saturation * fractionalSector));
-            t = Value * (1 - (Saturation * (1 - fractionalSector)));
+            var p = Value * (1 - Saturation);
+            var q = Value * (1 - (Saturation * fractionalSector));
+            var t = Value * (1 - (Saturation * (1 - fractionalSector)));
 
             // Assign the fractional colors to r, g, and b
             // based on the sector the angle is in.

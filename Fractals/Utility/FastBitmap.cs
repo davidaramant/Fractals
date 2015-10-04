@@ -5,22 +5,35 @@ using System.Runtime.InteropServices;
 
 namespace Fractals.Utility
 {
-    public sealed class ImageTile : IDisposable
+    public sealed class FastBitmap : IDisposable
     {
         const PixelFormat Format = PixelFormat.Format24bppRgb;
         readonly int _pixelFormatSize = Image.GetPixelFormatSize(Format) / 8;
         readonly int _stride;
         readonly byte[] _pixelBuffer;
         readonly GCHandle _handle;
-        private readonly Bitmap _tile;
+        private readonly Bitmap _image;
 
-        public ImageTile(int tileSize)
+        public int Width { get; }
+        public int Height { get; }
+
+        public FastBitmap(int tileSize) : this(tileSize, tileSize)
         {
-            _stride = tileSize * _pixelFormatSize;
-            _pixelBuffer = new byte[_stride * tileSize];
+        }
+
+        public FastBitmap(Size resolution) : this(resolution.Width,resolution.Height)
+        {           
+        }
+
+        public FastBitmap(int width, int height)
+        {
+            Width = width;
+            Height = height;
+            _stride = width * _pixelFormatSize;
+            _pixelBuffer = new byte[_stride * height];
             _handle = GCHandle.Alloc(_pixelBuffer, GCHandleType.Pinned);
             IntPtr pointer = Marshal.UnsafeAddrOfPinnedArrayElement(_pixelBuffer, 0);
-            _tile = new Bitmap(tileSize, tileSize, _stride, Format, pointer);
+            _image = new Bitmap(width, height, _stride, Format, pointer);
         }
 
         public void SetPixel(int x, int y, Color color)
@@ -44,12 +57,12 @@ namespace Fractals.Utility
 
         public void Save(string filePath)
         {
-            _tile.Save(filePath);
+            _image.Save(filePath);
         }
 
         public void Dispose()
         {
-            _tile.Dispose();
+            _image.Dispose();
             _handle.Free();
         }
     }
