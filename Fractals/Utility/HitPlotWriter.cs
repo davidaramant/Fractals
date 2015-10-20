@@ -19,7 +19,7 @@ namespace Fractals.Utility
         private readonly object[] _accessorLocks;
         private readonly MemoryMappedViewAccessor[] _accessors;
 
-        public HitPlotWriter(string filePath, Size resolution, bool createNewFile = true)
+        public HitPlotWriter(string filePath, Size resolution)
         {
             var log = LogManager.GetLogger(GetType());
             _resolution = resolution;
@@ -27,17 +27,17 @@ namespace Fractals.Utility
             _tileCount = (int)(dataSize / TileSizeInBytes);
             log.Info($"Size: {dataSize:N0} bytes, Tiles: {_tileCount:N0}");
 
-            if (createNewFile)
+            if (!File.Exists(filePath))
             {
-                Console.Out.WriteLine("Creating MMF: " + filePath);
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
+                log.Info("Creating MMF: " + filePath);
                 using (var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     fs.SetLength(dataSize);
                 }
+            }
+            else
+            {
+                log.Info("Using existing file: " + filePath);
             }
             _file = MemoryMappedFile.CreateFromFile(filePath);
 

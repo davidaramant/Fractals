@@ -16,7 +16,7 @@ namespace Fractals.Utility
         });
 
         public static readonly ColorRamp EightiesNeonPartDeux = new ColorRamp(new[] {
-            Tuple.Create(HsvColor.FromColor(Color.FromArgb(217, 150, 193)).Mutate(vx: v => 0d), 0d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(217, 150, 193)).Mutate(vx: v => 0d), 0d),
                 Tuple.Create(HsvColor.FromColor(Color.FromArgb(217, 150, 193)), 0.33d),
                 Tuple.Create(HsvColor.FromColor(Color.FromArgb(43, 241, 255)), 0.66d),
                 Tuple.Create(HsvColor.FromColor(Color.FromArgb(43, 241, 255)).Mutate(sx: s => 0d), 1d)

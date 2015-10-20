@@ -80,13 +80,14 @@ namespace Fractals.Renderer
 
         private void RenderAllTiles(HitPlotStream hitPlot, ColorRamp colorRamp, string outputDirectory)
         {
-            const ushort cappedMax = 2500;
+            const ushort cappedMax = 4000;
 
             _log.Debug($"Using maximum: {cappedMax:N0}");
 
             _log.Info("Starting to render");
 
             var rows = _resolution.Height / TileSize;
+            ;
             var cols = _resolution.Width / TileSize;
 
             for (int rowIndex = 0; rowIndex < rows; rowIndex++)
@@ -177,7 +178,7 @@ namespace Fractals.Renderer
                 }
             }
 
-            totalHistogram.SaveToCsv($"{outputFileName}.csv");
+            totalHistogram.SaveToCsv($"{outputFileName} - {DateTime.Now.ToString("yyyyMMddHHmm")}.csv");
 
             _log.Info("Done getting histogram!");
         }
