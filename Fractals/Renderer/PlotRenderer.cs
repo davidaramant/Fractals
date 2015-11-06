@@ -103,14 +103,6 @@ namespace Fractals.Renderer
                     GetAllTileIndexes(rows: rows, cols: cols).
                     Select((tileId, currentTileIndex) =>
                     {
-                        if (currentTileIndex % whenToCheck == 0)
-                        {
-                            if (currentTileIndex != 0)
-                            {
-                                _log.Info(progress.GetEstimate((double)currentTileIndex / totalNumberOfTiles));
-                            }
-                        }
-
                         return
                             hitPlot.ReadTileBufferAsync(cols * tileId.Y + tileId.X).
                             ContinueWith(byteBufferTask =>
@@ -139,6 +131,14 @@ namespace Fractals.Renderer
                                         imageTile.SetPixel(i, colorBuffer[i]);
                                     }
                                     imageTile.Save(Path.Combine(outputDirectory, tileId.Y.ToString(), tileId.X + ".png"));
+                                }
+
+                                if (currentTileIndex % whenToCheck == 0)
+                                {
+                                    if (currentTileIndex != 0)
+                                    {
+                                        _log.Info(progress.GetEstimate((double)currentTileIndex / totalNumberOfTiles));
+                                    }
                                 }
                             });
                     })).Wait();

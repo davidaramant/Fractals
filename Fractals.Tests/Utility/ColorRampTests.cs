@@ -127,6 +127,14 @@ namespace Fractals.Tests.Utility
             "Neon.png");
         }
 
+        [Test]
+        [Ignore]
+        public void RainbowPalette()
+        {
+            MakeStrip(ColorRampFactory.Rainbow,
+            "Rainbow.png");
+        }
+
         private void MakeStrip(IEnumerable<Tuple<HsvColor, double>> colorPoints, string fileName)
         {
             var ramp = new ColorRamp(colorPoints);

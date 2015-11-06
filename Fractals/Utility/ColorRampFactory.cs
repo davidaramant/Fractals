@@ -23,9 +23,12 @@ namespace Fractals.Utility
             );
 
         public static readonly ColorRamp Neon = new ColorRamp(ExpandRange(new[] {
-                Tuple.Create(HsvColor.FromColor(Color.FromArgb(122, 255, 173)), 0.10d),
-                Tuple.Create(HsvColor.FromColor(Color.FromArgb(43, 241, 255)), 0.20d),
-                Tuple.Create(HsvColor.FromColor(Color.FromArgb(255, 178, 228)), 0.40d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(255, 0, 0)), 0.10d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(255, 255, 0)), 0.20d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(0, 255, 0)), 0.30d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(0, 255, 255)), 0.40d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(122, 142, 255)), 0.50d),
+                Tuple.Create(HsvColor.FromColor(Color.FromArgb(255, 0, 255)), 0.60d),
             })
         );
 
