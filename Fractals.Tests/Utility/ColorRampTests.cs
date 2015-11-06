@@ -115,20 +115,27 @@ namespace Fractals.Tests.Utility
         [Ignore]
         public void EightiesNeonPartDeuxPalette()
         {
-            MakeStrip(new[]
-            {
-                Tuple.Create(HsvColor.FromColor(Color.FromArgb(217,150,193)).Mutate(vx:v=>0d),0d),
-                Tuple.Create(HsvColor.FromColor(Color.FromArgb(217,150,193)),0.33d),
-                Tuple.Create(HsvColor.FromColor(Color.FromArgb(43,241,255)),0.66d),
-                Tuple.Create(HsvColor.FromColor(Color.FromArgb(43,241,255)).Mutate(sx:s=>0d),1d),
-            },
+            MakeStrip(ColorRampFactory.EightiesNeonPartDeux,
             "80s Neon Part Deux.png");
+        }
+
+        [Test]
+        [Ignore]
+        public void NeonPalette()
+        {
+            MakeStrip(ColorRampFactory.Neon,
+            "Neon.png");
         }
 
         private void MakeStrip(IEnumerable<Tuple<HsvColor, double>> colorPoints, string fileName)
         {
             var ramp = new ColorRamp(colorPoints);
 
+            MakeStrip(ramp,fileName);
+        }
+
+        private void MakeStrip(ColorRamp ramp, string fileName)
+        {
             using (var image = new FastBitmap(500, 50))
             {
                 for (int x = 0; x < image.Width; x++)

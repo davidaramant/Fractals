@@ -35,11 +35,12 @@ namespace TileGluer
                     var outputRowPath = Path.Combine(outputZoomPath, outputRow.ToString());
                     Directory.CreateDirectory(outputRowPath);
 
+                    var outRow = outputRow;
                     Task.WhenAll(
                         Enumerable.Range(0, inputRowCount / 2).Select(outputCol =>
                         {
                             var inputTiles =
-                                Enumerable.Range(outputRow * 2, 2)
+                                Enumerable.Range(outRow * 2, 2)
                                     .SelectMany(
                                         startRow =>
                                             Enumerable.Range(outputCol * 2, 2)
@@ -51,7 +52,7 @@ namespace TileGluer
 
                             var outputTile = Path.Combine(outputRowPath, outputCol + ".png");
 
-                            return GlueTiles(inputTiles, outputTile).ContinueWith(tilePathTask => ResizeGluedTile(tilePathTask.Result));
+                            return GlueTiles(inputTiles, outputTile);
                         })).Wait();
 
                     WL($"Zoom Level {inputZoomLevel}: " + progress.GetEstimate((outputRow + 1d) / (inputRowCount / 2d)));
@@ -74,7 +75,7 @@ namespace TileGluer
             }
         }
 
-        private static Task<string> GlueTiles(IEnumerable<string> fileNames, string outputTile)
+        private static Task GlueTiles(IEnumerable<string> fileNames, string outputTile)
         {
             var fileNamesArgument = String.Join(" ", fileNames.Select(fileName => $"\"{fileName}\""));
 
@@ -85,7 +86,7 @@ namespace TileGluer
                     StartInfo = new ProcessStartInfo
                     {
                         FileName = Path.Combine(ImPath, "montage.exe"),
-                        Arguments = $"{fileNamesArgument} -geometry 256x256+0+0 \"{outputTile}\"",
+                        Arguments = $"{fileNamesArgument} -tile 2x2 -geometry 128x128+0+0 \"{outputTile}\"",
                         UseShellExecute = false,
                         CreateNoWindow = true,
                     }
@@ -94,29 +95,7 @@ namespace TileGluer
                     montage.Start();
                     montage.WaitForExit();
                 }
-                return outputTile;
             });
-        }
-
-        private static Task ResizeGluedTile(string outputTile)
-        {
-            return Task.Run(() =>
-            {
-                using (var convert = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = Path.Combine(ImPath, "convert.exe"),
-                        Arguments = $"\"{outputTile}\" -resize 256x256+0+0 \"{outputTile}\"",
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                    }
-                })
-                {
-                    convert.Start();
-                    convert.WaitForExit();
-                }
-            });
-        }
+        }        
     }
 }

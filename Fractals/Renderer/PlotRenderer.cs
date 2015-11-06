@@ -40,15 +40,11 @@ namespace Fractals.Renderer
         {
             //Render( outputDirectory, outputFilename, ColorRampFactory.Blue );
             //Render(outputDirectory, outputFilename, ColorRampFactory.Psychadelic);
-            Render(outputDirectory, outputFilename, ColorRampFactory.EightiesNeonPartDeux);
+            Render(outputDirectory, outputFilename, ColorRampFactory.Neon);
         }
 
         public void Render(string outputDirectory, string outputFilename, ColorRamp colorRamp)
         {
-            var numberOfTiles = (_resolution.Width / TileSize) * (_resolution.Height / TileSize);
-
-            _log.Info($"Creating image ({_resolution.Width:N0}x{_resolution.Height:N0}) ({numberOfTiles:N0} tiles)");
-
             var timer = Stopwatch.StartNew();
 
             using (var hitPlot = new HitPlotStream(Path.Combine(_inputInputDirectory, _inputFilename), _resolution))
@@ -59,7 +55,7 @@ namespace Fractals.Renderer
 
             timer.Stop();
 
-            _log.Info($"Finished rendering tiles. Took: {timer.Elapsed}");
+            _log.Info($"Finished. Took: {timer.Elapsed}");
         }
 
         private static IEnumerable<Point> GetAllTileIndexes(int rows, int cols)
@@ -80,7 +76,10 @@ namespace Fractals.Renderer
 
         private void RenderAllTiles(HitPlotStream hitPlot, ColorRamp colorRamp, string outputDirectory)
         {
-            const ushort cappedMax = 4000;
+            var numberOfTiles = (_resolution.Width / TileSize) * (_resolution.Height / TileSize);
+            _log.Info($"Creating image ({_resolution.Width:N0}x{_resolution.Height:N0}) ({numberOfTiles:N0} tiles)");
+
+            const ushort cappedMax = 5000;
 
             _log.Debug($"Using maximum: {cappedMax:N0}");
 
@@ -123,11 +122,6 @@ namespace Fractals.Renderer
                                 {
                                     ushortBuffer[i / 2] = BitConverter.ToUInt16(byteBuffer, i);
                                 }
-                                return ushortBuffer;
-                            }).
-                            ContinueWith(ushortBufferTask =>
-                            {
-                                var ushortBuffer = ushortBufferTask.Result;
 
                                 var colorBuffer = new Color[TileSize * TileSize];
                                 for (int i = 0; i < colorBuffer.Length; i++)
@@ -137,11 +131,6 @@ namespace Fractals.Renderer
                                     var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
                                     colorBuffer[i] = colorRamp.GetColor(ratio).ToColor();
                                 }
-                                return colorBuffer;
-                            }).
-                            ContinueWith(colorBufferTask =>
-                            {
-                                var colorBuffer = colorBufferTask.Result;
 
                                 using (var imageTile = new FastBitmap(TileSize))
                                 {
@@ -158,6 +147,8 @@ namespace Fractals.Renderer
 
         private void ComputeHistogram(HitPlotStream hitPlot, string outputFileName)
         {
+            _log.Info($"Computing histogram...");
+
             var totalHistogram = new Histogram();
 
             ulong total = (ulong)_resolution.Width * (ulong)_resolution.Height;
