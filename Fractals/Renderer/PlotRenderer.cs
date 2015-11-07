@@ -109,26 +109,14 @@ namespace Fractals.Renderer
                             {
                                 var byteBuffer = byteBufferTask.Result;
 
-                                var ushortBuffer = new ushort[TileSize * TileSize];
-                                for (int i = 0; i < byteBuffer.Length; i += 2)
-                                {
-                                    ushortBuffer[i / 2] = BitConverter.ToUInt16(byteBuffer, i);
-                                }
-
-                                var colorBuffer = new Color[TileSize * TileSize];
-                                for (int i = 0; i < colorBuffer.Length; i++)
-                                {
-                                    var current = ushortBuffer[i];
-                                    current = Math.Min(current, cappedMax);
-                                    var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
-                                    colorBuffer[i] = colorRamp.GetColor(ratio).ToColor();
-                                }
-
                                 using (var imageTile = new FastBitmap(TileSize))
                                 {
-                                    for (int i = 0; i < TileSize * TileSize; i++)
+                                    for (int i = 0; i < byteBuffer.Length; i += 2)
                                     {
-                                        imageTile.SetPixel(i, colorBuffer[i]);
+                                        var current = BitConverter.ToUInt16(byteBuffer, i);
+                                        current = Math.Min(current, cappedMax);
+                                        var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
+                                        imageTile.SetPixel(i / 2,colorRamp.GetColor(ratio).ToColor());
                                     }
                                     imageTile.Save(Path.Combine(outputDirectory, tileId.Y.ToString(), tileId.X + ".png"));
                                 }

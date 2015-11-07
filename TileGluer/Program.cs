@@ -36,6 +36,7 @@ namespace TileGluer
                     Directory.CreateDirectory(outputRowPath);
 
                     var outRow = outputRow;
+                    var inputZoom = inputZoomLevel;
                     Task.WhenAll(
                         Enumerable.Range(0, inputRowCount / 2).Select(outputCol =>
                         {
@@ -46,7 +47,7 @@ namespace TileGluer
                                             Enumerable.Range(outputCol * 2, 2)
                                                 .Select(
                                                     startCol =>
-                                                        Path.Combine(basePath, inputZoomLevel.ToString(),
+                                                        Path.Combine(basePath, inputZoom.ToString(),
                                                             startRow.ToString(),
                                                             startCol + ".png"))).ToArray();
 
