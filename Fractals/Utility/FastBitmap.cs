@@ -21,8 +21,8 @@ namespace Fractals.Utility
         {
         }
 
-        public FastBitmap(Size resolution) : this(resolution.Width,resolution.Height)
-        {           
+        public FastBitmap(Size resolution) : this(resolution.Width, resolution.Height)
+        {
         }
 
         public FastBitmap(int width, int height)
@@ -34,6 +34,16 @@ namespace Fractals.Utility
             _handle = GCHandle.Alloc(_pixelBuffer, GCHandleType.Pinned);
             IntPtr pointer = Marshal.UnsafeAddrOfPinnedArrayElement(_pixelBuffer, 0);
             _image = new Bitmap(width, height, _stride, Format, pointer);
+        }
+
+        public void SetPixel(int x, int y, HsvColor hsvColor)
+        {
+            SetPixel(x, y, hsvColor.ToColor());
+        }
+
+        public void SetPixel(int pixelIndex, HsvColor hsvColor)
+        {
+            SetPixel(pixelIndex, hsvColor.ToColor());
         }
 
         public void SetPixel(int x, int y, Color color)

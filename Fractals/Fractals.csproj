@@ -101,8 +101,9 @@
     <Compile Include="Renderer\SpectrumPlotRenderer.cs" />
     <Compile Include="Utility\AreaFactory.cs" />
     <Compile Include="Utility\BuddhabrotPointFinder.cs" />
-    <Compile Include="Utility\ColorRamp.cs" />
-    <Compile Include="Utility\ColorRampFactory.cs" />
+    <Compile Include="Utility\ColorExtensions.cs" />
+    <Compile Include="Utility\ColorGradient.cs" />
+    <Compile Include="Utility\ColorGradients.cs" />
     <Compile Include="Utility\ComplexNumberListWriter.cs" />
     <Compile Include="Utility\ComplexNumberListReader.cs" />
     <Compile Include="PointGenerator\BulbsExcludedPointGenerator.cs" />

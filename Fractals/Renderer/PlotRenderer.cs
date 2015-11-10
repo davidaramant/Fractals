@@ -38,19 +38,19 @@ namespace Fractals.Renderer
 
         public void Render(string outputDirectory, string outputFilename)
         {
-            //Render( outputDirectory, outputFilename, ColorRampFactory.Blue );
-            //Render(outputDirectory, outputFilename, ColorRampFactory.Psychadelic);
-            Render(outputDirectory, outputFilename, ColorRampFactory.Neon);
+            //Render( outputDirectory, outputFilename, ColorGradients.Blue );
+            //Render(outputDirectory, outputFilename, ColorGradients.Psychadelic);
+            Render(outputDirectory, outputFilename, ColorGradients.Neon);
         }
 
-        public void Render(string outputDirectory, string outputFilename, ColorRamp colorRamp)
+        public void Render(string outputDirectory, string outputFilename, ColorGradient colorGradient)
         {
             var timer = Stopwatch.StartNew();
 
             using (var hitPlot = new HitPlotStream(Path.Combine(_inputInputDirectory, _inputFilename), _resolution))
             {
-                RenderAllTiles(hitPlot, colorRamp, outputDirectory);
-                //ComputeHistogram(hitPlot,outputFilename);
+                //RenderAllTiles(hitPlot, ColorGradient, outputDirectory);
+                ComputeHistogram(hitPlot, outputFilename);
             }
 
             timer.Stop();
@@ -74,7 +74,7 @@ namespace Fractals.Renderer
             return Math.Pow(x, 1.0 / exp);
         }
 
-        private void RenderAllTiles(HitPlotStream hitPlot, ColorRamp colorRamp, string outputDirectory)
+        private void RenderAllTiles(HitPlotStream hitPlot, ColorGradient gradient, string outputDirectory)
         {
             var numberOfTiles = (_resolution.Width / TileSize) * (_resolution.Height / TileSize);
             _log.Info($"Creating image ({_resolution.Width:N0}x{_resolution.Height:N0}) ({numberOfTiles:N0} tiles)");
@@ -116,7 +116,7 @@ namespace Fractals.Renderer
                                         var current = BitConverter.ToUInt16(byteBuffer, i);
                                         current = Math.Min(current, cappedMax);
                                         var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
-                                        imageTile.SetPixel(i / 2,colorRamp.GetColor(ratio).ToColor());
+                                        imageTile.SetPixel(i / 2, gradient.GetColor(ratio));
                                     }
                                     imageTile.Save(Path.Combine(outputDirectory, tileId.Y.ToString(), tileId.X + ".png"));
                                 }
@@ -162,7 +162,7 @@ namespace Fractals.Renderer
             _log.Info("Done getting histogram!");
         }
 
-        private void RenderSomeTiles(HitPlotReader hitPlotWriter, ushort cappedMax, ColorRamp colorRamp, string outputDirectory)
+        private void RenderSomeTiles(HitPlotReader hitPlotWriter, ushort cappedMax, ColorGradient gradient, string outputDirectory)
         {
             var tilesToRender = new[]
             {
@@ -198,7 +198,7 @@ namespace Fractals.Renderer
                            //var ratio = (double)current / cappedMax;
                            var ratio = 1.0 - Math.Pow(Math.E, -5.0 * current / cappedMax);
 
-                           var color = colorRamp.GetColor(ratio).ToColor();
+                           var color = gradient.GetColor(ratio);
                            tile.SetPixel(x, y, color);
                        }
                    }

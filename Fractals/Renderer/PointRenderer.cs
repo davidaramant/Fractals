@@ -28,10 +28,10 @@ namespace Fractals.Renderer
 
         public void Render(string outputDirectory, string outputFilename)
         {
-            Render(outputDirectory, outputFilename, ColorRampFactory.Rainbow);
+            Render(outputDirectory, outputFilename, ColorGradients.Rainbow);
         }
 
-        public void Render(string outputDirectory, string outputFilename, ColorRamp colorRamp)
+        public void Render(string outputDirectory, string outputFilename, ColorGradient colorGradient)
         {
             _log.InfoFormat("Creating image ({0:N0}x{1:N0})", _resolution.Width, _resolution.Height);
 
@@ -69,7 +69,7 @@ namespace Fractals.Renderer
                     continue;
                 }
 
-                outputImg.SetPixel(point.X, point.Y, ComputeColor(point, middlePoint, maximumDistance, colorRamp));
+                outputImg.SetPixel(point.X, point.Y, ComputeColor(point, middlePoint, maximumDistance, colorGradient));
             }
 
             _log.Info("Finished rendering");
@@ -79,12 +79,12 @@ namespace Fractals.Renderer
             _log.Debug("Done saving image");
         }
 
-        private Color ComputeColor(Point p, Point middlePoint, double maximumDistance, ColorRamp colorRamp)
+        private Color ComputeColor(Point p, Point middlePoint, double maximumDistance, ColorGradient colorGradient)
         {
             var distance = CalculateDistance(p, middlePoint);
             var ratio = Gamma(1.0 - Math.Pow(Math.E, -10.0 * distance / maximumDistance));
 
-            return colorRamp.GetColor(ratio).ToColor();
+            return colorGradient.GetColor(ratio).ToColor();
         }
 
         private static double CalculateDistance(Point point1, Point point2)

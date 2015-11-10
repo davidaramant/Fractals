@@ -30,7 +30,7 @@ namespace Fractals.Renderer
             {
                 _log.InfoFormat("Rendering for color: {0}", current);
 
-                var ramp = ColorRampFactory.GetIntensityRamp(current);
+                var ramp = ColorGradients.GetIntensityGradient(current);
                 var outputFilename = string.Format("{0}-{1,3:000.##}", outputFilenamePrefix, current);
 
                 renderer.Render(outputDirectory, outputFilename, ramp);

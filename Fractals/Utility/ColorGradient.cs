@@ -1,14 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Fractals.Utility
 {
-    public sealed class ColorRamp
+    public sealed class ColorGradient : IEnumerable<ColorGradient.ColorRange>
     {
         private readonly List<ColorRange> _colorRanges = new List<ColorRange>();
 
-        public ColorRamp(IEnumerable<Tuple<HsvColor, double>> colorPoints)
+        public ColorGradient(IEnumerable<Tuple<HsvColor, double>> colorPoints)
         {
             var temp = colorPoints.ToArray();
 
@@ -32,26 +33,36 @@ namespace Fractals.Utility
             return range.Interpolate(ratio);
         }
 
-        sealed class ColorRange
+        public IEnumerator<ColorRange> GetEnumerator()
         {
-            private readonly HsvColor _startColor;
-            private readonly HsvColor _endColor;
-            private readonly double _start;
-            private readonly double _end;
+            return _colorRanges.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public sealed class ColorRange
+        {
+            public HsvColor StartColor { get; }
+            public HsvColor EndColor { get; }
+            public double Start { get; }
+            public double End { get; }
 
             public ColorRange(HsvColor startColor, HsvColor endColor, double start, double end)
             {
-                _startColor = startColor;
-                _endColor = endColor;
-                _start = start;
-                _end = end;
+                StartColor = startColor;
+                EndColor = endColor;
+                Start = start;
+                End = end;
             }
 
             public bool IsInsideRange(double value)
             {
                 return
-                    value >= _start &&
-                    value <= _end;
+                    value >= Start &&
+                    value <= End;
             }
 
             private static double Interpolate(double v0, double v1, double ratio)
@@ -61,27 +72,27 @@ namespace Fractals.Utility
 
             public HsvColor Interpolate(double totalRatio)
             {
-                var totalDistance = _end - _start;
-                var ratioBetweenPoints = (totalRatio - _start) / totalDistance;
+                var totalDistance = End - Start;
+                var ratioBetweenPoints = (totalRatio - Start) / totalDistance;
 
-                var forwardHueDistance = _startColor.Hue - _endColor.Hue;
-                var backwardHueDistance = _endColor.Hue + (1 - _startColor.Hue);
+                var forwardHueDistance = StartColor.Hue - EndColor.Hue;
+                var backwardHueDistance = EndColor.Hue + (1 - StartColor.Hue);
 
                 double newHue = 0;
 
                 if (forwardHueDistance < backwardHueDistance)
                 {
-                    newHue = Interpolate(_startColor.Hue, _endColor.Hue, ratioBetweenPoints);
+                    newHue = Interpolate(StartColor.Hue, EndColor.Hue, ratioBetweenPoints);
                 }
                 else
                 {
-                    newHue = (_startColor.Hue + ratioBetweenPoints*backwardHueDistance) % 1;
+                    newHue = (StartColor.Hue + ratioBetweenPoints*backwardHueDistance) % 1;
                 }
 
                 return new HsvColor(
                     hue: newHue,
-                    saturation: Interpolate(_startColor.Saturation, _endColor.Saturation, ratioBetweenPoints),
-                    value: Interpolate(_startColor.Value, _endColor.Value, ratioBetweenPoints)
+                    saturation: Interpolate(StartColor.Saturation, EndColor.Saturation, ratioBetweenPoints),
+                    value: Interpolate(StartColor.Value, EndColor.Value, ratioBetweenPoints)
                 );
             }
         }

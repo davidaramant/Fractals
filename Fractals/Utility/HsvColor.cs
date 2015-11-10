@@ -175,5 +175,10 @@ namespace Fractals.Utility
             // Return a Color structure, with values scaled to be between 0 and 255.
             return Color.FromArgb((int)(r * 255), (int)(g * 255), (int)(b * 255));
         }
+
+        public override string ToString()
+        {
+            return $"H:{Hue:0.000} S:{Saturation:0.000} V:{Value:0.000}";
+        }
     }
 }

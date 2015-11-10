@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using Fractals.Utility;
 using NUnit.Framework;
 
 namespace Fractals.Tests.Utility
 {
     [TestFixture]
-    public sealed class ColorRampTests
+    public sealed class ColorGradientTests
     {
         private static readonly string Outdir =
             Path.Combine(
@@ -115,7 +117,7 @@ namespace Fractals.Tests.Utility
         [Ignore]
         public void EightiesNeonPartDeuxPalette()
         {
-            MakeStrip(ColorRampFactory.EightiesNeonPartDeux,
+            MakeStrip(ColorGradients.EightiesNeonPartDeux,
             "80s Neon Part Deux.png");
         }
 
@@ -123,7 +125,7 @@ namespace Fractals.Tests.Utility
         [Ignore]
         public void NeonPalette()
         {
-            MakeStrip(ColorRampFactory.Neon,
+            MakeStrip(ColorGradients.Neon,
             "Neon.png");
         }
 
@@ -131,24 +133,43 @@ namespace Fractals.Tests.Utility
         [Ignore]
         public void RainbowPalette()
         {
-            MakeStrip(ColorRampFactory.Rainbow,
+            MakeStrip(ColorGradients.Rainbow,
             "Rainbow.png");
+        }
+
+        [Test, Ignore]
+        public void ExploreGradient()
+        {
+            PrintGradientInfo(ColorGradients.Neon);
+        }
+
+        private static void PrintGradientInfo(ColorGradient gradient)
+        {
+            Func<HsvColor, double, string> getInfo =
+                (hsvColor, value) =>
+                    $"{value:000%} : {hsvColor} : Luminance: {hsvColor.ToColor().GetLuminance()}";
+
+            foreach (var colorRange in gradient)
+            {
+                Console.WriteLine(getInfo(colorRange.StartColor,colorRange.Start));
+            }
+            Console.WriteLine(getInfo(gradient.Last().EndColor, gradient.Last().End));
         }
 
         private void MakeStrip(IEnumerable<Tuple<HsvColor, double>> colorPoints, string fileName)
         {
-            var ramp = new ColorRamp(colorPoints);
+            var ramp = new ColorGradient(colorPoints);
 
             MakeStrip(ramp,fileName);
         }
 
-        private void MakeStrip(ColorRamp ramp, string fileName)
+        private void MakeStrip(ColorGradient gradient, string fileName)
         {
             using (var image = new FastBitmap(500, 50))
             {
                 for (int x = 0; x < image.Width; x++)
                 {
-                    var color = ramp.GetColor((double)x / image.Width).ToColor();
+                    var color = gradient.GetColor((double)x / image.Width).ToColor();
 
                     for (int y = 0; y < image.Height; y++)
                     {
