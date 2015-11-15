@@ -125,8 +125,9 @@ namespace Fractals.Tests.Utility
         [Ignore]
         public void NeonPalette()
         {
+            PrintGradientInfo(ColorGradients.Neon);
             MakeStrip(ColorGradients.Neon,
-            "Neon.png");
+                "Neon.png");
         }
 
         [Test]
@@ -137,10 +138,40 @@ namespace Fractals.Tests.Utility
             "Rainbow.png");
         }
 
-        [Test, Ignore]
-        public void ExploreGradient()
+        [Test]
+        [Ignore]
+        public void FirePalette()
         {
-            PrintGradientInfo(ColorGradients.Neon);
+            PrintGradientInfo(ColorGradients.Fire);
+            MakeStrip(ColorGradients.Fire,
+                "Fire.png");
+        }
+
+        [Test]
+        [Ignore]
+        public void PastelPalette()
+        {
+            PrintGradientInfo(ColorGradients.Pastel);
+            MakeStrip(ColorGradients.Pastel,
+                "Pastel.png");
+        }
+
+        [Test]
+        [Ignore]
+        public void BluePalette()
+        {
+            PrintGradientInfo(ColorGradients.Blue);
+            MakeStrip(ColorGradients.Blue,
+                "Blue.png");
+        }
+
+        [Test]
+        [Ignore]
+        public void ManualRainbowPalette()
+        {
+            PrintGradientInfo(ColorGradients.ManualRainbow);
+            MakeStrip(ColorGradients.ManualRainbow,
+                "ManualRainbow.png");
         }
 
         private static void PrintGradientInfo(ColorGradient gradient)

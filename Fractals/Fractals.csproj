@@ -101,6 +101,7 @@
     <Compile Include="Renderer\SpectrumPlotRenderer.cs" />
     <Compile Include="Utility\AreaFactory.cs" />
     <Compile Include="Utility\BuddhabrotPointFinder.cs" />
+    <Compile Include="Utility\CappedHistogram.cs" />
     <Compile Include="Utility\ColorExtensions.cs" />
     <Compile Include="Utility\ColorGradient.cs" />
     <Compile Include="Utility\ColorGradients.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Utility\HitPlotReader.cs" />
     <Compile Include="Utility\HitPlotStream.cs" />
     <Compile Include="Utility\HsvColor.cs" />
+    <Compile Include="Utility\IHistogram.cs" />
     <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\CryptoRandom.cs" />
     <Compile Include="Renderer\EdgeAreasRenderer.cs" />

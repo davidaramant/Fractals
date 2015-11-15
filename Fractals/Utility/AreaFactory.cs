@@ -13,7 +13,7 @@ namespace Fractals.Utility
             new InclusiveRange(-2, 2));
 
         public static Area RenderingArea => new Area(
-            new InclusiveRange(-1.75, 1),
-            new InclusiveRange(-1.3, 1.3));
+            new InclusiveRange(-1.45, 0.75),
+            new InclusiveRange(-1.1, 1.1));
     }
 }

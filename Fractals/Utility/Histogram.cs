@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Fractals.Utility
 {
-    public sealed class Histogram : IEnumerable<ulong>
+    public sealed class Histogram : IHistogram
     {
         public const ushort Count = 512;
         private readonly ulong[] _bins = new ulong[Count];

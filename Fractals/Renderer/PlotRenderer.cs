@@ -40,7 +40,7 @@ namespace Fractals.Renderer
         {
             //Render( outputDirectory, outputFilename, ColorGradients.Blue );
             //Render(outputDirectory, outputFilename, ColorGradients.Psychadelic);
-            Render(outputDirectory, outputFilename, ColorGradients.Neon);
+            Render(outputDirectory, outputFilename, ColorGradients.ManualRainbow);
         }
 
         public void Render(string outputDirectory, string outputFilename, ColorGradient colorGradient)
@@ -49,8 +49,8 @@ namespace Fractals.Renderer
 
             using (var hitPlot = new HitPlotStream(Path.Combine(_inputInputDirectory, _inputFilename), _resolution))
             {
-                //RenderAllTiles(hitPlot, ColorGradient, outputDirectory);
-                ComputeHistogram(hitPlot, outputFilename);
+                RenderAllTiles(hitPlot, colorGradient, outputDirectory);
+                //ComputeHistogram(hitPlot, outputFilename);
             }
 
             timer.Stop();
@@ -69,19 +69,10 @@ namespace Fractals.Renderer
             }
         }
 
-        private static double Gamma(double x, double exp = 1.2)
-        {
-            return Math.Pow(x, 1.0 / exp);
-        }
-
         private void RenderAllTiles(HitPlotStream hitPlot, ColorGradient gradient, string outputDirectory)
         {
             var numberOfTiles = (_resolution.Width / TileSize) * (_resolution.Height / TileSize);
             _log.Info($"Creating image ({_resolution.Width:N0}x{_resolution.Height:N0}) ({numberOfTiles:N0} tiles)");
-
-            const ushort cappedMax = 5000;
-
-            _log.Debug($"Using maximum: {cappedMax:N0}");
 
             _log.Info("Starting to render");
 
@@ -114,9 +105,8 @@ namespace Fractals.Renderer
                                     for (int i = 0; i < byteBuffer.Length; i += 2)
                                     {
                                         var current = BitConverter.ToUInt16(byteBuffer, i);
-                                        current = Math.Min(current, cappedMax);
-                                        var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / cappedMax));
-                                        imageTile.SetPixel(i / 2, gradient.GetColor(ratio));
+                                        imageTile.SetPixel(i / 2, ColorGradients.ColorCount(current));
+
                                     }
                                     imageTile.Save(Path.Combine(outputDirectory, tileId.Y.ToString(), tileId.X + ".png"));
                                 }
@@ -135,9 +125,10 @@ namespace Fractals.Renderer
 
         private void ComputeHistogram(HitPlotStream hitPlot, string outputFileName)
         {
-            _log.Info($"Computing histogram...");
+            _log.Info($"Computing histograms...");
 
-            var totalHistogram = new Histogram();
+            var completeHistrogram = new Histogram();
+            var cappedHistogram = new CappedHistogram(5000);
 
             ulong total = (ulong)_resolution.Width * (ulong)_resolution.Height;
             ulong whenToCheck = total / 256;
@@ -147,7 +138,8 @@ namespace Fractals.Renderer
 
             foreach (var count in hitPlot.GetAllCounts())
             {
-                totalHistogram.IncrementBin(count);
+                completeHistrogram.IncrementBin(count);
+                cappedHistogram.IncrementBin(count);
                 pointsProcessed++;
 
                 if (pointsProcessed % whenToCheck == 0)
@@ -157,9 +149,10 @@ namespace Fractals.Renderer
                 }
             }
 
-            totalHistogram.SaveToCsv($"{outputFileName} - {DateTime.Now.ToString("yyyyMMddHHmm")}.csv");
+            completeHistrogram.SaveToCsv($"{DateTime.Now.ToString("yyyyMMddHHmm")} - Complete Histogram.csv");
+            cappedHistogram.SaveToCsv($"{DateTime.Now.ToString("yyyyMMddHHmm")} - Capped Histrogram.csv");
 
-            _log.Info("Done getting histogram!");
+            _log.Info("Done computing histograms!");
         }
 
         private void RenderSomeTiles(HitPlotReader hitPlotWriter, ushort cappedMax, ColorGradient gradient, string outputDirectory)
