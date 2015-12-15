@@ -43,6 +43,35 @@ namespace Fractals.Utility
             return GetEnumerator();
         }
 
+        private static double Interpolate(double v0, double v1, double ratio)
+        {
+            return v0 + ratio * (v1 - v0);
+        }
+
+        public static HsvColor Interpolate(HsvColor startColor, HsvColor endColor, double ratio)
+        {
+            var forwardHueDistance = startColor.Hue - endColor.Hue;
+            var backwardHueDistance = endColor.Hue + (1 - startColor.Hue);
+
+            double newHue = 0;
+
+            if (forwardHueDistance < backwardHueDistance)
+            {
+                newHue = Interpolate(startColor.Hue, endColor.Hue, ratio);
+            }
+            else
+            {
+                newHue = (startColor.Hue + ratio * backwardHueDistance) % 1;
+            }
+
+            return new HsvColor(
+                hue: newHue,
+                saturation: Interpolate(startColor.Saturation, endColor.Saturation, ratio),
+                value: Interpolate(startColor.Value, endColor.Value, ratio)
+            );
+        }
+
+
         public sealed class ColorRange
         {
             public HsvColor StartColor { get; }
@@ -65,35 +94,12 @@ namespace Fractals.Utility
                     value <= End;
             }
 
-            private static double Interpolate(double v0, double v1, double ratio)
-            {
-                return v0 + ratio * (v1 - v0);
-            }
-
             public HsvColor Interpolate(double totalRatio)
             {
                 var totalDistance = End - Start;
                 var ratioBetweenPoints = (totalRatio - Start) / totalDistance;
 
-                var forwardHueDistance = StartColor.Hue - EndColor.Hue;
-                var backwardHueDistance = EndColor.Hue + (1 - StartColor.Hue);
-
-                double newHue = 0;
-
-                if (forwardHueDistance < backwardHueDistance)
-                {
-                    newHue = Interpolate(StartColor.Hue, EndColor.Hue, ratioBetweenPoints);
-                }
-                else
-                {
-                    newHue = (StartColor.Hue + ratioBetweenPoints*backwardHueDistance) % 1;
-                }
-
-                return new HsvColor(
-                    hue: newHue,
-                    saturation: Interpolate(StartColor.Saturation, EndColor.Saturation, ratioBetweenPoints),
-                    value: Interpolate(StartColor.Value, EndColor.Value, ratioBetweenPoints)
-                );
+                return ColorGradient.Interpolate(StartColor, EndColor, ratioBetweenPoints);
             }
         }
     }

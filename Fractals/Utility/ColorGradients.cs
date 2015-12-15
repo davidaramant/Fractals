@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using static System.Math;
 
 namespace Fractals.Utility
 {
@@ -61,13 +62,13 @@ namespace Fractals.Utility
 
         public static readonly ColorGradient ManualRainbow2 = new ColorGradient(new[]{
             Tuple.Create(Color.FromArgb(66,132,255).ToHsv().Mutate(vx:v=>0.1),0d),
-            Tuple.Create(Color.FromArgb(66,132,255).ToHsv(),15.0/CappedMax),
-            Tuple.Create(Color.FromArgb(87,202,204).ToHsv(),33.0/CappedMax),
-            Tuple.Create(Color.FromArgb(167,239,200).ToHsv(),55.0/CappedMax),
+            Tuple.Create(Color.FromArgb(66,132,255).ToHsv(),Sqrt(16.0/CappedMax)),
+            Tuple.Create(Color.FromArgb(87,202,204).ToHsv(),Sqrt(35.0/CappedMax)),
+            Tuple.Create(Color.FromArgb(167,239,200).ToHsv(),Sqrt(59.0/CappedMax)),
             Tuple.Create(Color.FromArgb(167,239,200).ToHsv().Mutate(sx:s=>0,vx:v=>1),1d),
         });
 
-        const ushort CappedMax = 500;
+        const ushort CappedMax = 450;
 
         public static HsvColor ColorCount(ushort currentCount)
         {
@@ -75,7 +76,7 @@ namespace Fractals.Utility
             currentCount = Math.Min(currentCount, CappedMax);
             //var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * currentCount / CappedMax));
             //return ManualRainbow2.GetColor(ratio);
-            return ManualRainbow2.GetColor((double)currentCount / CappedMax);
+            return ManualRainbow2.GetColor(Sqrt((double)currentCount / CappedMax));
         }
 
         private static double Gamma(double x, double exp = 1.2)

@@ -174,6 +174,15 @@ namespace Fractals.Tests.Utility
                 "ManualRainbow.png");
         }
 
+        [Test]
+        [Ignore]
+        public void ManualRainbow2Palette()
+        {
+            PrintGradientInfo(ColorGradients.ManualRainbow2);
+            MakeStrip(ColorGradients.ManualRainbow2,
+                "ManualRainbow2.png");
+        }
+
         private static void PrintGradientInfo(ColorGradient gradient)
         {
             Func<HsvColor, double, string> getInfo =
@@ -182,7 +191,7 @@ namespace Fractals.Tests.Utility
 
             foreach (var colorRange in gradient)
             {
-                Console.WriteLine(getInfo(colorRange.StartColor,colorRange.Start));
+                Console.WriteLine(getInfo(colorRange.StartColor, colorRange.Start));
             }
             Console.WriteLine(getInfo(gradient.Last().EndColor, gradient.Last().End));
         }
@@ -191,16 +200,21 @@ namespace Fractals.Tests.Utility
         {
             var ramp = new ColorGradient(colorPoints);
 
-            MakeStrip(ramp,fileName);
+            MakeStrip(ramp, fileName);
         }
 
         private void MakeStrip(ColorGradient gradient, string fileName)
         {
+            var evenGradient = new ColorGradient(
+                gradient.Select((range,index) => Tuple.Create(range.StartColor, (double)index/gradient.Count())).
+                Concat(new[] { Tuple.Create(gradient.Last().EndColor, 1d) })
+                );
+
             using (var image = new FastBitmap(500, 50))
             {
                 for (int x = 0; x < image.Width; x++)
                 {
-                    var color = gradient.GetColor((double)x / image.Width).ToColor();
+                    var color = evenGradient.GetColor((double)x / image.Width).ToColor();
 
                     for (int y = 0; y < image.Height; y++)
                     {
