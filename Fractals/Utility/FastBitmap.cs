@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace Fractals.Utility
 {
+    // TODO: This class may be spitting out broken PNGs that ImageMagick chokes on
     public sealed class FastBitmap : IDisposable
     {
         const PixelFormat Format = PixelFormat.Format24bppRgb;

@@ -28,6 +28,8 @@ namespace TileGluer
             }
 
             public string RelativePath => Path.Combine(ZoomLevel.ToString(), Y.ToString(), X + ".png");
+
+            public override string ToString() => $"Z: {ZoomLevel}, Y: {Y}, X: {X}";
         }
 
         static void Main(string[] args)
@@ -99,15 +101,27 @@ namespace TileGluer
         {
             var allTiles = ParseInputFile(inputFilePath);
 
+            foreach (var tile in allTiles)
+            {
+                WriteLine(tile);
+            }
+
             var outputZoomLevel = allTiles.Max(tile => tile.ZoomLevel);
             while (outputZoomLevel != 0)
             {
                 var tilesAtThisLevel = allTiles.Where(tile => tile.ZoomLevel == outputZoomLevel).ToArray();
+
+                WriteLine($"Gluing in zoom level: {outputZoomLevel}");
+                foreach (var tile in tilesAtThisLevel)
+                {
+                    WriteLine(tile);
+                }
+
                 Task.WhenAll(tilesAtThisLevel.Select(tiles => ReglueTile(basePath, tiles))).Wait();
 
                 foreach (var tile in tilesAtThisLevel)
                 {
-                    allTiles.Add(new TileCoordinate(tile.ZoomLevel - 1, tile.X/2, tile.Y/2));
+                    allTiles.Add(new TileCoordinate(zoomLevel: outputZoomLevel - 1, x: tile.X / 2, y: tile.Y / 2));
                 }
 
                 outputZoomLevel--;
@@ -119,29 +133,26 @@ namespace TileGluer
             return
                 new HashSet<TileCoordinate>(
                     File.ReadLines(inputFilePath)
-                    .Select(line => line.Split('/').Select(int.Parse).ToArray())
-                    .Select(parts => new TileCoordinate(zoomLevel: parts[0], y: parts[1], x: parts[2])));
-        }
+                    .Where(line => !line.StartsWith("#"))
+                    .Select(line => line.Split('/'))
+                    .Select(partArray => partArray.Skip(partArray.Length - 3).ToArray())
+                    .Select(parts =>
 
-        private static void AddTile(Dictionary<int, HashSet<Point>> tilesByZoom, int zoomLevel, Point p)
-        {
-            HashSet<Point> tiles;
-            if (!tilesByZoom.TryGetValue(zoomLevel, out tiles))
-            {
-                tiles = new HashSet<Point>();
-                tilesByZoom[zoomLevel] = tiles;
-            }
-            tiles.Add(p);
+                        new TileCoordinate(
+                            zoomLevel: Int32.Parse(parts[0]),
+                            y: Int32.Parse(parts[1]),
+                            x: Int32.Parse(parts[2].Replace(".png", ""))
+                    )));
         }
 
         private static Task ReglueTile(string basePath, TileCoordinate tile)
         {
             var parentTiles = new[]
             {
-                new TileCoordinate(tile.ZoomLevel+1,tile.X,tile.Y),
-                new TileCoordinate(tile.ZoomLevel+1,tile.X+1,tile.Y),
-                new TileCoordinate(tile.ZoomLevel+1,tile.X,tile.Y+1),
-                new TileCoordinate(tile.ZoomLevel+1,tile.X+1,tile.Y+1),
+                new TileCoordinate(tile.ZoomLevel+1,tile.X*2,tile.Y*2),
+                new TileCoordinate(tile.ZoomLevel+1,tile.X*2+1,tile.Y*2),
+                new TileCoordinate(tile.ZoomLevel+1,tile.X*2,tile.Y*2+1),
+                new TileCoordinate(tile.ZoomLevel+1,tile.X*2+1,tile.Y*2+1),
             };
 
             var inputFileNames =
@@ -153,6 +164,7 @@ namespace TileGluer
         private static Task GlueTiles(IEnumerable<string> fileNames, string outputTile)
         {
             var fileNamesArgument = String.Join(" ", fileNames.Select(fileName => $"\"{fileName}\""));
+            var arguments = $"{fileNamesArgument} -tile 2x2 -geometry 128x128+0+0 \"{outputTile}\"";
 
             // there is no non-generic TaskCompletionSource
             var tcs = new TaskCompletionSource<bool>();
@@ -162,7 +174,7 @@ namespace TileGluer
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = Path.Combine(ImPath, "montage.exe"),
-                    Arguments = $"{fileNamesArgument} -tile 2x2 -geometry 128x128+0+0 \"{outputTile}\"",
+                    Arguments = arguments,
                     UseShellExecute = false,
                     CreateNoWindow = true,
                 },
