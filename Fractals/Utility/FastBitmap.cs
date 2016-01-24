@@ -12,8 +12,6 @@ namespace Fractals.Utility
         readonly int _pixelFormatSize = Image.GetPixelFormatSize(Format) / 8;
         readonly int _stride;
         readonly byte[] _pixelBuffer;
-        readonly GCHandle _handle;
-        private readonly Bitmap _image;
 
         public int Width { get; }
         public int Height { get; }
@@ -32,9 +30,6 @@ namespace Fractals.Utility
             Height = height;
             _stride = width * _pixelFormatSize;
             _pixelBuffer = new byte[_stride * height];
-            _handle = GCHandle.Alloc(_pixelBuffer, GCHandleType.Pinned);
-            IntPtr pointer = Marshal.UnsafeAddrOfPinnedArrayElement(_pixelBuffer, 0);
-            _image = new Bitmap(width, height, _stride, Format, pointer);
         }
 
         public void SetPixel(int x, int y, HsvColor hsvColor)
@@ -68,13 +63,27 @@ namespace Fractals.Utility
 
         public void Save(string filePath)
         {
-            _image.Save(filePath);
+            using (var bmp = new Bitmap(Width, Height, Format))
+            {
+                var bmpData = bmp.LockBits(
+                    new Rectangle(0, 0, Width, Height), 
+                    ImageLockMode.WriteOnly, 
+                    bmp.PixelFormat);
+
+                // Get the address of the first line.
+                IntPtr ptr = bmpData.Scan0;
+
+                // Copy the RGB values back to the bitmap
+                Marshal.Copy(_pixelBuffer, 0, ptr, _pixelBuffer.Length);
+
+                // Unlock the bits.
+                bmp.UnlockBits(bmpData);
+                bmp.Save(filePath);
+            }
         }
 
         public void Dispose()
         {
-            _image.Dispose();
-            _handle.Free();
         }
     }
 }

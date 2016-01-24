@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using Fractals.Utility;
 using NUnit.Framework;
 
@@ -15,6 +14,7 @@ namespace Fractals.Tests.Utility
         private static readonly string Outdir =
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                "Test Plot",
                 "Color Ramps");
 
         [SetUp]
@@ -206,7 +206,7 @@ namespace Fractals.Tests.Utility
         private void MakeStrip(ColorGradient gradient, string fileName)
         {
             var evenGradient = new ColorGradient(
-                gradient.Select((range,index) => Tuple.Create(range.StartColor, (double)index/gradient.Count())).
+                gradient.Select((range, index) => Tuple.Create(range.StartColor, (double)index / gradient.Count())).
                 Concat(new[] { Tuple.Create(gradient.Last().EndColor, 1d) })
                 );
 
