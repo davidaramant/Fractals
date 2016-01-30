@@ -38,19 +38,13 @@ namespace Fractals.Renderer
 
         public void Render(string outputDirectory, string outputFilename)
         {
-            //Render( outputDirectory, outputFilename, ColorGradients.Blue );
-            //Render(outputDirectory, outputFilename, ColorGradients.Psychadelic);
-            Render(outputDirectory, outputFilename, ColorGradients.ManualRainbow);
-        }
-
-        public void Render(string outputDirectory, string outputFilename, ColorGradient colorGradient)
-        {
             var timer = Stopwatch.StartNew();
 
             using (var hitPlot = new HitPlotStream(Path.Combine(_inputInputDirectory, _inputFilename), _resolution))
             {
-                RenderAllTiles(hitPlot, colorGradient, outputDirectory);
+                RenderAllTiles(hitPlot, outputDirectory);
                 //ComputeHistogram(hitPlot, outputFilename);
+                //RenderSomeTiles(hitPlot, outputDirectory);
             }
 
             timer.Stop();
@@ -69,7 +63,7 @@ namespace Fractals.Renderer
             }
         }
 
-        private void RenderAllTiles(HitPlotStream hitPlot, ColorGradient gradient, string outputDirectory)
+        private void RenderAllTiles(HitPlotStream hitPlot, string outputDirectory)
         {
             var numberOfTiles = (_resolution.Width / TileSize) * (_resolution.Height / TileSize);
             _log.Info($"Creating image ({_resolution.Width:N0}x{_resolution.Height:N0}) ({numberOfTiles:N0} tiles)");
@@ -77,7 +71,6 @@ namespace Fractals.Renderer
             _log.Info("Starting to render");
 
             var rows = _resolution.Height / TileSize;
-            ;
             var cols = _resolution.Width / TileSize;
 
             for (int rowIndex = 0; rowIndex < rows; rowIndex++)
@@ -86,16 +79,48 @@ namespace Fractals.Renderer
                 Directory.CreateDirectory(rowDir);
             }
 
-            var totalNumberOfTiles = rows * cols;
-            var whenToCheck = totalNumberOfTiles / 256;
+            RenderTileIndexes(numberOfTiles, GetAllTileIndexes(rows, cols), cols, hitPlot, outputDirectory);
+        }
+
+        private void RenderSomeTiles(HitPlotStream hitPlot, string outputDirectory)
+        {
+            // X,Y
+            var tilesToRender = new[]
+            {
+                new Point(832,268),
+                new Point(833,268),
+            };
+
+            var numberOfTiles = tilesToRender.Length;
+            _log.Info($"Creating image ({_resolution.Width:N0}x{_resolution.Height:N0}) ({numberOfTiles:N0} tiles)");
+
+            _log.Info("Starting to render");
+
+            var cols = _resolution.Width / TileSize;
+
+            foreach (var rowIndex in tilesToRender.Select(p => p.Y).Distinct())
+            {
+                var rowDir = Path.Combine(outputDirectory, rowIndex.ToString());
+                Directory.CreateDirectory(rowDir);
+            }
+
+            // HACK: Tiles must be continuous
+            hitPlot.SetStreamOffset(cols * tilesToRender.First().Y + tilesToRender.First().X);
+
+            RenderTileIndexes(numberOfTiles, tilesToRender, cols, hitPlot, outputDirectory);
+        }
+
+        private void RenderTileIndexes(int numberOfTiles, IEnumerable<Point> tileIndexes, int cols, HitPlotStream hitPlot, string outputDirectory)
+        {
+            var whenToCheck = Math.Max(1, numberOfTiles / 256);
             var progress = ProgressEstimator.Start();
 
             Task.WhenAll(
-                    GetAllTileIndexes(rows: rows, cols: cols).
+                    tileIndexes.
                     Select((tileId, currentTileIndex) =>
                     {
                         return
-                            hitPlot.ReadTileBufferAsync(cols * tileId.Y + tileId.X).
+                            hitPlot.ReadTileBufferAsync().
                             ContinueWith(byteBufferTask =>
                             {
                                 var byteBuffer = byteBufferTask.Result;
@@ -108,6 +133,10 @@ namespace Fractals.Renderer
                                         imageTile.SetPixel(i / 2, ColorGradients.ColorCount(current));
 
                                     }
+
+                                    // HACK: Dump tile data
+                                    //File.WriteAllBytes(Path.Combine(outputDirectory, tileId.Y.ToString(), tileId.X + ".data"), byteBuffer);
+
                                     imageTile.Save(Path.Combine(outputDirectory, tileId.Y.ToString(), tileId.X + ".png"));
                                 }
 
@@ -115,12 +144,11 @@ namespace Fractals.Renderer
                                 {
                                     if (currentTileIndex != 0)
                                     {
-                                        _log.Info(progress.GetEstimate((double)currentTileIndex / totalNumberOfTiles));
+                                        _log.Info(progress.GetEstimate((double)currentTileIndex / numberOfTiles));
                                     }
                                 }
                             });
                     })).Wait();
-
         }
 
         private void ComputeHistogram(HitPlotStream hitPlot, string outputFileName)
@@ -153,53 +181,6 @@ namespace Fractals.Renderer
             cappedHistogram.SaveToCsv($"{DateTime.Now.ToString("yyyyMMddHHmm")} - Capped Histrogram.csv");
 
             _log.Info("Done computing histograms!");
-        }
-
-        private void RenderSomeTiles(HitPlotReader hitPlotWriter, ushort cappedMax, ColorGradient gradient, string outputDirectory)
-        {
-            var tilesToRender = new[]
-            {
-                Tuple.Create(250,125),
-                Tuple.Create(100,223),
-                Tuple.Create(100,228),
-                Tuple.Create(100,229),
-                Tuple.Create(100,230),
-                Tuple.Create(100,231),
-                Tuple.Create(100,298),
-            };
-
-            Parallel.For(0, tilesToRender.Length, tileIndex =>
-           {
-               var tileCoordinate = tilesToRender[tileIndex];
-               var row = tileCoordinate.Item1;
-               var col = tileCoordinate.Item2;
-
-               using (var tile = new FastBitmap(TileSize))
-               {
-                   for (int y = 0; y < TileSize; y++)
-                   {
-                       for (int x = 0; x < TileSize; x++)
-                       {
-                           var pointInPlot = new Point(col * TileSize + x, row * TileSize + y);
-
-                           // HACK
-                           var current = 0;//Math.Min(hitPlotWriter.GetHitsForPoint(pointInPlot), cappedMax);
-
-                           //var ratio = Gamma(1.0 - Math.Pow(Math.E, -15.0 * current / max));
-                           //var ratio = Gamma(Math.Sqrt((double)current / cappedMax));
-                           //var ratio = (Math.Sqrt((double)current / cappedMax));
-                           //var ratio = (double)current / cappedMax;
-                           var ratio = 1.0 - Math.Pow(Math.E, -5.0 * current / cappedMax);
-
-                           var color = gradient.GetColor(ratio);
-                           tile.SetPixel(x, y, color);
-                       }
-                   }
-
-                   tile.Save(
-                        Path.Combine(outputDirectory, $"{row} {col}.png"));
-               }
-           });
         }
     }
 }

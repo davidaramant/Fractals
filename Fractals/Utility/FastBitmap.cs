@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 
 namespace Fractals.Utility
 {
-    // TODO: This class may be spitting out broken PNGs that ImageMagick chokes on
+    // HACK: This class sometimes produces corrupt PNGs when using PixelFormat.Format24bppRgb.  Is this a framework bug?
     public sealed class FastBitmap : IDisposable
     {
-        const PixelFormat Format = PixelFormat.Format24bppRgb;
-        readonly int _pixelFormatSize = Image.GetPixelFormatSize(Format) / 8;
+        const PixelFormat Format = PixelFormat.Format32bppArgb;
+        readonly int _pixelSizeInBytes = Image.GetPixelFormatSize(Format) / 8;
         readonly int _stride;
         readonly byte[] _pixelBuffer;
 
@@ -28,7 +28,7 @@ namespace Fractals.Utility
         {
             Width = width;
             Height = height;
-            _stride = width * _pixelFormatSize;
+            _stride = width * _pixelSizeInBytes;
             _pixelBuffer = new byte[_stride * height];
         }
 
@@ -44,13 +44,13 @@ namespace Fractals.Utility
 
         public void SetPixel(int x, int y, Color color)
         {
-            var index = y * _stride + x * _pixelFormatSize;
+            var index = y * _stride + x * _pixelSizeInBytes;
             SetPixelFromIndex(index, color);
         }
 
         public void SetPixel(int pixelIndex, Color color)
         {
-            var index = pixelIndex * _pixelFormatSize;
+            var index = pixelIndex * _pixelSizeInBytes;
             SetPixelFromIndex(index, color);
         }
 
@@ -59,6 +59,7 @@ namespace Fractals.Utility
             _pixelBuffer[index] = color.B;
             _pixelBuffer[index + 1] = color.G;
             _pixelBuffer[index + 2] = color.R;
+            _pixelBuffer[index + 3] = Byte.MaxValue;
         }
 
         public void Save(string filePath)

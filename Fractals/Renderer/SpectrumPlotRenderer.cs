@@ -1,4 +1,5 @@
-﻿using Fractals.Utility;
+﻿using System;
+using Fractals.Utility;
 using log4net;
 
 namespace Fractals.Renderer
@@ -33,7 +34,9 @@ namespace Fractals.Renderer
                 var ramp = ColorGradients.GetIntensityGradient(current);
                 var outputFilename = string.Format("{0}-{1,3:000.##}", outputFilenamePrefix, current);
 
-                renderer.Render(outputDirectory, outputFilename, ramp);
+                throw new NotSupportedException("What the hell is spectrum plot");
+
+                //renderer.Render(outputDirectory, outputFilename, ramp);
             }
         }
     }

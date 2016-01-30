@@ -21,17 +21,22 @@ namespace Fractals.Utility
             _stream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.None, bufferSize: TileSizeInBytes, useAsync: true);
         }
 
-        public Task<byte[]> ReadTileBufferAsync(int tileNumber)
+        public Task<byte[]> ReadTileBufferAsync()
         {
             var buffer = new byte[TileSizeInBytes];
             return _stream.ReadAsync(buffer, 0, TileSizeInBytes).ContinueWith(result => buffer);
+        }
+
+        public void SetStreamOffset(int tileNumber)
+        {
+            _stream.Position = (long)tileNumber * TileSizeInBytes;
         }
 
         public IEnumerable<ushort> GetAllCounts()
         {
             using (var reader = new BinaryReader(_stream, Encoding.UTF8, leaveOpen: true))
             {
-                var max = (ulong) _resolution.Width*(ulong) _resolution.Height;
+                var max = (ulong)_resolution.Width * (ulong)_resolution.Height;
                 for (ulong count = 0; count < max; count++)
                 {
                     yield return reader.ReadUInt16();

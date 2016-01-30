@@ -219,6 +219,7 @@ namespace Fractals.Console
 
         private void RenderSpectrumPlot(Options options)
         {
+            throw new NotSupportedException("What the hell is spectrum plot");
             var arguments = DeserializeArguments<SpectrumRenderingArguments>(options.ConfigurationFilepath);
             var renderer = new SpectrumPlotRenderer(arguments.InputDirectory, arguments.InputFilename, arguments.Resolution.Width, arguments.Resolution.Height);
             renderer.Render(arguments.OutputDirectory, arguments.OutputFilenamePrefix, arguments.StartingColor, arguments.EndingColor, arguments.StepSize);
