@@ -210,7 +210,7 @@ namespace Fractals.Tests.Utility
                 Concat(new[] { Tuple.Create(gradient.Last().EndColor, 1d) })
                 );
 
-            using (var image = new FastBitmap(500, 50))
+            using (var image = new FastImage(500, 50))
             {
                 for (int x = 0; x < image.Width; x++)
                 {

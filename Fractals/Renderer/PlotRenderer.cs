@@ -125,7 +125,7 @@ namespace Fractals.Renderer
                             {
                                 var byteBuffer = byteBufferTask.Result;
 
-                                using (var imageTile = new FastBitmap(TileSize))
+                                using (var imageTile = new FastImage(TileSize))
                                 {
                                     for (int i = 0; i < byteBuffer.Length; i += 2)
                                     {
@@ -137,7 +137,7 @@ namespace Fractals.Renderer
                                     // HACK: Dump tile data
                                     //File.WriteAllBytes(Path.Combine(outputDirectory, tileId.Y.ToString(), tileId.X + ".data"), byteBuffer);
 
-                                    imageTile.Save(Path.Combine(outputDirectory, tileId.Y.ToString(), tileId.X + ".png"));
+                                    imageTile.Save(Path.Combine(outputDirectory, tileId.Y.ToString(), tileId.X + ".jpg"));
                                 }
 
                                 if (currentTileIndex % whenToCheck == 0)

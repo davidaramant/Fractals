@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace Fractals.Utility
 {
-    // HACK: This class sometimes produces corrupt PNGs when using PixelFormat.Format24bppRgb.  Is this a framework bug?
-    public sealed class FastBitmap : IDisposable
+    public sealed class FastImage : IDisposable
     {
-        const PixelFormat Format = PixelFormat.Format32bppArgb;
+        const PixelFormat Format = PixelFormat.Format24bppRgb;
         readonly int _pixelSizeInBytes = Image.GetPixelFormatSize(Format) / 8;
         readonly int _stride;
         readonly byte[] _pixelBuffer;
@@ -16,15 +16,15 @@ namespace Fractals.Utility
         public int Width { get; }
         public int Height { get; }
 
-        public FastBitmap(int tileSize) : this(tileSize, tileSize)
+        public FastImage(int tileSize) : this(tileSize, tileSize)
         {
         }
 
-        public FastBitmap(Size resolution) : this(resolution.Width, resolution.Height)
+        public FastImage(Size resolution) : this(resolution.Width, resolution.Height)
         {
         }
 
-        public FastBitmap(int width, int height)
+        public FastImage(int width, int height)
         {
             Width = width;
             Height = height;
@@ -59,7 +59,6 @@ namespace Fractals.Utility
             _pixelBuffer[index] = color.B;
             _pixelBuffer[index + 1] = color.G;
             _pixelBuffer[index + 2] = color.R;
-            _pixelBuffer[index + 3] = Byte.MaxValue;
         }
 
         public void Save(string filePath)
@@ -67,8 +66,8 @@ namespace Fractals.Utility
             using (var bmp = new Bitmap(Width, Height, Format))
             {
                 var bmpData = bmp.LockBits(
-                    new Rectangle(0, 0, Width, Height), 
-                    ImageLockMode.WriteOnly, 
+                    new Rectangle(0, 0, Width, Height),
+                    ImageLockMode.WriteOnly,
                     bmp.PixelFormat);
 
                 // Get the address of the first line.
@@ -78,9 +77,31 @@ namespace Fractals.Utility
                 Marshal.Copy(_pixelBuffer, 0, ptr, _pixelBuffer.Length);
 
                 // Unlock the bits.
-                bmp.UnlockBits(bmpData);
-                bmp.Save(filePath);
+                bmp.UnlockBits(bmpData);             
+
+                bmp.Save(filePath, JgpEncoder, QualitySetting);
             }
+        }
+
+        private static readonly ImageCodecInfo JgpEncoder = GetEncoder(ImageFormat.Jpeg);
+        private static readonly EncoderParameters QualitySetting = CreateQualityParameter();
+
+        private static ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            return ImageCodecInfo.GetImageDecoders().FirstOrDefault(codec => codec.FormatID == format.Guid);
+        }
+
+        private static EncoderParameters CreateQualityParameter()
+        {
+            // Create an EncoderParameters object.
+            // An EncoderParameters object has an array of EncoderParameter
+            // objects. In this case, there is only one
+            // EncoderParameter object in the array.
+            var encoderParams = new EncoderParameters(1);
+            var encoderParam = new EncoderParameter(Encoder.Quality, 97L);
+            encoderParams.Param[0] = encoderParam;
+
+            return encoderParams;
         }
 
         public void Dispose()

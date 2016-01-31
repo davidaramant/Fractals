@@ -123,7 +123,7 @@
     <Compile Include="Utility\MandelbrotFinder.cs" />
     <Compile Include="Utility\MandelbrotPointFinder.cs" />
     <Compile Include="Utility\HitPlotWriter.cs" />
-    <Compile Include="Utility\FastBitmap.cs" />
+    <Compile Include="Utility\FastImage.cs" />
     <Compile Include="Utility\ProgressEstimator.cs" />
     <Compile Include="Utility\TrajectoryPlotter.cs" />
     <Compile Include="Utility\PointFinder.cs" />

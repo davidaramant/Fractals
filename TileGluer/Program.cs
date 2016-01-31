@@ -27,7 +27,7 @@ namespace TileGluer
                 X = x;
             }
 
-            public string RelativePath => Path.Combine(ZoomLevel.ToString(), Y.ToString(), X + ".png");
+            public string RelativePath => Path.Combine(ZoomLevel.ToString(), Y.ToString(), X + ".jpg");
 
             public override string ToString() => $"Z: {ZoomLevel}, Y: {Y}, X: {X}";
         }
@@ -82,9 +82,9 @@ namespace TileGluer
                                                       startCol =>
                                                           Path.Combine(basePath, inputZoom.ToString(),
                                                               startRow.ToString(),
-                                                              startCol + ".png"))).ToArray();
+                                                              startCol + ".jpg"))).ToArray();
 
-                              var outputTile = Path.Combine(outputRowPath, outputCol + ".png");
+                              var outputTile = Path.Combine(outputRowPath, outputCol + ".jpg");
 
                               return GlueTiles(inputTiles, outputTile);
                           })).Wait();
@@ -141,7 +141,7 @@ namespace TileGluer
                         new TileCoordinate(
                             zoomLevel: Int32.Parse(parts[0]),
                             y: Int32.Parse(parts[1]),
-                            x: Int32.Parse(parts[2].Replace(".png", ""))
+                            x: Int32.Parse(parts[2].Replace(".jpg", ""))
                     )));
         }
 
@@ -164,7 +164,7 @@ namespace TileGluer
         private static Task GlueTiles(IEnumerable<string> fileNames, string outputTile)
         {
             var fileNamesArgument = String.Join(" ", fileNames.Select(fileName => $"\"{fileName}\""));
-            var arguments = $"{fileNamesArgument} -tile 2x2 -geometry 128x128+0+0 \"{outputTile}\"";
+            var arguments = $"{fileNamesArgument} -tile 2x2 -geometry 128x128+0+0 -quality 97% \"{outputTile}\"";
 
             // there is no non-generic TaskCompletionSource
             var tcs = new TaskCompletionSource<bool>();
