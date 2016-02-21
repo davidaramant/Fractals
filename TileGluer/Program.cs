@@ -164,7 +164,7 @@ namespace TileGluer
         private static Task GlueTiles(IEnumerable<string> fileNames, string outputTile)
         {
             var fileNamesArgument = String.Join(" ", fileNames.Select(fileName => $"\"{fileName}\""));
-            var arguments = $"{fileNamesArgument} -tile 2x2 -geometry 128x128+0+0 -quality 97% \"{outputTile}\"";
+            var arguments = $"{fileNamesArgument} -tile 2x2 -geometry 128x128+0+0 -quality {FastImage.JpgQuality}% \"{outputTile}\"";
 
             // there is no non-generic TaskCompletionSource
             var tcs = new TaskCompletionSource<bool>();

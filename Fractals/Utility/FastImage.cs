@@ -8,6 +8,8 @@ namespace Fractals.Utility
 {
     public sealed class FastImage : IDisposable
     {
+        public const int JpgQuality = 85;
+
         const PixelFormat Format = PixelFormat.Format24bppRgb;
         readonly int _pixelSizeInBytes = Image.GetPixelFormatSize(Format) / 8;
         readonly int _stride;
@@ -98,7 +100,7 @@ namespace Fractals.Utility
             // objects. In this case, there is only one
             // EncoderParameter object in the array.
             var encoderParams = new EncoderParameters(1);
-            var encoderParam = new EncoderParameter(Encoder.Quality, 97L);
+            var encoderParam = new EncoderParameter(Encoder.Quality, (long)JpgQuality);
             encoderParams.Param[0] = encoderParam;
 
             return encoderParams;
