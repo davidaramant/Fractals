@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fractals", "Fractals\Fractals.csproj", "{0FEA0CDA-B00C-4738-B4FA-91D2ED973C15}"
 EndProject
@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Argument Files", "Argument 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TileGluer", "TileGluer\TileGluer.csproj", "{733DCB78-85AA-4D3C-91E0-F01277A3DA98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{FD6A527E-E89E-4A7B-BB71-1F0645C8EDBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,6 +72,14 @@ Global
 		{733DCB78-85AA-4D3C-91E0-F01277A3DA98}.Release|Any CPU.Build.0 = Release|Any CPU
 		{733DCB78-85AA-4D3C-91E0-F01277A3DA98}.Release|x64.ActiveCfg = Release|x64
 		{733DCB78-85AA-4D3C-91E0-F01277A3DA98}.Release|x64.Build.0 = Release|x64
+		{FD6A527E-E89E-4A7B-BB71-1F0645C8EDBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD6A527E-E89E-4A7B-BB71-1F0645C8EDBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD6A527E-E89E-4A7B-BB71-1F0645C8EDBA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FD6A527E-E89E-4A7B-BB71-1F0645C8EDBA}.Debug|x64.Build.0 = Debug|Any CPU
+		{FD6A527E-E89E-4A7B-BB71-1F0645C8EDBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD6A527E-E89E-4A7B-BB71-1F0645C8EDBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD6A527E-E89E-4A7B-BB71-1F0645C8EDBA}.Release|x64.ActiveCfg = Release|Any CPU
+		{FD6A527E-E89E-4A7B-BB71-1F0645C8EDBA}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
