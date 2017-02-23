@@ -24,7 +24,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void ShouldRampUpBetweenTwoColors()
         {
             MakeStrip(new[]
@@ -36,7 +36,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void ShouldWrapHueAcrossMaximum()
         {
             MakeStrip(new[]
@@ -49,7 +49,7 @@ namespace Fractals.Tests.Utility
 
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void ShouldDoMultiPointRamp()
         {
             MakeStrip(new[]
@@ -65,7 +65,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void GiantGoldfishPalette()
         {
             MakeStrip(new[]
@@ -81,7 +81,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void EightiesNeonPalette()
         {
             MakeStrip(new[]
@@ -97,7 +97,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void NeonMonsterPalette()
         {
             MakeStrip(new[]
@@ -114,7 +114,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void EightiesNeonPartDeuxPalette()
         {
             MakeStrip(ColorGradients.EightiesNeonPartDeux,
@@ -122,7 +122,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void NeonPalette()
         {
             PrintGradientInfo(ColorGradients.Neon);
@@ -131,7 +131,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void RainbowPalette()
         {
             MakeStrip(ColorGradients.Rainbow,
@@ -139,7 +139,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void FirePalette()
         {
             PrintGradientInfo(ColorGradients.Fire);
@@ -148,7 +148,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void PastelPalette()
         {
             PrintGradientInfo(ColorGradients.Pastel);
@@ -157,7 +157,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void BluePalette()
         {
             PrintGradientInfo(ColorGradients.Blue);
@@ -166,7 +166,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void ManualRainbowPalette()
         {
             PrintGradientInfo(ColorGradients.ManualRainbow);
@@ -175,7 +175,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void ManualRainbow2Palette()
         {
             PrintGradientInfo(ColorGradients.ManualRainbow2);

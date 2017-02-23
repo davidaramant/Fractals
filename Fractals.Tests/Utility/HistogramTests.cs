@@ -34,7 +34,7 @@ namespace Fractals.Tests.Utility
         }
 
         [Test]
-        [Ignore]
+        [Ignore("Manual")]
         public void ShouldPutThingsInCorrectBin()
         {
             var h = new Histogram();
