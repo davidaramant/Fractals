@@ -13,6 +13,10 @@ namespace Benchmarks
         {
 //            var summary = BenchmarkRunner.Run<ClassVsStructVsRawBenchmark>();
             var summary = BenchmarkRunner.Run<BitmapVsFastImage>();
+            // TODO: SIMD vs Scalar
+            // TODO: Brett's algorithm
+            // TODO: GPU
+            
         }
     }
 }
