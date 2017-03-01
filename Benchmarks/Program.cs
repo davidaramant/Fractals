@@ -11,7 +11,8 @@ namespace Benchmarks
     {
         static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<ClassVsStructVsRawBenchmark>();
+//            var summary = BenchmarkRunner.Run<ClassVsStructVsRawBenchmark>();
+            var summary = BenchmarkRunner.Run<BitmapVsFastImage>();
         }
     }
 }
