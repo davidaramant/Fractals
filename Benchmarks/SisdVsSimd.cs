@@ -58,7 +58,7 @@ namespace Benchmarks
         }
 
         [Benchmark]
-        public object Simd()
+        public object Simdt()
         {
             var cReal = new Vector<float>(Inputs.Select(c => (float)c.Real).ToArray());
             var cImag = new Vector<float>(Inputs.Select(c => (float)c.Imaginary).ToArray());
@@ -89,44 +89,19 @@ namespace Benchmarks
             do
             {
                 var realtemp = zReal2 - zImag2 + cReal;
-                zImag = 2 * zReal * zImag + cImag;
+                // Doing the two multiplications with an addition is somehow faster than 2 * zReal * zImag!
+                // I don't get it either
+                zImag = zReal * zImag + zReal * zImag + cImag;
                 zReal = realtemp;
 
                 zReal2 = zReal * zReal;
-                zImag2 = zImag * zImag2;
+                zImag2 = zImag * zImag;
 
                 iterations += increment;
                 var shouldContinue =
                     Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4)) &
                     Vector.LessThanOrEqual(iterations, new Vector<int>(Bailout));
                 increment = increment & shouldContinue;
-            } while (increment != Vector<int>.Zero);
-
-            return iterations;
-        }
-
-        public Vector<int> IsInSetVectorFloat(Vector<float> cReal, Vector<float> cImag)
-        {
-            var radiusSquared = new Vector<float>(4);
-            var bailout = new Vector<int>(Bailout);
-
-            var zReal = new Vector<float>(0);
-            var zImag = new Vector<float>(0);
-
-            var iterations = Vector<int>.Zero;
-            var increment = Vector<int>.One;
-            do
-            {
-                var naccumx = zReal * zReal - zImag * zImag;
-                var naccumy = zReal * zImag + zReal * zImag;
-                zReal = naccumx + cReal;
-                zImag = naccumy + cImag;
-                iterations += increment;
-                var magnitudeSquared = zReal * zReal + zImag * zImag;
-                var vCond =
-                    Vector.LessThanOrEqual(magnitudeSquared, radiusSquared) &
-                    Vector.LessThanOrEqual(iterations, bailout);
-                increment = increment & vCond;
             } while (increment != Vector<int>.Zero);
 
             return iterations;
