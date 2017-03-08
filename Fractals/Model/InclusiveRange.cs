@@ -7,10 +7,7 @@ namespace Fractals.Model
         public readonly double Minimum;
         public readonly double Maximum;
 
-        public double Magnitude
-        {
-            get { return Math.Abs(Maximum - Minimum); }
-        }
+        public double Magnitude => Math.Abs(Maximum - Minimum);
 
         public InclusiveRange(double minimum, double maximum)
         {
@@ -23,6 +20,11 @@ namespace Fractals.Model
             return
                 value >= Minimum &&
                 value <= Maximum;
+        }
+
+        public override string ToString()
+        {
+            return $"{Minimum} - {Maximum}";
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using BenchmarkDotNet.Running;
+using Fractals.Utility;
 
 namespace Benchmarks
 {

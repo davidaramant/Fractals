@@ -6,15 +6,17 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes.Exporters;
 using Fractals.Utility;
 
 namespace Benchmarks
 {
+    [HtmlExporter]
     public class BitmapVsFastImage
     {
         private static readonly Size Resolution = new Size(256, 256);
 
-        private string _path = Path.GetTempFileName();
+        private readonly string _path = Path.GetTempFileName();
 
         public const int JpgQuality = 85;
         private static readonly ImageCodecInfo JgpEncoder = GetEncoder(ImageFormat.Jpeg);

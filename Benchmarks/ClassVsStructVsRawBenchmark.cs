@@ -5,9 +5,11 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes.Exporters;
 
 namespace Benchmarks
 {
+    [HtmlExporter]
     public class ClassVsStructVsRawBenchmark
     {
         const int Bailout = 5 * 1000 * 1000;

@@ -43,6 +43,7 @@ namespace Fractals.Model
                 imaginary: ImagRange.Magnitude * (1 - ((double)point.Y / resolution.Height)) + ImagRange.Minimum);
         }
 
+        // TODO: Kill
         public Complex GetRandomPoint(CryptoRandom random)
         {
             return new Complex(
@@ -70,6 +71,11 @@ namespace Fractals.Model
             yield return new Complex(RealRange.Maximum, ImagRange.Minimum);
             yield return new Complex(RealRange.Minimum, ImagRange.Maximum);
             yield return new Complex(RealRange.Maximum, ImagRange.Maximum);
+        }
+
+        public override string ToString()
+        {
+            return $"Real: {RealRange}, Imag: {ImagRange}";
         }
     }
 }
