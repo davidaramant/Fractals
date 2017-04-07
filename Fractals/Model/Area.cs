@@ -39,7 +39,7 @@ namespace Fractals.Model
         {
             return new Complex(
                 real: RealRange.Magnitude * ((double)point.X / resolution.Width) + RealRange.Minimum,
-                imaginary: ImagRange.Magnitude * ((double)point.Y / resolution.Height) + ImagRange.Minimum);
+                imaginary: ImagRange.Magnitude * (1 - ((double)point.Y / resolution.Height)) + ImagRange.Minimum);
         }
 
         public Complex GetRandomPoint(CryptoRandom random)

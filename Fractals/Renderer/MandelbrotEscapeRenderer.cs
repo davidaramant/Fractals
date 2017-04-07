@@ -1,4 +1,5 @@
-﻿using Fractals.Model;
+﻿using System;
+using Fractals.Model;
 using Fractals.Utility;
 using log4net;
 using System.Drawing;
@@ -41,13 +42,22 @@ namespace Fractals.Renderer
 
         private static Color PickColor(int escapeTime)
         {
-            return escapeTime % 2 == 0 ? Color.Black : Color.White;
+            if (escapeTime == -2)
+                return Color.Transparent;
+
+            if (escapeTime == -1)
+                return Color.White;
+
+            return escapeTime % 2 == 0 ? Color.White : Color.Black;
         }
 
         private const int Bailout = 3000;
 
         public static int IsInSet(Complex c)
         {
+            if (c.Magnitude * c.Magnitude > 4)
+                return -2;
+
             if (MandelbrotFinder.IsInSet(c))
             {
                 return -1;

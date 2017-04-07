@@ -105,7 +105,7 @@ namespace Fractals.Console
             where T : IGenerator, new()
         {
             var arguments = DeserializeArguments<ExampleImageRendererArguments>(options.ConfigurationFilepath);
-            var viewPort = AreaFactory.SearchArea;
+            var viewPort = AreaFactory.MandelbrotRadiusArea;
 
             var renderer = Activator.CreateInstance<T>();
 
@@ -113,7 +113,7 @@ namespace Fractals.Console
 
             using (var image = ImageUtility.ColorMatrixToBitmap(output))
             {
-                image.Save(Path.Combine(arguments.OutputDirectory, String.Format("{0}.png", arguments.OutputFilename)));
+                image.Save(Path.Combine(arguments.OutputDirectory, $"{arguments.OutputFilename}.png"));
             }
         }
 

@@ -51,6 +51,9 @@ namespace Fractals.Renderer
 
         private static Color PickColor(int escapeTime)
         {
+            if (escapeTime == -2)
+                return Color.Transparent;
+
             if (escapeTime == -1)
             {
                 return Color.Black;
@@ -69,6 +72,9 @@ namespace Fractals.Renderer
 
         public static int FindEscapeTime(Complex c)
         {
+            if (c.Magnitude * c.Magnitude > 4)
+                return -2;
+
             if (MandelbrotFinder.IsInSet(c))
             {
                 return -1;

@@ -13,7 +13,7 @@ namespace Fractals.Renderer
     public class MandelbrotRenderer : IGenerator
     {
         private static ILog _log;
-        
+
         const double GridSize = 0.5;
 
         protected virtual bool ShouldIncludeGrid
@@ -36,7 +36,7 @@ namespace Fractals.Renderer
             var checkForEdges = areasToInclude.Length > 1;
 
             var output = new Color[resolution.Width, resolution.Height];
-            
+
             _log.Debug("Rendering points");
 
             var processedPixels = resolution
@@ -66,11 +66,35 @@ namespace Fractals.Renderer
         private Tuple<Point, Color> PickColorForPoint(Point point, Area viewPort, Size resolution, bool checkForEdges, IEnumerable<Area> areasToInclude)
         {
             var number = viewPort.GetNumberFromPoint(resolution, point);
+
+            var startPoint = new Complex(-1, 0.25);
+
+            var points = new[]
+            {
+                new Complex(-1,0.25),
+                new Complex(-0.7,0.4), 
+                new Complex(0.1,0.5),
+                new Complex(0.9,0.55),
+                new Complex(1.3,0.6),
+                new Complex(1.9,0.625),
+            };
+
+
+
             var color = PickColor(
-                () => checkForEdges && areasToInclude.Any(a => a.IsInside(number)),
-                () => MandelbrotFinder.IsInSet(number),
-                () => MandelbulbChecker.IsInsideBulbs(number));
+                isCloseToPoint: () => points.Any(p => IsCloseTo(number, p)),
+                isInCircle: () => (number.Magnitude * number.Magnitude) < 4,
+                isInEdgeRegion: () => false,//checkForEdges && areasToInclude.Any(a => a.IsInside(number)),
+                isInSet: () => false, //MandelbrotFinder.IsInSet(number, new BailoutRange(15)),
+                isInBulbs: () => false// MandelbulbChecker.IsInsideBulbs(number)
+            );
             return Tuple.Create(point, color);
+        }
+
+        private static bool IsCloseTo(Complex p1, Complex p2)
+        {
+            var diffMagnitude = (p1 - p2).Magnitude;
+            return diffMagnitude * diffMagnitude < 0.001;
         }
 
         protected virtual IEnumerable<Area> GetAreasToInclude(Size resolution, Area viewPort)
@@ -78,8 +102,18 @@ namespace Fractals.Renderer
             yield return viewPort;
         }
 
-        protected virtual Color PickColor(Func<bool> isInEdgeRegion , Func<bool> isInSet, Func<bool> isInBulbs)
+        protected virtual Color PickColor(
+            Func<bool> isCloseToPoint,
+            Func<bool> isInCircle,
+            Func<bool> isInEdgeRegion,
+            Func<bool> isInSet,
+            Func<bool> isInBulbs)
         {
+            if (isCloseToPoint())
+            {
+                return Color.White;
+            }
+
             if (isInBulbs())
             {
                 return Color.Gray;
@@ -95,7 +129,12 @@ namespace Fractals.Renderer
                 return Color.IndianRed;
             }
 
-            return Color.Black;
+            if (isInCircle())
+            {
+                return Color.Gray;
+            }
+
+            return Color.Transparent;
         }
 
         private static void RenderAxis(Size resolution, Area viewPoint, Color[,] output)
