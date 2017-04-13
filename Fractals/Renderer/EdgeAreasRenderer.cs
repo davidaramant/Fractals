@@ -21,13 +21,18 @@ namespace Fractals.Renderer
 
         public Color[,] Render(Size resolution, Area viewPort)
         {
-            _log.InfoFormat("Starting to render ({0:N0}x{1:N0})", resolution.Width, resolution.Height);
+
 
             viewPort.LogViewport();
 
             // HACK: This file name should be passed in
-            var areasToInclude = new AreaListReader(@"C:\Users\aramant\Desktop\Test Plot", "NewEdge.edge").GetAreas().ToArray();
+            var areasToInclude = new AreaListReader(@"C:\Users\aramant\Desktop\Buddhabrot\Test Plot", "NewEdge.edge").GetAreas().ToArray();
             _log.Info($"Using {areasToInclude.Length} areas");
+
+            var pixelsNeeded = (int)(viewPort.RealRange.Magnitude / areasToInclude.First().RealRange.Magnitude);
+
+            resolution = new Size(pixelsNeeded, pixelsNeeded);
+            _log.InfoFormat("Starting to render ({0:N0}x{1:N0})", resolution.Width, resolution.Height);
 
             var output = new Color[resolution.Width, resolution.Height];
 
@@ -38,10 +43,10 @@ namespace Fractals.Renderer
                 foreach (var number in area.GetCorners())
                 {
                     var pixel = viewPort.GetPointFromNumber(resolution, number);
-                    output[pixel.X, pixel.Y] = Color.IndianRed;
+                    output[pixel.X, pixel.Y] = Color.Black;
                 }
             }
-           
+
             return output;
         }
 

@@ -14,13 +14,31 @@ namespace Fractals.Tests.Utility
         private static readonly string Outdir =
             Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                "Test Plot",
+                //"Test Plot",
                 "Color Ramps");
 
         [SetUp]
         public void CreateOutputDirectory()
         {
             Directory.CreateDirectory(Outdir);
+        }
+
+        [Test]
+        //[Ignore("Manual")]
+        public void RgbVsHsvGradient()
+        {
+            var start = Color.DodgerBlue;
+            var end = Color.YellowGreen;
+
+            MakeRgbStrip(start, end, "rgbramp.png");
+
+            MakeStrip(
+                new[]
+                {
+                    Tuple.Create(start.ToHsv(),0.0),
+                    Tuple.Create(end.ToHsv(),1.0)
+                },
+                "hsvramp.png");
         }
 
         [Test]
@@ -185,15 +203,13 @@ namespace Fractals.Tests.Utility
 
         private static void PrintGradientInfo(ColorGradient gradient)
         {
-            Func<HsvColor, double, string> getInfo =
-                (hsvColor, value) =>
-                    $"{value:000%} : {hsvColor} : Luminance: {hsvColor.ToColor().GetLuminance()}";
+            string GetInfo(HsvColor hsvColor, double value) => $"{value:000%} : {hsvColor} : Luminance: {hsvColor.ToColor().GetLuminance()}";
 
             foreach (var colorRange in gradient)
             {
-                Console.WriteLine(getInfo(colorRange.StartColor, colorRange.Start));
+                Console.WriteLine(GetInfo(colorRange.StartColor, colorRange.Start));
             }
-            Console.WriteLine(getInfo(gradient.Last().EndColor, gradient.Last().End));
+            Console.WriteLine(GetInfo(gradient.Last().EndColor, gradient.Last().End));
         }
 
         private void MakeStrip(IEnumerable<Tuple<HsvColor, double>> colorPoints, string fileName)
@@ -201,6 +217,42 @@ namespace Fractals.Tests.Utility
             var ramp = new ColorGradient(colorPoints);
 
             MakeStrip(ramp, fileName);
+        }
+
+        private void MakeRgbStrip(Color start, Color end, string fileName)
+        {
+            using (var image = new FastImage(500, 50))
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var color = Lerp(start, end, (double)x / image.Width);
+
+                    for (int y = 0; y < image.Height; y++)
+                    {
+                        image.SetPixel(x, y, color);
+                    }
+                }
+
+                image.Save(Path.Combine(Outdir, fileName));
+            }
+        }
+
+        private static Color Lerp(Color start, Color end, double ratio)
+        {
+            return Color.FromArgb(
+                red: Interpolate(start.R, end.R, ratio),
+                green: Interpolate(start.G, end.G, ratio),
+                blue: Interpolate(start.B, end.B, ratio));
+        }
+
+        private static int Interpolate(byte start, byte end, double ratio)
+        {
+            return (int)(255.0 * Interpolate(start / 255.0, end / 255.0, ratio));
+        }
+
+        private static double Interpolate(double v0, double v1, double ratio)
+        {
+            return v0 + ratio * (v1 - v0);
         }
 
         private void MakeStrip(ColorGradient gradient, string fileName)

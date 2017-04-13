@@ -82,11 +82,11 @@ namespace Fractals.Renderer
 
 
             var color = PickColor(
-                isCloseToPoint: () => points.Any(p => IsCloseTo(number, p)),
+                isCloseToPoint: () => false, //points.Any(p => IsCloseTo(number, p)),
                 isInCircle: () => (number.Magnitude * number.Magnitude) < 4,
-                isInEdgeRegion: () => false,//checkForEdges && areasToInclude.Any(a => a.IsInside(number)),
-                isInSet: () => false, //MandelbrotFinder.IsInSet(number, new BailoutRange(15)),
-                isInBulbs: () => false// MandelbulbChecker.IsInsideBulbs(number)
+                isInEdgeRegion: () => checkForEdges && areasToInclude.Any(a => a.IsInside(number)),
+                isInSet: () => MandelbrotFinder.IsInSet(number),
+                isInBulbs: () => MandelbulbChecker.IsInsideBulbs(number)
             );
             return Tuple.Create(point, color);
         }
@@ -99,7 +99,12 @@ namespace Fractals.Renderer
 
         protected virtual IEnumerable<Area> GetAreasToInclude(Size resolution, Area viewPort)
         {
-            yield return viewPort;
+            // HACK: hardcoded file path
+            var reader = new AreaListReader(@"C:\Users\aramant\Desktop\Buddhabrot\Test Plot", "Edge.edge");
+
+
+            return reader.GetAreas().ToArray();
+            //yield return viewPort;
         }
 
         protected virtual Color PickColor(
@@ -116,7 +121,7 @@ namespace Fractals.Renderer
 
             if (isInBulbs())
             {
-                return Color.Gray;
+                return Color.Black;
             }
 
             if (isInSet())
@@ -126,7 +131,7 @@ namespace Fractals.Renderer
 
             if (isInEdgeRegion())
             {
-                return Color.IndianRed;
+                return Color.DarkRed;
             }
 
             if (isInCircle())
