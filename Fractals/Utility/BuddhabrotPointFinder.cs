@@ -8,7 +8,7 @@ namespace Fractals.Utility
 {
     public class BuddhabrotPointFinder : PointFinder
     {
-        public BuddhabrotPointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
+        public BuddhabrotPointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, IRandomPointGenerator pointGenerator)
             : base(minimum, maximum, outputDirectory, outputFile, pointGenerator)
         {
         }

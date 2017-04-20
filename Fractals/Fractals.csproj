@@ -89,8 +89,9 @@
     <Compile Include="Model\InclusiveRange.cs" />
     <Compile Include="Model\MandelbulbChecker.cs" />
     <Compile Include="Model\Area.cs" />
-    <Compile Include="PointGenerator\BulbsOnlyPointGenerator.cs" />
-    <Compile Include="PointGenerator\EdgeAreasAndBulbsPointGenerator.cs" />
+    <Compile Include="PointGenerator\RandomPointGenerator.cs" />
+    <Compile Include="PointGenerator\IRandomPointGenerator.cs" />
+    <Compile Include="Utility\RandomExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderer\PointRenderer.cs" />
     <Compile Include="Renderer\NebulaPointRenderer.cs" />
@@ -109,7 +110,6 @@
     <Compile Include="Utility\ColorGradients.cs" />
     <Compile Include="Utility\ComplexNumberListWriter.cs" />
     <Compile Include="Utility\ComplexNumberListReader.cs" />
-    <Compile Include="PointGenerator\BulbsExcludedPointGenerator.cs" />
     <Compile Include="Utility\AreaListReader.cs" />
     <Compile Include="Utility\AreaListWriter.cs" />
     <Compile Include="Utility\EdgeLocator.cs" />
@@ -121,7 +121,6 @@
     <Compile Include="Utility\ImageUtility.cs" />
     <Compile Include="Utility\CryptoRandom.cs" />
     <Compile Include="Renderer\EdgeAreasRenderer.cs" />
-    <Compile Include="PointGenerator\EdgeAreasWithBulbsExcludedPointGenerator.cs" />
     <Compile Include="Utility\MandelbrotFinder.cs" />
     <Compile Include="Utility\MandelbrotPointFinder.cs" />
     <Compile Include="Utility\HitPlotWriter.cs" />
@@ -129,7 +128,6 @@
     <Compile Include="Utility\ProgressEstimator.cs" />
     <Compile Include="Utility\TrajectoryPlotter.cs" />
     <Compile Include="Utility\PointFinder.cs" />
-    <Compile Include="PointGenerator\RandomPointGenerator.cs" />
     <Compile Include="Utility\SystemDrawingExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

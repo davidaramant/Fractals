@@ -1,41 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Fractals.Model;
-using Fractals.Utility;
 
 namespace Fractals.PointGenerator
 {
-    public class RandomPointGenerator
+    public sealed class RandomPointGenerator : IRandomPointGenerator
     {
-        public IEnumerable<Complex> GetRandomComplexNumbers(Area viewPort)
+        private readonly Random _random;
+        private readonly Area[] _edgeAreas;
+
+        public RandomPointGenerator(Area viewPort, int? seed = null) : 
+            this(new[] { viewPort }, seed)
         {
-            var rand = new CryptoRandom();
+        }
+
+        public RandomPointGenerator(IEnumerable<Area> edgeAreas, int? seed = null)
+        {
+            _random = seed.HasValue ? new Random(seed.Value) : new Random();
+            _edgeAreas = edgeAreas.ToArray();
+        }
+
+        public IEnumerable<Complex> GetNumbers()
+        {
             while (true)
             {
-                yield return GetPossiblePoint(rand, SelectArea(viewPort));
+                var edgeIndex = _random.Next(_edgeAreas.Length);
+                yield return _edgeAreas[edgeIndex].GetRandomPoint(_random);
             }
-        }
-
-        public virtual Area SelectArea(Area viewPoint)
-        {
-            return viewPoint;
-        }
-
-        protected Complex GetPossiblePoint(CryptoRandom random, Area viewPort)
-        {
-            Complex point;
-            do
-            {
-                var area = SelectArea(viewPort);
-                point = area.GetRandomPoint(random);
-            } while (!ValidatePoint(point));
-
-            return point;
-        }
-
-        protected virtual bool ValidatePoint(Complex point)
-        {
-            return true;
         }
     }
 }

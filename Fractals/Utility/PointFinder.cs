@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Fractals.Arguments;
@@ -11,15 +12,15 @@ namespace Fractals.Utility
     public abstract class PointFinder
     {
         private static volatile bool _shouldStop = false;
-        private readonly static object ShouldStopLock = new object();
+        private static readonly object ShouldStopLock = new object();
 
         private readonly uint _minimum;
         private readonly uint _maximum;
         private readonly string _outputDirectory;
         private readonly string _outputFile;
 
-        private readonly RandomPointGenerator _pointGenerator;
-        
+        private readonly IRandomPointGenerator _pointGenerator;
+
         private static ILog _log;
 
         private static bool ShouldStop
@@ -40,7 +41,7 @@ namespace Fractals.Utility
             }
         }
 
-        protected PointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
+        protected PointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, IRandomPointGenerator pointGenerator)
         {
             _minimum = minimum;
             _maximum = maximum;
@@ -48,7 +49,7 @@ namespace Fractals.Utility
             _outputFile = outputFile;
 
             _pointGenerator = pointGenerator;
-            
+
             _log = LogManager.GetLogger(GetType());
         }
 
@@ -63,16 +64,12 @@ namespace Fractals.Utility
                 minimum: _minimum,
                 maximum: _maximum);
 
-            var viewPort = AreaFactory.SearchArea;
-
-            viewPort.LogViewport();
-
             var list = new ComplexNumberListWriter(_outputDirectory, _outputFile);
 
             int num = 0;
 
             Parallel.ForEach(
-                _pointGenerator.GetRandomComplexNumbers(viewPort), 
+                _pointGenerator.GetNumbers().Where(c => !MandelbulbChecker.IsInsideBulbs(c)),
                 new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism },
                 (number, state) =>
                 {

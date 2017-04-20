@@ -6,7 +6,7 @@ namespace Fractals.Utility
 {
     public class MandelbrotPointFinder : PointFinder
     {
-        public MandelbrotPointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, RandomPointGenerator pointGenerator)
+        public MandelbrotPointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, IRandomPointGenerator pointGenerator)
             : base(minimum, maximum, outputDirectory, outputFile, pointGenerator)
         {
         }

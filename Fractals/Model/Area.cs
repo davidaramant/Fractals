@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using Fractals.Utility;
@@ -43,6 +44,13 @@ namespace Fractals.Model
         }
 
         public Complex GetRandomPoint(CryptoRandom random)
+        {
+            return new Complex(
+                real: random.Next(RealRange),
+                imaginary: random.Next(ImagRange));
+        }
+
+        public Complex GetRandomPoint(Random random)
         {
             return new Complex(
                 real: random.Next(RealRange),

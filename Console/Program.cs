@@ -121,27 +121,11 @@ namespace Fractals.Console
         {
             var arguments = DeserializeArguments<PointFinderArguments>(options.ConfigurationFilepath);
 
-            RandomPointGenerator generator;
-            switch (arguments.SelectionStrategy)
-            {
-                case PointSelectionStrategy.Random:
-                    generator = new RandomPointGenerator();
-                    break;
-                case PointSelectionStrategy.BulbsExcluded:
-                    generator = new BulbsExcludedPointGenerator();
-                    break;
-                case PointSelectionStrategy.EdgesWithBulbsExcluded:
-                    generator = new EdgeAreasWithBulbsExcludedPointGenerator(arguments.InputDirectory, arguments.InputEdgeFilename);
-                    break;
-                case PointSelectionStrategy.BulbsOnly:
-                    generator = new BulbsOnlyPointGenerator();
-                    break;
-                case PointSelectionStrategy.EdgesAndBulbsOnly:
-                    generator = new EdgeAreasAndBulbsPointGenerator(arguments.InputDirectory, arguments.InputEdgeFilename);
-                    break;
-                default:
-                    throw new ArgumentException();
-            }
+            var edgeReader = new AreaListReader(arguments.InputDirectory, arguments.InputEdgeFilename);
+            var generator = new RandomPointGenerator(edgeReader.GetAreas());
+
+            // TODO: The point generator should be different for the Mandelbrot Point Finder
+            // Is that thing only used for the Anti-Buddhabrot?
 
             PointFinder finder;
             switch (arguments.SelectionStrategy)
