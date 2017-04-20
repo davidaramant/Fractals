@@ -13,9 +13,9 @@ namespace Fractals.Arguments
 
         public string InputEdgeFilename { get; set; }
 
-        public uint MinimumThreshold { get; set; }
+        public int MinimumThreshold { get; set; }
 
-        public uint MaximumThreshold { get; set; }
+        public int MaximumThreshold { get; set; }
 
         public PointSelectionStrategy SelectionStrategy { get; set; }
     }

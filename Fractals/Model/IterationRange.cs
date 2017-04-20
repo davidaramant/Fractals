@@ -1,16 +1,16 @@
 ﻿namespace Fractals.Model
 {
-    public sealed class BailoutRange
+    public sealed class IterationRange
     {
-        public readonly uint Minimum;
-        public readonly uint Maximum;
+        public readonly int Minimum;
+        public readonly int Maximum;
 
-        public BailoutRange(uint maximum)
+        public IterationRange(int maximum)
         {
             Maximum = maximum;
         }
 
-        public BailoutRange(uint minimum, uint maximum)
+        public IterationRange(int minimum, int maximum)
         {
             Minimum = minimum;
             Maximum = maximum;

@@ -8,7 +8,7 @@ namespace Fractals.PointGenerator
 {
     public sealed class RandomPointGenerator : IRandomPointGenerator
     {
-        private readonly Random _random;
+        private Random _random;
         private readonly Area[] _edgeAreas;
 
         public RandomPointGenerator(Area viewPort, int? seed = null) : 
@@ -18,8 +18,13 @@ namespace Fractals.PointGenerator
 
         public RandomPointGenerator(IEnumerable<Area> edgeAreas, int? seed = null)
         {
-            _random = seed.HasValue ? new Random(seed.Value) : new Random();
             _edgeAreas = edgeAreas.ToArray();
+            ResetRandom(seed);
+        }
+
+        public void ResetRandom(int? seed = null)
+        {
+            _random = seed.HasValue ? new Random(seed.Value) : new Random();
         }
 
         public IEnumerable<Complex> GetNumbers()

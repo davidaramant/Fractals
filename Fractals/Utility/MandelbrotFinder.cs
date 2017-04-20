@@ -13,7 +13,7 @@ namespace Fractals.Utility
 {
     public class MandelbrotFinder
     {
-        private static readonly BailoutRange Bailout = new BailoutRange(10 * 1000);
+        private static readonly IterationRange IterationRange = new IterationRange(10 * 1000);
 
         private static ILog _log;
 
@@ -47,10 +47,10 @@ namespace Fractals.Utility
 
         public static bool IsInSet(Complex c)
         {
-            return IsInSet(c, Bailout);
+            return IsInSet(c, IterationRange);
         }
 
-        public static bool IsInSet(Complex c, BailoutRange bailout)
+        public static bool IsInSet(Complex c, IterationRange iterationRange)
         {
             if (MandelbulbChecker.IsInsideBulbs(c))
             {
@@ -73,7 +73,7 @@ namespace Fractals.Utility
             double re2 = 0;
             double im2 = 0;
 
-            for (uint i = 0; i < bailout.Maximum; i++)
+            for (uint i = 0; i < iterationRange.Maximum; i++)
             {
                 var reTemp = re2 - im2 + c.Real;
                 im = 2 * re * im + c.Imaginary;

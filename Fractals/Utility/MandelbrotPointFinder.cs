@@ -6,12 +6,12 @@ namespace Fractals.Utility
 {
     public class MandelbrotPointFinder : PointFinder
     {
-        public MandelbrotPointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, IRandomPointGenerator pointGenerator)
+        public MandelbrotPointFinder(int minimum, int maximum, string outputDirectory, string outputFile, IRandomPointGenerator pointGenerator)
             : base(minimum, maximum, outputDirectory, outputFile, pointGenerator)
         {
         }
 
-        protected override bool ValidatePoint(Complex c, BailoutRange bailoutRange)
+        protected override bool ValidatePoint(Complex c, IterationRange iterationRange)
         {
             return MandelbrotFinder.IsInSet(c);
         }

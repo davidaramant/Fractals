@@ -12,23 +12,22 @@ namespace Benchmarks
 {
     public class ScalarVsVectorPointFinder
     {
-        public BailoutRange Range { get; set; } = new BailoutRange(1_000_000, 5_000_000);
-        public int PointsToCheck { get; set; } = Vector<float>.Count * 10;
+        public IterationRange Range { get; set; } = new IterationRange(1_000_000, 5_000_000);
+        public int PointsToCheck { get; set; } = Vector<float>.Count * 5;
 
-        private static readonly Lazy<Area[]> GetEdges = new Lazy<Area[]>(() =>
+        private static IEnumerable<Area> GetEdges()
         {
             var edgeReader = new AreaListReader(directory: @"C:\Users\aramant\Desktop\Buddhabrot\Test Plot", filename: @"NewEdge.edge");
-            return edgeReader.GetAreas().ToArray();
-        });
+            return edgeReader.GetAreas();
+        }
 
-        private IRandomPointGenerator _pointGenerator;
-        
+        private readonly RandomPointGenerator _pointGenerator = new RandomPointGenerator(GetEdges(), seed: 0);
+
 
         [Setup]
         public void InitializePointGenerator()
         {
-            //_pointGenerator = new RandomPointGenerator(GetEdges.Value, seed: 0);
-            _pointGenerator = new RandomPointGenerator(AreaFactory.SearchArea, seed: 0);
+            _pointGenerator.ResetRandom(seed: 0);
         }
 
         [Benchmark(Baseline = true)]
@@ -41,7 +40,7 @@ namespace Benchmarks
                 .Count(c => IsBuddhabrotPointScalar((float)c.Real, (float)c.Imaginary, Range));
         }
 
-        public bool IsBuddhabrotPointScalar(float cReal, float cImag, BailoutRange range)
+        public bool IsBuddhabrotPointScalar(float cReal, float cImag, IterationRange range)
         {
             float zReal = 0;
             float zImag = 0;
@@ -75,6 +74,7 @@ namespace Benchmarks
         {
             var realBatch = new float[Vector<float>.Count];
             var imagBatch = new float[Vector<float>.Count];
+            var result = new int[Vector<int>.Count];
 
             var points =
                 _pointGenerator.GetNumbers().
@@ -99,15 +99,16 @@ namespace Benchmarks
                     var cImag = new Vector<float>(imagBatch);
 
                     var finalIterations = IsBuddhabrotPointVector(cReal, cImag, Range);
+                    finalIterations.CopyTo(result);
 
-                    buddhabrotPointsFound += finalIterations.Count(i => Range.IsInside((uint)i));
+                    buddhabrotPointsFound += result.Count(i => Range.IsInside((uint)i));
                 }
             }
 
             return buddhabrotPointsFound;
         }
 
-        public Vector<int> IsBuddhabrotPointVector(Vector<float> cReal, Vector<float> cImag, BailoutRange range)
+        public Vector<int> IsBuddhabrotPointVector(Vector<float> cReal, Vector<float> cImag, IterationRange range)
         {
             var zReal = new Vector<float>(0);
             var zImag = new Vector<float>(0);
@@ -133,7 +134,7 @@ namespace Benchmarks
 
                 var shouldContinue =
                     Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4)) &
-                    Vector.LessThan(iterations, new Vector<int>((int)range.Maximum));
+                    Vector.LessThan(iterations, new Vector<int>(range.Maximum));
 
                 increment = increment & shouldContinue;
                 iterations += increment;

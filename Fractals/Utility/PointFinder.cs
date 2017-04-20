@@ -14,8 +14,8 @@ namespace Fractals.Utility
         private static volatile bool _shouldStop = false;
         private static readonly object ShouldStopLock = new object();
 
-        private readonly uint _minimum;
-        private readonly uint _maximum;
+        private readonly int _minimum;
+        private readonly int _maximum;
         private readonly string _outputDirectory;
         private readonly string _outputFile;
 
@@ -41,7 +41,7 @@ namespace Fractals.Utility
             }
         }
 
-        protected PointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, IRandomPointGenerator pointGenerator)
+        protected PointFinder(int minimum, int maximum, string outputDirectory, string outputFile, IRandomPointGenerator pointGenerator)
         {
             _minimum = minimum;
             _maximum = maximum;
@@ -60,7 +60,7 @@ namespace Fractals.Utility
             _log.DebugFormat("Minimum Threshold: {0:N0}", _minimum);
             _log.DebugFormat("Maximum Threshold: {0:N0}", _maximum);
 
-            var bailout = new BailoutRange(
+            var iterationRange = new IterationRange(
                 minimum: _minimum,
                 maximum: _maximum);
 
@@ -73,7 +73,7 @@ namespace Fractals.Utility
                 new ParallelOptions { MaxDegreeOfParallelism = GlobalArguments.DegreesOfParallelism },
                 (number, state) =>
                 {
-                    if (ValidatePoint(number, bailout))
+                    if (ValidatePoint(number, iterationRange))
                     {
                         Interlocked.Increment(ref num);
                         list.SaveNumber(number);
@@ -100,6 +100,6 @@ namespace Fractals.Utility
             ShouldStop = true;
         }
 
-        protected abstract bool ValidatePoint(Complex c, BailoutRange bailoutRange);
+        protected abstract bool ValidatePoint(Complex c, IterationRange iterationRange);
     }
 }

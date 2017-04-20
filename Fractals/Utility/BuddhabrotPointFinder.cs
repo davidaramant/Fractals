@@ -8,18 +8,18 @@ namespace Fractals.Utility
 {
     public class BuddhabrotPointFinder : PointFinder
     {
-        public BuddhabrotPointFinder(uint minimum, uint maximum, string outputDirectory, string outputFile, IRandomPointGenerator pointGenerator)
+        public BuddhabrotPointFinder(int minimum, int maximum, string outputDirectory, string outputFile, IRandomPointGenerator pointGenerator)
             : base(minimum, maximum, outputDirectory, outputFile, pointGenerator)
         {
         }
 
-        protected override bool ValidatePoint(Complex c, BailoutRange bailoutRange)
+        protected override bool ValidatePoint(Complex c, IterationRange iterationRange)
         {
-            return IsPointInBuddhabrot(c, bailoutRange);
+            return IsPointInBuddhabrot(c, iterationRange);
         }
 
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
-        public static bool IsPointInBuddhabrot(Complex c, BailoutRange bailoutRange)
+        public static bool IsPointInBuddhabrot(Complex c, IterationRange iterationRange)
         {
             double re = 0;
             double im = 0;
@@ -37,7 +37,7 @@ namespace Fractals.Utility
             double re2 = 0;
             double im2 = 0;
 
-            for (uint i = 0; i < bailoutRange.Maximum; i++)
+            for (uint i = 0; i < iterationRange.Maximum; i++)
             {
                 var reTemp = re2 - im2 + c.Real;
                 im = 2 * re * im + c.Imaginary;
@@ -65,7 +65,7 @@ namespace Fractals.Utility
                 // Check the magnitude squared against 2^2
                 if ((re2 + im2) > 4)
                 {
-                    return i >= bailoutRange.Minimum;
+                    return i >= iterationRange.Minimum;
                 }
             }
 
