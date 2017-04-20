@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using BenchmarkDotNet;
+using System.Threading;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Fractals.Model;
 using Fractals.PointGenerator;
@@ -13,7 +13,9 @@ namespace Benchmarks
     public class ScalarVsVectorPointFinder
     {
         public IterationRange Range { get; set; } = new IterationRange(1_000_000, 5_000_000);
-        public int PointsToCheck { get; set; } = Vector<float>.Count * 5;
+
+        private int VectorBatchesToCheck { get; } = 4;
+        private int PointsToCheck => Vector<float>.Count * VectorBatchesToCheck;
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -30,7 +32,7 @@ namespace Benchmarks
             _pointGenerator.ResetRandom(seed: 0);
         }
 
-        [Benchmark(Baseline = true)]
+        //[Benchmark(Baseline = true)]
         public int FindPointsScalar()
         {
             return
@@ -38,6 +40,17 @@ namespace Benchmarks
                 .Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                 .Take(PointsToCheck)
                 .Count(c => IsBuddhabrotPointScalar((float)c.Real, (float)c.Imaginary, Range));
+        }
+
+        [Benchmark]
+        public int FindPointsScalarParallel()
+        {
+            return
+                _pointGenerator.GetNumbers()
+                    .Where(c => !MandelbulbChecker.IsInsideBulbs(c))
+                    .Take(PointsToCheck)
+                    .AsParallel()
+                    .Count(c => IsBuddhabrotPointScalar((float)c.Real, (float)c.Imaginary, Range));
         }
 
         public bool IsBuddhabrotPointScalar(float cReal, float cImag, IterationRange range)
@@ -69,7 +82,7 @@ namespace Benchmarks
             return true;
         }
 
-        [Benchmark]
+        //[Benchmark]
         public int FindPointsVectors()
         {
             var realBatch = new float[Vector<float>.Count];
@@ -101,9 +114,54 @@ namespace Benchmarks
                     var finalIterations = IsBuddhabrotPointVector(cReal, cImag, Range);
                     finalIterations.CopyTo(result);
 
-                    buddhabrotPointsFound += result.Count(i => Range.IsInside((uint)i));
+                    buddhabrotPointsFound += result.Count(i => Range.IsInside(i));
                 }
             }
+
+            return buddhabrotPointsFound;
+        }
+
+        [Benchmark]
+        public int FindPointsVectorsParallel()
+        {
+            var points =
+                _pointGenerator.GetNumbers().
+                Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
+                Take(PointsToCheck).
+                ToArray();
+
+            var buddhabrotPointsFound = 0;
+
+            var vectorCapacity = Vector<float>.Count;
+
+            Parallel.For(
+                fromInclusive: 0,
+                toExclusive: VectorBatchesToCheck,
+                localInit: () => 0,
+                body: (batchIndex, loopState, subTotal) =>
+                 {
+                     var realBatch = new float[vectorCapacity];
+                     var imagBatch = new float[vectorCapacity];
+                     var result = new int[vectorCapacity];
+
+                     for (int i = 0; i < vectorCapacity; i++)
+                     {
+                         realBatch[i] = (float)points[batchIndex * vectorCapacity + i].Real;
+                         imagBatch[i] = (float)points[batchIndex * vectorCapacity + i].Imaginary;
+                     }
+
+                     var cReal = new Vector<float>(realBatch);
+                     var cImag = new Vector<float>(imagBatch);
+
+                     var finalIterations = IsBuddhabrotPointVector(cReal, cImag, Range);
+                     finalIterations.CopyTo(result);
+
+                     subTotal += result.Count(r => Range.IsInside(r));
+
+                     return subTotal;
+                 },
+                localFinally: count => Interlocked.Add(ref buddhabrotPointsFound, count)
+            );
 
             return buddhabrotPointsFound;
         }

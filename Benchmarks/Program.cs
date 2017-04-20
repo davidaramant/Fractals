@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using BenchmarkDotNet.Running;
 
 namespace Benchmarks
@@ -13,17 +7,14 @@ namespace Benchmarks
     {
         static void Main(string[] args)
         {
-            Console.WriteLine($"Number of floats in vector: {Vector<float>.Count}");
-            Console.WriteLine($"Number of ints in vector: {Vector<int>.Count}");
-
             // var summary = BenchmarkRunner.Run<ClassVsStructVsRawBenchmark>();
             // var summary = BenchmarkRunner.Run<BitmapVsFastImage>();
 
             //var s = new ScalarVsVectorPointFinder();
             //s.InitializePointGenerator();
-            //var scalarPoints = s.FindPointsScalar();
+            //var scalarPoints = s.FindPointsScalarParallel();
             //s.InitializePointGenerator();
-            //var vectorPoints = s.FindPointsVectors();
+            //var vectorPoints = s.FindPointsVectorsParallel();
 
             //Console.WriteLine($"scalar: {scalarPoints}, vector: {vectorPoints}");
             //return;

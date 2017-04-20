@@ -16,7 +16,7 @@
             Maximum = maximum;
         }
 
-        public bool IsInside(uint escapeTime)
+        public bool IsInside(int escapeTime)
         {
             return
                 escapeTime >= Minimum &&
