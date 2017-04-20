@@ -13,7 +13,7 @@ namespace Benchmarks
     public class ScalarVsVectorPointFinder
     {
         public BailoutRange Range { get; set; } = new BailoutRange(1_000_000, 5_000_000);
-        public int PointsToCheck { get; set; } = Vector<float>.Count * 100;
+        public int PointsToCheck { get; set; } = Vector<float>.Count * 10;
 
         private static readonly Lazy<Area[]> GetEdges = new Lazy<Area[]>(() =>
         {
@@ -77,9 +77,9 @@ namespace Benchmarks
             var imagBatch = new float[Vector<float>.Count];
 
             var points =
-                _pointGenerator.GetNumbers()
-                .Where(c => !MandelbulbChecker.IsInsideBulbs(c))
-                .Take(PointsToCheck);
+                _pointGenerator.GetNumbers().
+                Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
+                Take(PointsToCheck);
 
             var buddhabrotPointsFound = 0;
 
