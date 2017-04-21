@@ -11,18 +11,27 @@ namespace Benchmarks
             // var summary = BenchmarkRunner.Run<ClassVsStructVsRawBenchmark>();
             // var summary = BenchmarkRunner.Run<BitmapVsFastImage>();
 
-            //var s = new ScalarVsVectorPointFinder();
-            //s.InitializePointGenerator();
-            //var scalarPoints = s.FindPointsScalarParallel();
-            //s.InitializePointGenerator();
-            //var vectorPoints = s.FindPointsVectorsParallel();
+            //var s = new ScalarVsVectorVsGpuPointFinder();
 
-            //Console.WriteLine($"scalar: {scalarPoints}, vector: {vectorPoints}");
+            //s.Initialize();
+            //Console.Out.WriteLine($"scalar points: {s.FindPointsScalarParallel()}");
+            //s.Cleanup();
+
+            //s.Initialize();
+            //Console.Out.WriteLine($"vector points: {s.FindPointsVectorsParallel()}");
+            //s.Cleanup();
+
+            //s.Initialize();
+            //Console.Out.WriteLine($"vector points (no early return): {s.FindPointsVectorsParallelNoEarlyReturn()}");
+            //s.Cleanup();
+
+            ////s.Initialize();
+            ////Console.WriteLine($"gpu points: {s.FindPointsGpu()}");
+            ////s.Cleanup();
+
             //return;
 
-            var summary = BenchmarkRunner.Run<ScalarVsVectorPointFinder>();
-            // TODO: Brett's algorithm
-            // TODO: GPU
+            var summary = BenchmarkRunner.Run<ScalarVsVectorVsGpuPointFinder>();
 
             //var summary = BenchmarkRunner.Run<RandomPointGeneration>();
 
