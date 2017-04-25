@@ -55,7 +55,8 @@ namespace Benchmarks
             _context = _disposeStack.Add(Context.Create(device));
             _commandQueue = _disposeStack.Add(_context.CreateCommandQueue(device));
             var program = _disposeStack.Add(_context.CreateProgramWithSource(KernelSource));
-            program.Build();
+
+            program.Build("-cl-no-signed-zeros -cl-finite-math-only");
 
             _kernel = _disposeStack.Add(program.CreateKernel("iterate_points"));
         }
@@ -286,10 +287,12 @@ namespace Benchmarks
 
         #endregion Vectors
 
+        #region OpenCL
 
         //[Benchmark]
         public unsafe int FindPointsGpu()
         {
+
             var points =
                 _pointGenerator.GetNumbers().
                     Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
@@ -341,5 +344,7 @@ namespace Benchmarks
 
             return iterations.Count(Range.IsInside);
         }
+
+        #endregion OpenCL
     }
 }

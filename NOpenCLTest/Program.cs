@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using NOpenCL;
 
 namespace NOpenCLTest
@@ -66,7 +68,10 @@ namespace NOpenCLTest
         {
             try
             {
-                AddNumbers();
+
+                LogDeviceInfo();
+
+                //AddNumbers();
             }
             catch (Exception e)
             {
@@ -76,6 +81,29 @@ namespace NOpenCLTest
 
             Console.WriteLine("Press a key to exit...");
             Console.ReadKey();
+        }
+
+        private static void LogDeviceInfo()
+        {
+            using (var fs = System.IO.File.Open("OpenCL System Info.txt", FileMode.Create))
+            using (var writer = new StreamWriter(fs))
+            {
+                foreach (var indexedPlatform in Platform.GetPlatforms().Select((p, index) => (p, index)))
+                {
+                    writer.WriteLine($"Platform {indexedPlatform.Item2}");
+                    writer.WriteLine(JsonConvert.SerializeObject(indexedPlatform.Item1, Formatting.Indented));
+                    writer.WriteLine();
+                    foreach (var indexedDevice in indexedPlatform.Item1.GetDevices().Select((d, index) => (d, index)))
+                    {
+                        writer.WriteLine($"Platform {indexedPlatform.Item2}, Device {indexedDevice.Item2}");
+                        writer.WriteLine(JsonConvert.SerializeObject(indexedDevice.Item1, Formatting.Indented, new JsonSerializerSettings
+                        {
+                            Error = (sender, eventArgs) => eventArgs.ErrorContext.Handled = true,
+                        }));
+                        writer.WriteLine();
+                    }
+                }
+            }
         }
     }
 }
