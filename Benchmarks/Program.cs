@@ -25,16 +25,12 @@ namespace Benchmarks
             //Console.Out.WriteLine($"vector points (no early return): {s.FindPointsVectorsParallelNoEarlyReturn()}");
             //s.Cleanup();
 
-            ////s.Initialize();
-            ////Console.WriteLine($"gpu points: {s.FindPointsGpu()}");
-            ////s.Cleanup();
+            //s.Initialize();
+            //Console.WriteLine($"OpenCL points: {s.FindPointsOpenCL()}");
+            //s.Cleanup();
 
-            //return;
 
             var summary = BenchmarkRunner.Run<ScalarVsVectorVsGpuPointFinder>();
-
-            //var summary = BenchmarkRunner.Run<RandomPointGeneration>();
-
         }
     }
 }
