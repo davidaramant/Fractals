@@ -5,22 +5,19 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Attributes.Jobs;
 using Fractals.Model;
 using Fractals.PointGenerator;
 using Fractals.Utility;
 using NOpenCL;
-using System.Collections.Concurrent;
-using System.Net.NetworkInformation;
 
 namespace Benchmarks
 {
     public class ScalarVsVectorVsGpuPointFinder
     {
-        public IterationRange Range => new IterationRange(1_000_000, 5_000_000);
+        public IterationRange Range => new IterationRange(10_000_000, 15_000_000); //new IterationRange(1_000_000, 5_000_000);
         public DeviceType SelectedDeviceType => DeviceType.Cpu;
-        public int NumberOfBatches => 10;
-        public int BatchSize => 8;
-        public int NumberOfPoints => BatchSize * NumberOfBatches;
+        public int NumberOfPoints => 1600;
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -29,7 +26,6 @@ namespace Benchmarks
         }
 
         private readonly RandomPointGenerator _pointGenerator = new RandomPointGenerator(GetEdges(), seed: 0);
-
 
         private DisposeStack _disposeStack;
         private static readonly string KernelSource = System.IO.File.ReadAllText("iterate_points.cl");
@@ -164,7 +160,7 @@ namespace Benchmarks
             return buddhabrotPointsFound;
         }
 
-        //[Benchmark]
+        [Benchmark]
         public int FindPointsVectorsParallel()
         {
             return FindPointsVectorsParallelBatches(IsBuddhabrotPointVector);
@@ -205,7 +201,7 @@ namespace Benchmarks
             return iterations;
         }
 
-        //[Benchmark]
+        [Benchmark]
         public int FindPointsVectorsNoEarlyReturn()
         {
             return FindPointsVectorsParallelBatches(IsBuddhabrotPointVectorNoEarlyReturn);
@@ -309,7 +305,96 @@ namespace Benchmarks
         #region OpenCL
 
         [Benchmark]
-        public unsafe int FindPointsOpenCL()
+        public unsafe int FindPointsOpenClCpu()
+        {
+            return FindPointsOpenCl(DeviceType.Cpu);
+        }
+
+        [Benchmark]
+        public unsafe int FindPointsOpenClGpu()
+        {
+            return FindPointsOpenCl(DeviceType.Gpu);
+        }
+
+        private unsafe int FindPointsOpenCl(DeviceType deviceType)
+        {
+            using (var device = GetDevice(deviceType))
+            using (var context = Context.Create(device))
+            using (var commandQueue = context.CreateCommandQueue(device))
+            using (var program = context.CreateProgramWithSource(KernelSource))
+            {
+                program.Build("-cl-no-signed-zeros -cl-finite-math-only");
+
+                using (var kernel = program.CreateKernel("iterate_points"))
+                {
+                    var points =
+                        _pointGenerator.GetNumbers().
+                            Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
+                            Take(NumberOfPoints);
+
+                    var cReals = new float[NumberOfPoints];
+                    var cImags = new float[NumberOfPoints];
+
+                    foreach (var (c, index) in points.Select((c, i) => (c, i)))
+                    {
+                        cReals[index] = (float)c.Real;
+                        cImags[index] = (float)c.Imaginary;
+                    }
+
+                    var finalIterations = new int[NumberOfPoints];
+
+                    var globalSize = NumberOfPoints;
+                    var localSize = device.MaxComputeUnits;
+
+                    fixed (float* pCReals = cReals, pCImags = cImags)
+                    fixed (int* pFinalIterations = finalIterations)
+                    {
+                        using (var cRealsBuffer = context.CreateBuffer(
+                            MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                            sizeof(float) * NumberOfPoints,
+                            (IntPtr)pCReals))
+                        using (var cImagsBuffer = context.CreateBuffer(
+                            MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                            sizeof(float) * NumberOfPoints,
+                            (IntPtr)pCImags))
+                        using (var iterationsBuffer = context.CreateBuffer(
+                            MemoryFlags.UseHostPointer | MemoryFlags.WriteOnly | MemoryFlags.HostReadOnly,
+                            sizeof(int) * NumberOfPoints,
+                            (IntPtr)pFinalIterations))
+                        {
+                            kernel.Arguments[0].SetValue(cRealsBuffer);
+                            kernel.Arguments[1].SetValue(cImagsBuffer);
+                            kernel.Arguments[2].SetValue(Range.Maximum);
+                            kernel.Arguments[3].SetValue(iterationsBuffer);
+
+                            using (var perfEvent = commandQueue.EnqueueNDRangeKernel(
+                                kernel,
+                                globalWorkSize: (IntPtr)globalSize,
+                                localWorkSize: (IntPtr)localSize))
+                            {
+                                Event.WaitAll(perfEvent);
+                            }
+
+                            using (commandQueue.EnqueueReadBuffer(
+                                iterationsBuffer,
+                                blocking: true,
+                                offset: 0,
+                                size: sizeof(int) * finalIterations.Length,
+                                destination: (IntPtr)pFinalIterations))
+                            {
+                            }
+
+                            commandQueue.Finish();
+                        }
+                    }
+
+                    return finalIterations.Count(Range.IsInside);
+                }
+            }
+        }
+
+        //[Benchmark]
+        public unsafe int FindPointsOpenCl()
         {
             var points =
                 _pointGenerator.GetNumbers().
@@ -353,7 +438,7 @@ namespace Benchmarks
 
                     using (var perfEvent = _commandQueue.EnqueueNDRangeKernel(
                         _kernel,
-                        globalWorkSize: (IntPtr)globalSize, 
+                        globalWorkSize: (IntPtr)globalSize,
                         localWorkSize: (IntPtr)localSize))
                     {
                         Event.WaitAll(perfEvent);
