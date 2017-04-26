@@ -329,15 +329,15 @@ namespace Benchmarks
             fixed (int* pFinalIterations = finalIterations)
             {
                 using (var cRealsBuffer = _context.CreateBuffer(
-                    MemoryFlags.CopyHostPointer | MemoryFlags.ReadOnly,
+                    MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
                     sizeof(float) * NumberOfPoints,
                     (IntPtr)pCReals))
                 using (var cImagsBuffer = _context.CreateBuffer(
-                    MemoryFlags.CopyHostPointer | MemoryFlags.ReadOnly,
+                    MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
                     sizeof(float) * NumberOfPoints,
                     (IntPtr)pCImags))
                 using (var iterationsBuffer = _context.CreateBuffer(
-                    MemoryFlags.CopyHostPointer | MemoryFlags.WriteOnly,
+                    MemoryFlags.UseHostPointer | MemoryFlags.WriteOnly | MemoryFlags.HostReadOnly,
                     sizeof(int) * NumberOfPoints,
                     (IntPtr)pFinalIterations))
                 {
