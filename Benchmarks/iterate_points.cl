@@ -19,7 +19,6 @@ void iterate_points(
     float cImag = cImags[globalId];
 
     int iterations = 0;
-    int increment = 1;
 
     for (int i = 0; i < maxIterations; i++)
     {
@@ -32,10 +31,8 @@ void iterate_points(
         zReal2 = zReal * zReal;
         zImag2 = zImag * zImag;
 
-        // Check the magnitude squared against 2^2
-        int shouldContinue = islessequal(zReal2 + zImag2, 4.0);
-        increment = increment & shouldContinue;
-        iterations += increment;
+        // Only increment if the point is still inside the circle
+        iterations += islessequal(zReal2 + zImag2, 4.0);
     }
 
     finalIterations[globalId] = iterations;

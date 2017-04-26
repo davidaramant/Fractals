@@ -27,10 +27,10 @@ namespace Benchmarks
                 s.Cleanup();
             }
 
-            //RunTest(() => $"Vector early return: {s.FindPointsVectorsParallel()} points");
-            //RunTest(() => $"Vector no early return: {s.FindPointsVectorsNoEarlyReturn()} points");
-            RunTest(() => $"OpenCL CPU: {s.FindPointsOpenClCpu()} points");
-            RunTest(() => $"OpenCL GPU: {s.FindPointsOpenClGpu()} points");
+            RunTest(() => $"* Vector early return:\n\t{s.FindPointsVectorsParallel()} points");
+            RunTest(() => $"* Vector no early return:\n\t{s.FindPointsVectorsNoEarlyReturn()} points");
+            RunTest(() => $"* OpenCL CPU:\n\t{s.FindPointsOpenClCpu()} points");
+            RunTest(() => $"* OpenCL GPU:\n\t{s.FindPointsOpenClGpu()} points");
 
             //var summary = BenchmarkRunner.Run<ScalarVsVectorVsGpuPointFinder>();
         }
