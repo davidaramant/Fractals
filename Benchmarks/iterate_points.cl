@@ -2,7 +2,6 @@
 void iterate_points(
     __constant const float* cReals,
     __constant const float* cImags,
-    const int maxIterations,
     __global int* finalIterations)
 {
     // Initialize z
@@ -20,7 +19,7 @@ void iterate_points(
 
     int iterations = 0;
 
-    for (int i = 0; i < maxIterations; i++)
+    for (int i = 0; i < 15000000; i++)
     {
         float zRealTemp = zReal2 - zImag2 + cReal;
         zImag = 2 * zReal * zImag + cImag;

@@ -364,8 +364,7 @@ namespace Benchmarks
                         {
                             kernel.Arguments[0].SetValue(cRealsBuffer);
                             kernel.Arguments[1].SetValue(cImagsBuffer);
-                            kernel.Arguments[2].SetValue(Range.Maximum);
-                            kernel.Arguments[3].SetValue(iterationsBuffer);
+                            kernel.Arguments[2].SetValue(iterationsBuffer);
 
                             using (var perfEvent = commandQueue.EnqueueNDRangeKernel(
                                 kernel,
@@ -433,8 +432,7 @@ namespace Benchmarks
                 {
                     _kernel.Arguments[0].SetValue(cRealsBuffer);
                     _kernel.Arguments[1].SetValue(cImagsBuffer);
-                    _kernel.Arguments[2].SetValue(Range.Maximum);
-                    _kernel.Arguments[3].SetValue(iterationsBuffer);
+                    _kernel.Arguments[2].SetValue(iterationsBuffer);
 
                     using (var perfEvent = _commandQueue.EnqueueNDRangeKernel(
                         _kernel,
