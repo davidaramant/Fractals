@@ -15,12 +15,11 @@ namespace Benchmarks
 {
     public class ScalarVsVectorVsGpuPointFinder
     {
-        public IterationRange Range { get; set; } = new IterationRange(1_000_000, 5_000_000);
-
-
-        private int NumberOfBatches => 10;
-        private int BatchSize => Vector<float>.Count;
-        private int NumberOfPoints => BatchSize * NumberOfBatches;
+        public static IterationRange Range { get; set; } = new IterationRange(1_000_000, 5_000_000);
+        public static DeviceType SelectedDeviceType { get; set; } = DeviceType.Cpu;
+        public static int NumberOfBatches { get; set; } = 10;
+        public static int BatchSize { get; set; } = 8;
+        public static int NumberOfPoints => BatchSize * NumberOfBatches;
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -34,10 +33,9 @@ namespace Benchmarks
         private DisposeStack _disposeStack;
         private static readonly string KernelSource = System.IO.File.ReadAllText("iterate_points.cl");
 
-        private static Device GetDevice()
+        private static Device GetDevice(DeviceType deviceType)
         {
-            return Platform.GetPlatforms()[0].GetDevices()[0];
-            //return Platform.GetPlatforms().SelectMany(p => p.GetDevices()).Single(d => d.DeviceType == DeviceType.Gpu);
+            return Platform.GetPlatforms()[0].GetDevices().Single(d => d.DeviceType == deviceType);
         }
 
         private Device _device;
@@ -50,14 +48,14 @@ namespace Benchmarks
         {
             _pointGenerator.ResetRandom(seed: 0);
 
-            InitializeGpu();
+            InitializeOpenCl();
         }
 
-        public void InitializeGpu()
+        public void InitializeOpenCl()
         {
             _disposeStack = new DisposeStack();
 
-            _device = _disposeStack.Add(GetDevice());
+            _device = _disposeStack.Add(GetDevice(SelectedDeviceType));
             _context = _disposeStack.Add(Context.Create(_device));
             _commandQueue = _disposeStack.Add(_context.CreateCommandQueue(_device));
             var program = _disposeStack.Add(_context.CreateProgramWithSource(KernelSource));
@@ -315,11 +313,17 @@ namespace Benchmarks
             var points =
                 _pointGenerator.GetNumbers().
                     Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
-                    Take(NumberOfPoints).
-                    ToArray();
+                    Take(NumberOfPoints);
 
-            var cReals = points.Select(c => (float)c.Real).ToArray();
-            var cImags = points.Select(c => (float)c.Imaginary).ToArray();
+            var cReals = new float[NumberOfPoints];
+            var cImags = new float[NumberOfPoints];
+
+            foreach (var (c, index) in points.Select((c, i) => (c, i)))
+            {
+                cReals[index] = (float)c.Real;
+                cImags[index] = (float)c.Imaginary;
+            }
+
             var finalIterations = new int[NumberOfPoints];
 
             var globalSize = NumberOfPoints;
@@ -346,14 +350,20 @@ namespace Benchmarks
                     _kernel.Arguments[2].SetValue(Range.Maximum);
                     _kernel.Arguments[3].SetValue(iterationsBuffer);
 
-                    using (var perfEvent = _commandQueue.EnqueueNDRangeKernel(_kernel,
-                        globalWorkSize: (IntPtr)globalSize, localWorkSize: (IntPtr)localSize))
+                    using (var perfEvent = _commandQueue.EnqueueNDRangeKernel(
+                        _kernel,
+                        globalWorkSize: (IntPtr)globalSize, 
+                        localWorkSize: (IntPtr)localSize))
                     {
                         Event.WaitAll(perfEvent);
                     }
 
-                    using (_commandQueue.EnqueueReadBuffer(iterationsBuffer, blocking: true, offset: 0,
-                        size: sizeof(int) * finalIterations.Length, destination: (IntPtr)pFinalIterations))
+                    using (_commandQueue.EnqueueReadBuffer(
+                        iterationsBuffer, 
+                        blocking: true, 
+                        offset: 0,
+                        size: sizeof(int) * finalIterations.Length, 
+                        destination: (IntPtr)pFinalIterations))
                     {
                     }
 
