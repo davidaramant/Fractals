@@ -25,8 +25,6 @@ void iterate_points(
         zImag = 2 * zReal * zImag + cImag;
         zReal = zRealTemp;
 
-        // zReal2 = pown( zReal, 2 );
-        // zImag2 = pown( zImag, 2 );
         zReal2 = zReal * zReal;
         zImag2 = zImag * zImag;
 

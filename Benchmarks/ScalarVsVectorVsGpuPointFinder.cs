@@ -5,7 +5,6 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Attributes.Jobs;
 using Fractals.Model;
 using Fractals.PointGenerator;
 using Fractals.Utility;
@@ -15,9 +14,9 @@ namespace Benchmarks
 {
     public class ScalarVsVectorVsGpuPointFinder
     {
-        public IterationRange Range => new IterationRange(10_000_000, 15_000_000); //new IterationRange(1_000_000, 5_000_000);
+        public IterationRange Range => new IterationRange(10_000_000, 15_000_000);
         public DeviceType SelectedDeviceType => DeviceType.Cpu;
-        public int NumberOfPoints => 1600;
+        public int NumberOfPoints => 3200;
 
         private static IEnumerable<Area> GetEdges()
         {
