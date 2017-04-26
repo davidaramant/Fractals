@@ -10,16 +10,17 @@ using Fractals.PointGenerator;
 using Fractals.Utility;
 using NOpenCL;
 using System.Collections.Concurrent;
+using System.Net.NetworkInformation;
 
 namespace Benchmarks
 {
     public class ScalarVsVectorVsGpuPointFinder
     {
-        public static IterationRange Range { get; set; } = new IterationRange(1_000_000, 5_000_000);
-        public static DeviceType SelectedDeviceType { get; set; } = DeviceType.Cpu;
-        public static int NumberOfBatches { get; set; } = 10;
-        public static int BatchSize { get; set; } = 8;
-        public static int NumberOfPoints => BatchSize * NumberOfBatches;
+        public IterationRange Range => new IterationRange(1_000_000, 5_000_000);
+        public DeviceType SelectedDeviceType => DeviceType.Cpu;
+        public int NumberOfBatches => 10;
+        public int BatchSize => 8;
+        public int NumberOfPoints => BatchSize * NumberOfBatches;
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -204,7 +205,7 @@ namespace Benchmarks
             return iterations;
         }
 
-        [Benchmark]
+        //[Benchmark]
         public int FindPointsVectorsNoEarlyReturn()
         {
             return FindPointsVectorsParallelBatches(IsBuddhabrotPointVectorNoEarlyReturn);
@@ -307,7 +308,7 @@ namespace Benchmarks
 
         #region OpenCL
 
-        //[Benchmark]
+        [Benchmark]
         public unsafe int FindPointsOpenCL()
         {
             var points =
@@ -327,7 +328,7 @@ namespace Benchmarks
             var finalIterations = new int[NumberOfPoints];
 
             var globalSize = NumberOfPoints;
-            var localSize = 1;
+            var localSize = 8;
 
             fixed (float* pCReals = cReals, pCImags = cImags)
             fixed (int* pFinalIterations = finalIterations)
@@ -359,10 +360,10 @@ namespace Benchmarks
                     }
 
                     using (_commandQueue.EnqueueReadBuffer(
-                        iterationsBuffer, 
-                        blocking: true, 
+                        iterationsBuffer,
+                        blocking: true,
                         offset: 0,
-                        size: sizeof(int) * finalIterations.Length, 
+                        size: sizeof(int) * finalIterations.Length,
                         destination: (IntPtr)pFinalIterations))
                     {
                     }
