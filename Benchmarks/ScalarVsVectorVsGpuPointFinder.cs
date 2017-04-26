@@ -9,6 +9,7 @@ using Fractals.Model;
 using Fractals.PointGenerator;
 using Fractals.Utility;
 using NOpenCL;
+using System.Collections.Concurrent;
 
 namespace Benchmarks
 {
@@ -16,8 +17,10 @@ namespace Benchmarks
     {
         public IterationRange Range { get; set; } = new IterationRange(1_000_000, 5_000_000);
 
-        private int NumberOfVectorBatches { get; } = 10;
-        private int NumberOfPoints => Vector<float>.Count * NumberOfVectorBatches;
+
+        private int NumberOfBatches => 10;
+        private int BatchSize => Vector<float>.Count;
+        private int NumberOfPoints => BatchSize * NumberOfBatches;
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -79,7 +82,7 @@ namespace Benchmarks
                 .Count(c => IsBuddhabrotPointScalar((float)c.Real, (float)c.Imaginary, Range));
         }
 
-        [Benchmark]
+        //[Benchmark]
         public int FindPointsScalarParallel()
         {
             return
@@ -165,7 +168,7 @@ namespace Benchmarks
         //[Benchmark]
         public int FindPointsVectorsParallel()
         {
-            return FindPointsVectorsParallelNoEarlyReturn(IsBuddhabrotPointVector);
+            return FindPointsVectorsParallelBatches(IsBuddhabrotPointVector);
         }
 
         public Vector<int> IsBuddhabrotPointVector(Vector<float> cReal, Vector<float> cImag, int maxIterations)
@@ -206,7 +209,7 @@ namespace Benchmarks
         [Benchmark]
         public int FindPointsVectorsNoEarlyReturn()
         {
-            return FindPointsVectorsParallelNoEarlyReturn(IsBuddhabrotPointVectorNoEarlyReturn);
+            return FindPointsVectorsParallelBatches(IsBuddhabrotPointVectorNoEarlyReturn);
         }
 
         public Vector<int> IsBuddhabrotPointVectorNoEarlyReturn(Vector<float> cReal, Vector<float> cImag, int maxIterations)
@@ -244,23 +247,38 @@ namespace Benchmarks
 
         public delegate Vector<int> IteratePoints(Vector<float> cReal, Vector<float> cImage, int maxIterations);
 
-        public int FindPointsVectorsParallelNoEarlyReturn(IteratePoints method)
+        public int FindPointsVectorsParallelBatches(IteratePoints method)
         {
             var points =
                 _pointGenerator.GetNumbers().
                     Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
-                    Take(NumberOfPoints).
-                    ToArray();
+                    Take(NumberOfPoints);
 
             var buddhabrotPointsFound = 0;
 
             var vectorCapacity = Vector<float>.Count;
 
-            Parallel.For(
-                fromInclusive: 0,
-                toExclusive: NumberOfVectorBatches,
+            IEnumerable<Complex[]> VectorBatch(IEnumerable<Complex> pointSequence)
+            {
+                int count = 0;
+                var batch = new Complex[vectorCapacity];
+                foreach (var complex in pointSequence)
+                {
+                    batch[count++] = complex;
+
+                    if (count == vectorCapacity)
+                    {
+                        count = 0;
+                        yield return batch;
+                        batch = new Complex[vectorCapacity];
+                    }
+                }
+            }
+
+            Parallel.ForEach(
+                source: VectorBatch(points),
                 localInit: () => 0,
-                body: (batchIndex, loopState, subTotal) =>
+                body: (batch, state, subTotal) =>
                 {
                     var realBatch = new float[vectorCapacity];
                     var imagBatch = new float[vectorCapacity];
@@ -268,8 +286,8 @@ namespace Benchmarks
 
                     for (int i = 0; i < vectorCapacity; i++)
                     {
-                        realBatch[i] = (float)points[batchIndex * vectorCapacity + i].Real;
-                        imagBatch[i] = (float)points[batchIndex * vectorCapacity + i].Imaginary;
+                        realBatch[i] = (float)batch[i].Real;
+                        imagBatch[i] = (float)batch[i].Imaginary;
                     }
 
                     var cReal = new Vector<float>(realBatch);
@@ -282,8 +300,7 @@ namespace Benchmarks
 
                     return subTotal;
                 },
-                localFinally: count => Interlocked.Add(ref buddhabrotPointsFound, count)
-            );
+                localFinally: count => Interlocked.Add(ref buddhabrotPointsFound, count));
 
             return buddhabrotPointsFound;
         }
@@ -292,7 +309,7 @@ namespace Benchmarks
 
         #region OpenCL
 
-        [Benchmark]
+        //[Benchmark]
         public unsafe int FindPointsOpenCL()
         {
             var points =
