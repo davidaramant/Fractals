@@ -13,6 +13,14 @@ namespace Benchmarks
             return disposableObject;
         }
 
+        public void AddMultiple<T>(IEnumerable<T> disposableObjects) where T : IDisposable
+        {
+            foreach (var d in disposableObjects)
+            {
+                _objects.Push(d);
+            }
+        }
+
         public void Dispose()
         {
             foreach (var d in _objects)

@@ -16,7 +16,7 @@ namespace Benchmarks
     {
         public IterationRange Range => new IterationRange(10_000_000, 15_000_000);
         public DeviceType SelectedDeviceType => DeviceType.Cpu;
-        public int NumberOfPoints => 3200;
+        public static int NumberOfPoints => 3200;
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -32,6 +32,13 @@ namespace Benchmarks
         private static Device GetDevice(DeviceType deviceType)
         {
             return Platform.GetPlatforms()[0].GetDevices().Single(d => d.DeviceType == deviceType);
+        }
+
+        private static IEnumerable<Device> GetDevices(IEnumerable<DeviceType> deviceTypes)
+        {
+            return Platform.GetPlatforms()
+                .SelectMany(p => p.GetDevices())
+                .Where(d => deviceTypes.Contains(d.DeviceType) && d.OpenCLVersion.StartsWith("OpenCL C 1.2"));
         }
 
         private Device _device;
@@ -304,15 +311,33 @@ namespace Benchmarks
         #region OpenCL
 
         [Benchmark]
-        public unsafe int FindPointsOpenClCpu()
+        public int FindPointsOpenClCpu()
         {
             return FindPointsOpenCl(DeviceType.Cpu);
         }
 
         [Benchmark]
-        public unsafe int FindPointsOpenClGpu()
+        public int FindPointsOpenClGpu()
         {
             return FindPointsOpenCl(DeviceType.Gpu);
+        }
+
+        [Benchmark]
+        public int FindPointsOpenClCpuFancy()
+        {
+            return FindPointsOpenCl2(DeviceType.Cpu);
+        }
+
+        [Benchmark]
+        public int FindPointsOpenClGpuFancy()
+        {
+            return FindPointsOpenCl2(DeviceType.Gpu);
+        }
+
+        [Benchmark]
+        public int FindPointsOpenClCpuGpu()
+        {
+            return FindPointsOpenCl2(DeviceType.Cpu, DeviceType.Gpu);
         }
 
         private unsafe int FindPointsOpenCl(DeviceType deviceType)
@@ -385,6 +410,100 @@ namespace Benchmarks
                             commandQueue.Finish();
                         }
                     }
+
+                    return finalIterations.Count(Range.IsInside);
+                }
+            }
+        }
+
+        private unsafe int FindPointsOpenCl2(params DeviceType[] deviceTypes)
+        {
+            using (var stack = new DisposeStack())
+            {
+                var platform = Platform.GetPlatforms().Single(p => p.Version.StartsWith("OpenCL 1.2"));
+
+                var filteredDevices = platform.GetDevices()
+                    .Where(d => deviceTypes.Contains(d.DeviceType))
+                    .ToArray();
+
+                stack.AddMultiple(filteredDevices);
+
+                var context = stack.Add(Context.Create(filteredDevices));
+                var program = stack.Add(context.CreateProgramWithSource(KernelSource));
+                program.Build("-cl-no-signed-zeros -cl-finite-math-only");
+
+                var points =
+                    _pointGenerator.GetNumbers().
+                        Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
+                        Take(NumberOfPoints);
+
+                var cReals = new float[NumberOfPoints];
+                var cImags = new float[NumberOfPoints];
+
+                foreach (var (c, index) in points.Select((c, i) => (c, i)))
+                {
+                    cReals[index] = (float)c.Real;
+                    cImags[index] = (float)c.Imaginary;
+                }
+
+                var finalIterations = new int[NumberOfPoints];
+
+                fixed (float* pCReals = cReals, pCImags = cImags)
+                fixed (int* pFinalIterations = finalIterations)
+                {
+                    var cRealsBuffer = stack.Add(context.CreateBuffer(
+                        MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                        sizeof(float) * NumberOfPoints,
+                        (IntPtr)pCReals));
+                    var cImagsBuffer = stack.Add(context.CreateBuffer(
+                        MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                        sizeof(float) * NumberOfPoints,
+                        (IntPtr)pCImags));
+                    var iterationsBuffer = stack.Add(context.CreateBuffer(
+                        MemoryFlags.UseHostPointer | MemoryFlags.WriteOnly | MemoryFlags.HostReadOnly,
+                        sizeof(int) * NumberOfPoints,
+                        (IntPtr)pFinalIterations));
+
+                    var commandQueues = new CommandQueue[filteredDevices.Length];
+                    var enqueueEvents = new Event[filteredDevices.Length];
+                    for (int deviceIndex = 0; deviceIndex < filteredDevices.Length; deviceIndex++)
+                    {
+                        var device = filteredDevices[deviceIndex];
+                        commandQueues[deviceIndex] = stack.Add(context.CreateCommandQueue(device));
+
+                        var kernel = stack.Add(program.CreateKernel("iterate_points"));
+
+                        kernel.Arguments[0].SetValue(cRealsBuffer);
+                        kernel.Arguments[1].SetValue(cImagsBuffer);
+                        kernel.Arguments[2].SetValue(iterationsBuffer);
+
+
+
+                        enqueueEvents[deviceIndex] = commandQueues[deviceIndex].EnqueueNDRangeKernel(
+                            kernel,
+                            globalWorkOffset: (IntPtr)(deviceIndex * (NumberOfPoints / filteredDevices.Length)),
+                            globalWorkSize: (IntPtr)(NumberOfPoints / filteredDevices.Length),
+                            localWorkSize: (IntPtr)device.MaxComputeUnits);
+                    }
+
+                    Event.WaitAll(enqueueEvents);
+
+                    for (int deviceIndex = 0; deviceIndex < filteredDevices.Length; deviceIndex++)
+                    {
+                        using (commandQueues[deviceIndex]
+                            .EnqueueReadBuffer(
+                                iterationsBuffer,
+                                blocking: true,
+                                offset: deviceIndex * (NumberOfPoints / filteredDevices.Length),
+                                size: sizeof(int) * (NumberOfPoints / filteredDevices.Length),
+                                destination: (IntPtr)pFinalIterations))
+                        {
+                        }
+
+                        commandQueues[deviceIndex].Finish();
+                    }
+
+                    stack.AddMultiple(commandQueues);
 
                     return finalIterations.Count(Range.IsInside);
                 }
