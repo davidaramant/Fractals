@@ -388,7 +388,7 @@ namespace Benchmarks
                         return stack.Add(
                             input.CreateSubBuffer(
                                 MemoryFlags.None,
-                                new BufferRegion((IntPtr)offset, (IntPtr)size)));
+                                new BufferRegion((IntPtr)(offset * 4), (IntPtr)(size * 4))));
                     }
 
                     var cRealsSubBuffers = new[]
@@ -431,11 +431,11 @@ namespace Benchmarks
                     for (int deviceIndex = 0; deviceIndex < devices.Length; deviceIndex++)
                     {
                         using (commandQueues[deviceIndex].EnqueueReadBuffer(
-                                iterationsBuffer,
+                                iterationsSubBuffers[deviceIndex],
                                 blocking: true,
-                                offset: deviceIndex * cpuBatchSize,
+                                offset: 0,
                                 size: sizeof(int) * batchSizes[deviceIndex],
-                                destination: (IntPtr)pFinalIterations))
+                                destination: (IntPtr)(pFinalIterations + deviceIndex * cpuBatchSize)))
                         {
                         }
 
