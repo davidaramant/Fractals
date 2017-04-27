@@ -15,7 +15,7 @@ namespace Benchmarks
 {
     public class ScalarVsVectorVsGpuPointFinder
     {
-        public IterationRange Range => new IterationRange(10_000_000, 15_000_000);
+        public IterationRange Range => new IterationRange(20_000_000, 25_000_000);
         public DeviceType SelectedDeviceType => DeviceType.Cpu;
         public static int NumberOfPoints => 6400;
 

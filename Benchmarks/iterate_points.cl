@@ -19,7 +19,7 @@ void iterate_points(
 
     int iterations = 0;
 
-    for (int i = 0; i < 15000000; i++)
+    for (int i = 0; i < 25000000; i++)
     {
         float zRealTemp = zReal2 - zImag2 + cReal;
         zImag = 2 * zReal * zImag + cImag;
