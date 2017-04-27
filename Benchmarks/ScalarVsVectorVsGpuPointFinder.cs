@@ -17,7 +17,7 @@ namespace Benchmarks
     {
         public IterationRange Range => new IterationRange(10_000_000, 15_000_000);
         public DeviceType SelectedDeviceType => DeviceType.Cpu;
-        public static int NumberOfPoints => 3200;
+        public static int NumberOfPoints => 6400;
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -357,8 +357,8 @@ namespace Benchmarks
 
                 var finalIterations = new int[NumberOfPoints];
 
-                var cpuBatchSize = 2000;
-                var gpuBatchSize = 1200;
+                var cpuBatchSize = 4000;
+                var gpuBatchSize = 2400;
 
                 if ((cpuBatchSize + gpuBatchSize) != NumberOfPoints)
                 {
