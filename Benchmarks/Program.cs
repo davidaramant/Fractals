@@ -26,7 +26,7 @@ namespace Benchmarks
             }
 
             Console.WriteLine(DateTime.Now.ToString("s"));
-            Console.WriteLine($"Total Points: {ScalarVsVectorVsGpuPointFinder.NumberOfPoints}");
+            Console.WriteLine($"Total Points: {ScalarVsVectorVsGpuPointFinder.NumberOfPoints:N0}");
             Console.WriteLine($"Iteration Range: {s.Range}");
 
             //RunTest(() => $"* Scalar Parallel:\n\t{s.FindPointsScalarParallel()} points");
