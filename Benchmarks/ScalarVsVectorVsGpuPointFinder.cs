@@ -17,7 +17,7 @@ namespace Benchmarks
     {
         public IterationRange Range => new IterationRange(20_000_000, 25_000_000);
         public DeviceType SelectedDeviceType => DeviceType.Cpu;
-        public static int NumberOfPoints => 2400;
+        public static int NumberOfPoints => 9600;
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -292,7 +292,7 @@ namespace Benchmarks
         }
 
         [Benchmark]
-        public unsafe int FindPointsOpenClHeterogenous()
+        public unsafe int FindPointsOpenClHeterogenous(int cpuRatio = 1, int gpuRatio = 1)
         {
             using (var stack = new DisposeStack())
             {
@@ -325,13 +325,10 @@ namespace Benchmarks
 
                 var finalIterations = new int[NumberOfPoints];
 
-                var cpuBatchSize = 4000;
-                var gpuBatchSize = 2400;
-
-                if ((cpuBatchSize + gpuBatchSize) != NumberOfPoints)
-                {
-                    throw new InvalidOperationException("Update the CPU:GPU ratio");
-                }
+                var (cpuBatchSize, gpuBatchSize) =
+                    Util.Partition(NumberOfPoints,
+                    ratio: (cpuRatio, gpuRatio),
+                    batchSize: ((int)cpuDevice.MaxComputeUnits, (int)gpuDevice.MaxComputeUnits));
 
                 var batchSizes = new[] { cpuBatchSize, gpuBatchSize };
 

@@ -160,6 +160,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomPointGeneration.cs" />
+    <Compile Include="Util.cs" />
     <Compile Include="VectorDotProductVsIterationSum.cs" />
     <Compile Include="ScalarVsVectorVsGpuPointFinder.cs" />
     <Compile Include="VectorExtensions.cs" />
