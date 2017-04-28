@@ -35,13 +35,6 @@ namespace Benchmarks
             return Platform.GetPlatforms()[0].GetDevices().Single(d => d.DeviceType == deviceType);
         }
 
-        private static IEnumerable<Device> GetDevices(IEnumerable<DeviceType> deviceTypes)
-        {
-            return Platform.GetPlatforms()
-                .SelectMany(p => p.GetDevices())
-                .Where(d => deviceTypes.Contains(d.DeviceType) && d.OpenCLVersion.StartsWith("OpenCL C 1.2"));
-        }
-
         private Device _device;
         private Context _context;
         private CommandQueue _commandQueue;
@@ -328,7 +321,7 @@ namespace Benchmarks
         {
             using (var stack = new DisposeStack())
             {
-                var platform = Platform.GetPlatforms().Single(p => p.Version.StartsWith("OpenCL 1.2"));
+                var platform = Platform.GetPlatforms()[0];
 
                 var cpuDevice = platform.GetDevices(DeviceType.Cpu).Single();
                 var gpuDevice = platform.GetDevices(DeviceType.Gpu).Single();
