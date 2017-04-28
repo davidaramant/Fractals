@@ -25,6 +25,10 @@ namespace Benchmarks
                 Console.WriteLine($" (Took {stopwatch.ElapsedMilliseconds}ms - {pointsPerSecond:F1} points/sec)");
             }
 
+            Console.WriteLine(DateTime.Now.ToString("s"));
+            Console.WriteLine($"Total Points: {ScalarVsVectorVsGpuPointFinder.NumberOfPoints}");
+            Console.WriteLine($"Iteration Range: {s.Range}");
+
             //RunTest(() => $"* Scalar Parallel:\n\t{s.FindPointsScalarParallel()} points");
             //RunTest(() => $"* Vector early return:\n\t{s.FindPointsVectorsParallel()} points");
             //RunTest(() => $"* Vector no early return:\n\t{s.FindPointsVectorsNoEarlyReturn()} points");

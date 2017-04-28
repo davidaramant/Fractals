@@ -22,5 +22,7 @@
                 escapeTime >= Minimum &&
                 escapeTime <= Maximum;
         }
+
+        public override string ToString() => $"{Minimum:N0} <= iterations <= {Maximum:N0}";
     }
 }

@@ -330,6 +330,8 @@ namespace Benchmarks
                     ratio: (cpuRatio, gpuRatio),
                     batchSize: ((int)cpuDevice.MaxComputeUnits, (int)gpuDevice.MaxComputeUnits));
 
+                Console.WriteLine($"Split points: {cpuBatchSize} CPU, {gpuBatchSize} GPU");
+
                 var batchSizes = new[] { cpuBatchSize, gpuBatchSize };
 
                 fixed (float* pCReals = cReals, pCImags = cImags)
