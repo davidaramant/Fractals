@@ -22,7 +22,7 @@ namespace Benchmarks
                 stopwatch.Stop();
 
                 var pointsPerSecond = ScalarVsVectorVsGpuPointFinder.NumberOfPoints / stopwatch.Elapsed.TotalSeconds;
-                Console.WriteLine($" (Took {stopwatch.ElapsedMilliseconds}ms - {pointsPerSecond:F1} points/sec)");
+                Console.WriteLine($" (Took {stopwatch.ElapsedMilliseconds:N1}ms - {pointsPerSecond:N1} points/sec)");
             }
 
             Console.WriteLine(DateTime.Now.ToString("s"));
