@@ -91,7 +91,7 @@ namespace NOpenCLTest
                 foreach (var indexedPlatform in Platform.GetPlatforms().Select((p, index) => (p, index)))
                 {
                     writer.WriteLine($"Platform {indexedPlatform.Item2}");
-                    writer.WriteLine(JsonConvert.SerializeObject(indexedPlatform.Item1, Formatting.Indented));
+                    writer.WriteLine(JsonConvert.SerializeObject(indexedPlatform.Item1, Formatting.Indented, new Newtonsoft.Json.Converters.StringEnumConverter()));
                     writer.WriteLine();
                     foreach (var indexedDevice in indexedPlatform.Item1.GetDevices().Select((d, index) => (d, index)))
                     {
@@ -99,6 +99,7 @@ namespace NOpenCLTest
                         writer.WriteLine(JsonConvert.SerializeObject(indexedDevice.Item1, Formatting.Indented, new JsonSerializerSettings
                         {
                             Error = (sender, eventArgs) => eventArgs.ErrorContext.Handled = true,
+                            Converters = new JsonConverter[]{ new Newtonsoft.Json.Converters.StringEnumConverter() }.ToList()
                         }));
                         writer.WriteLine();
                     }
