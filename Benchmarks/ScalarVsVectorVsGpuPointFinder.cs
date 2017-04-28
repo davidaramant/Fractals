@@ -21,7 +21,7 @@ namespace Benchmarks
 
         private static IEnumerable<Area> GetEdges()
         {
-            var edgeReader = new AreaListReader(directory: @"C:\Users\aramant\Desktop\Buddhabrot\Test Plot", filename: @"NewEdge.edge");
+            var edgeReader = new AreaListReader(directory: ".", filename: @"NewEdge.edge");
             return edgeReader.GetAreas();
         }
 
