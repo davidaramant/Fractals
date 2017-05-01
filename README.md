@@ -1,3 +1,11 @@
+This repository has grown unmanageable enough that I've started a [second one](https://github.com/davidaramant/buddhabrot) for the tools to generate large Buddhabrots.
+
+This one will keep all the semi-related stuff like making the diagrams for the [writeup](https://davidaramant.github.io/post/the-buddhabrot-part-1/).
+
+_Some_ of the below is correct.
+
+*********************************************
+
 # Overview
 
 A tool to generated Buddhabrot images.
