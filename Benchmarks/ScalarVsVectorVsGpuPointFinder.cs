@@ -16,7 +16,11 @@ namespace Benchmarks
     public class ScalarVsVectorVsGpuPointFinder
     {
         public IterationRange Range => new IterationRange(20_000_000, 25_000_000);
-        public static int NumberOfPoints => 9600;
+
+        public static int NumberOfPoints => 16384;
+        // 16384 - GTX 1060
+        // 12800 - Intel desktop
+        // 10240 - Intel laptop
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -30,7 +34,7 @@ namespace Benchmarks
 
         private static Device GetDevice(DeviceType deviceType)
         {
-            return Platform.GetPlatforms()[0].GetDevices().Single(d => d.DeviceType == deviceType);
+            return Platform.GetPlatforms()[0].GetDevices(deviceType).ElementAt(0);
         }
 
         [Setup]
@@ -291,7 +295,9 @@ namespace Benchmarks
         }
 
         [Benchmark]
-        public unsafe int FindPointsOpenClHeterogenous(int cpuRatio = 1, int gpuRatio = 1)
+        public unsafe int FindPointsOpenClHeterogenous(
+            int cpuRatio = 1,
+            int gpuRatio = 1)
         {
             using (var stack = new DisposeStack())
             {
@@ -306,7 +312,7 @@ namespace Benchmarks
 
                 var context = stack.Add(Context.Create(devices));
                 var program = stack.Add(context.CreateProgramWithSource(KernelSource));
-                program.Build("-cl-no-signed-zeros -cl-finite-math-only");
+                program.Build("-cl-no-signed-zeros -cl-finite-math-only"); // TODO: These optimization don't work on nVidia
 
                 var points =
                     _pointGenerator.GetNumbers().
@@ -422,7 +428,7 @@ namespace Benchmarks
             using (var commandQueue = context.CreateCommandQueue(device))
             using (var program = context.CreateProgramWithSource(KernelSource))
             {
-                program.Build("-cl-no-signed-zeros -cl-finite-math-only");
+                program.Build();
 
                 using (var kernel = program.CreateKernel("iterate_points"))
                 {
@@ -443,17 +449,17 @@ namespace Benchmarks
                     var finalIterations = new int[NumberOfPoints];
 
                     IntPtr[] globalSize = { (IntPtr)NumberOfPoints };
-                    IntPtr[] localSize = { (IntPtr)device.MaxComputeUnits };
+                    IntPtr[] localSize = null;//{ (IntPtr)device.MaxComputeUnits };
 
                     fixed (float* pCReals = cReals, pCImags = cImags)
                     fixed (int* pFinalIterations = finalIterations)
                     {
                         using (var cRealsBuffer = context.CreateBuffer(
-                            MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                            MemoryFlags.CopyHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
                             sizeof(float) * NumberOfPoints,
                             (IntPtr)pCReals))
                         using (var cImagsBuffer = context.CreateBuffer(
-                            MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                            MemoryFlags.CopyHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
                             sizeof(float) * NumberOfPoints,
                             (IntPtr)pCImags))
                         using (var iterationsBuffer = context.CreateBuffer(
