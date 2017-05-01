@@ -43,7 +43,7 @@ namespace Benchmarks
             double zReal2 = 0;
             double zImag2 = 0;
 
-            for (int i = 0; i < bailoutRange.Maximum; i++)
+            for (int i = 0; i < bailoutRange.ExclusiveMaximum; i++)
             {
                 double reTemp = zReal2 - zImag2 + cReal;
                 zImag = 2 * zReal * zImag + cImag;
@@ -55,7 +55,7 @@ namespace Benchmarks
                 // Check the magnitude squared against 2^2
                 if ((zReal2 + zImag2) > 4)
                 {
-                    return i >= bailoutRange.Minimum;
+                    return i >= bailoutRange.InclusiveMinimum;
                 }
             }
 
@@ -95,7 +95,7 @@ namespace Benchmarks
             double re2 = 0;
             double im2 = 0;
 
-            for (uint i = 0; i < bailoutRange.Maximum; i++)
+            for (uint i = 0; i < bailoutRange.ExclusiveMaximum; i++)
             {
                 var reTemp = re2 - im2 + cReal;
                 im = 2 * re * im + cImag;
@@ -123,7 +123,7 @@ namespace Benchmarks
                 // Check the magnitude squared against 2^2
                 if ((re2 + im2) > 4)
                 {
-                    return i >= bailoutRange.Minimum;
+                    return i >= bailoutRange.InclusiveMinimum;
                 }
             }
 

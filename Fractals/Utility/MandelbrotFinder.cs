@@ -73,7 +73,7 @@ namespace Fractals.Utility
             double re2 = 0;
             double im2 = 0;
 
-            for (uint i = 0; i < iterationRange.Maximum; i++)
+            for (uint i = 0; i < iterationRange.ExclusiveMaximum; i++)
             {
                 var reTemp = re2 - im2 + c.Real;
                 im = 2 * re * im + c.Imaginary;

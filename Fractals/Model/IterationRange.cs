@@ -2,27 +2,27 @@
 {
     public sealed class IterationRange
     {
-        public readonly int Minimum;
-        public readonly int Maximum;
+        public readonly int InclusiveMinimum;
+        public readonly int ExclusiveMaximum;
 
-        public IterationRange(int maximum)
+        public IterationRange(int exclusiveMaximum)
         {
-            Maximum = maximum;
+            ExclusiveMaximum = exclusiveMaximum;
         }
 
-        public IterationRange(int minimum, int maximum)
+        public IterationRange(int inclusiveMinimum, int exclusiveMaximum)
         {
-            Minimum = minimum;
-            Maximum = maximum;
+            InclusiveMinimum = inclusiveMinimum;
+            ExclusiveMaximum = exclusiveMaximum;
         }
 
         public bool IsInside(int escapeTime)
         {
             return
-                escapeTime >= Minimum &&
-                escapeTime <= Maximum;
+                escapeTime >= InclusiveMinimum &&
+                escapeTime < ExclusiveMaximum;
         }
 
-        public override string ToString() => $"{Minimum:N0} <= iterations <= {Maximum:N0}";
+        public override string ToString() => $"{InclusiveMinimum:N0} <= iterations < {ExclusiveMaximum:N0}";
     }
 }

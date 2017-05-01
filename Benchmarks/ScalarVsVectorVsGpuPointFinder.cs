@@ -72,7 +72,7 @@ namespace Benchmarks
             float zReal2 = 0;
             float zImag2 = 0;
 
-            for (int i = 0; i < range.Maximum; i++)
+            for (int i = 0; i < range.ExclusiveMaximum; i++)
             {
                 float zRealTemp = zReal2 - zImag2 + cReal;
                 zImag = 2 * zReal * zImag + cImag;
@@ -84,7 +84,7 @@ namespace Benchmarks
                 // Check the magnitude squared against 2^2
                 if ((zReal2 + zImag2) > 4)
                 {
-                    return i >= range.Minimum;
+                    return i >= range.InclusiveMinimum;
                 }
             }
 
@@ -124,7 +124,7 @@ namespace Benchmarks
                     var cReal = new Vector<float>(realBatch);
                     var cImag = new Vector<float>(imagBatch);
 
-                    var finalIterations = IsBuddhabrotPointVector(cReal, cImag, Range.Maximum);
+                    var finalIterations = IsBuddhabrotPointVector(cReal, cImag, Range.ExclusiveMaximum);
                     finalIterations.CopyTo(result);
 
                     buddhabrotPointsFound += result.Count(i => Range.IsInside(i));
@@ -262,7 +262,7 @@ namespace Benchmarks
                     var cReal = new Vector<float>(realBatch);
                     var cImag = new Vector<float>(imagBatch);
 
-                    var finalIterations = method(cReal, cImag, Range.Maximum);
+                    var finalIterations = method(cReal, cImag, Range.ExclusiveMaximum);
                     finalIterations.CopyTo(result);
 
                     subTotal += result.Count(r => Range.IsInside(r));

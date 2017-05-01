@@ -61,8 +61,8 @@ namespace Fractals.Utility
             _log.DebugFormat("Maximum Threshold: {0:N0}", _maximum);
 
             var iterationRange = new IterationRange(
-                minimum: _minimum,
-                maximum: _maximum);
+                inclusiveMinimum: _minimum,
+                exclusiveMaximum: _maximum);
 
             var list = new ComplexNumberListWriter(_outputDirectory, _outputFile);
 
