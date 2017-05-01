@@ -8,16 +8,16 @@ namespace NOpenCLTest
 {
     class Program
     {
-        private static Device GetIntelGpu()
+        private static Device GetGPu()
         {
-            return Platform.GetPlatforms().SelectMany(p => p.GetDevices()).Single(d => d.DeviceType == DeviceType.Gpu);
+            return Platform.GetPlatforms()[0].GetDevices(DeviceType.Gpu).First();
         }
 
         private static unsafe void AddNumbers()
         {
             var source = System.IO.File.ReadAllText("add_numbers.cl");
 
-            using (var device = GetIntelGpu())
+            using (var device = GetGPu())
             using (var context = Context.Create(device))
             using (var commandQueue = context.CreateCommandQueue(device))
             using (var program = context.CreateProgramWithSource(source))
@@ -69,9 +69,9 @@ namespace NOpenCLTest
             try
             {
 
-                LogDeviceInfo();
+                //LogDeviceInfo();
 
-                //AddNumbers();
+                AddNumbers();
             }
             catch (Exception e)
             {
