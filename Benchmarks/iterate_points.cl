@@ -18,7 +18,7 @@
 
     int iterations = 0;
 
-    for (int i = 0; i < 25000000; i++)
+    for (int i = 0; i < 30000000; i++)
     {
         zImag = 2 * zReal * zImag + cImag;
         zReal = zReal2 - zImag2 + cReal;

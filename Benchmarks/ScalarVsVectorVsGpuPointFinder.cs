@@ -15,9 +15,9 @@ namespace Benchmarks
 {
     public class ScalarVsVectorVsGpuPointFinder
     {
-        public IterationRange Range => new IterationRange(20_000_000, 25_000_000);
+        public IterationRange Range => new IterationRange(20_000_000, 30_000_000);
 
-        public static int NumberOfPoints => 16384;
+        public static int NumberOfPoints => 8192;
         // 16384 - GTX 1060
         // 12800 - Intel desktop
         // 10240 - Intel laptop
@@ -332,8 +332,8 @@ namespace Benchmarks
 
                 var (cpuBatchSize, gpuBatchSize) =
                     Util.Partition(NumberOfPoints,
-                    ratio: (cpuRatio, gpuRatio),
-                    batchSize: ((int)cpuDevice.MaxComputeUnits, (int)gpuDevice.MaxComputeUnits));
+                        ratio: (cpuRatio, gpuRatio),
+                        batchSize: (4, 4));//((int)cpuDevice.MaxComputeUnits, (int)gpuDevice.MaxComputeUnits));
 
                 Console.WriteLine($"Ratio {cpuRatio}:{gpuRatio} = {cpuBatchSize} CPU, {gpuBatchSize} GPU");
 
@@ -392,10 +392,11 @@ namespace Benchmarks
                         kernel.Arguments[1].SetValue(cImagsSubBuffers[deviceIndex]);
                         kernel.Arguments[2].SetValue(iterationsSubBuffers[deviceIndex]);
 
-                        enqueueEvents[deviceIndex] = commandQueues[deviceIndex].EnqueueNDRangeKernel(
-                            kernel,
-                            globalWorkSize: (IntPtr)(batchSizes[deviceIndex]),
-                            localWorkSize: (IntPtr)device.MaxComputeUnits);
+                        enqueueEvents[deviceIndex] = commandQueues[deviceIndex]
+                            .EnqueueNDRangeKernel(
+                                kernel,
+                                globalWorkSize: new[] {(IntPtr) batchSizes[deviceIndex]},
+                                localWorkSize: null);//new[] {(IntPtr) device.MaxComputeUnits});
                     }
 
                     Event.WaitAll(enqueueEvents);
