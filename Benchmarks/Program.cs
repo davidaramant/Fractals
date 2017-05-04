@@ -33,8 +33,8 @@ namespace Benchmarks
             //RunTest(() => $"* Vector early return:\n\t{s.FindPointsVectorsParallel()} points");
             //RunTest(() => $"* Vector no early return:\n\t{s.FindPointsVectorsNoEarlyReturn()} points");
             //RunTest(() => $"* OpenCL CPU:\n\t{s.FindPointsOpenClCpu()} points");
-            RunTest(() => $"* OpenCL GPU:\n\t{s.FindPointsOpenClGpu()} points");
-            //RunTest(() => $"* OpenCL Heterogenous:\n\t{s.FindPointsOpenClHeterogenous(cpuRatio: 63, gpuRatio: 43)} points");
+            //RunTest(() => $"* OpenCL GPU:\n\t{s.FindPointsOpenClGpu()} points");
+            RunTest(() => $"* OpenCL Heterogenous:\n\t{s.FindPointsOpenClHeterogenous(cpuRatio:52,gpuRatio:46)} points");
 
             //var summary = BenchmarkRunner.Run<ScalarVsVectorVsGpuPointFinder>();
         }

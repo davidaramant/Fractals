@@ -312,7 +312,8 @@ namespace Benchmarks
 
                 var context = stack.Add(Context.Create(devices));
                 var program = stack.Add(context.CreateProgramWithSource(KernelSource));
-                program.Build("-cl-no-signed-zeros -cl-finite-math-only"); // TODO: These optimization don't work on nVidia
+                //program.Build("-cl-no-signed-zeros -cl-finite-math-only"); // TODO: These optimization don't work on nVidia
+                program.Build();
 
                 var points =
                     _pointGenerator.GetNumbers().
@@ -333,7 +334,7 @@ namespace Benchmarks
                 var (cpuBatchSize, gpuBatchSize) =
                     Util.Partition(NumberOfPoints,
                         ratio: (cpuRatio, gpuRatio),
-                        batchSize: (4, 4));//((int)cpuDevice.MaxComputeUnits, (int)gpuDevice.MaxComputeUnits));
+                        batchSize: (128, 128));//((int)cpuDevice.MaxComputeUnits, (int)gpuDevice.MaxComputeUnits));
 
                 Console.WriteLine($"Ratio {cpuRatio}:{gpuRatio} = {cpuBatchSize} CPU, {gpuBatchSize} GPU");
 
