@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
@@ -17,7 +18,7 @@ namespace Benchmarks
     {
         public IterationRange Range => new IterationRange(20_000_000, 30_000_000);
 
-        public static int NumberOfPoints => 8192;
+        public static int NumberOfPoints => 512;
         // 16384 - GTX 1060
         // 12800 - Intel desktop
         // 10240 - Intel laptop
@@ -43,55 +44,206 @@ namespace Benchmarks
             _pointGenerator.ResetRandom(seed: 0);
         }
 
+        private static IEnumerable<Complex> GetNumbers()
+        {
+            var resolution = new Size(32, 16);
+
+            var realIncrement = 4.0 / (resolution.Width - 1);
+            var imagIncrement = 2.0 / (resolution.Height - 1);
+
+            for (int y = 0; y < resolution.Height; y++)
+            {
+                for (int x = 0; x < resolution.Width; x++)
+                {
+                    yield return new Complex(-2 + x * realIncrement, y * imagIncrement);
+                }
+            }
+        }
+
         #region Scalar
 
-        //[Benchmark(Baseline = true)]
-        public int FindPointsScalar()
+        [Benchmark(Baseline = true)]
+        public int Scalar()
         {
             return
-                _pointGenerator.GetNumbers()
-                .Where(c => !MandelbulbChecker.IsInsideBulbs(c))
+                GetNumbers()
+                //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                 .Take(NumberOfPoints)
-                .Count(c => IsBuddhabrotPointScalar((float)c.Real, (float)c.Imaginary, Range));
+                .Count(c => IsInsideMandelbrotSet(c, Range.ExclusiveMaximum));
         }
 
-        //[Benchmark]
-        public int FindPointsScalarParallel()
+        [Benchmark]
+        public int ScalarParallel()
         {
             return
-                _pointGenerator.GetNumbers()
-                    .Where(c => !MandelbulbChecker.IsInsideBulbs(c))
+                GetNumbers()
+                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => IsBuddhabrotPointScalar((float)c.Real, (float)c.Imaginary, Range));
+                    .Count(c => IsInsideMandelbrotSet(c, Range.ExclusiveMaximum));
         }
 
-        public bool IsBuddhabrotPointScalar(float cReal, float cImag, IterationRange range)
+        [Benchmark]
+        public int ScalarParallelNoAdt()
         {
-            float zReal = 0;
-            float zImag = 0;
+            return
+                GetNumbers()
+                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
+                    .Take(NumberOfPoints)
+                    .AsParallel()
+                    .Count(c => IsInsideMandelbrotSetNoADT(c.Real, c.Imaginary, Range.ExclusiveMaximum));
+        }
 
-            // Cache the squares
-            // They are used to find the magnitude; reuse these values when computing the next re/im
-            float zReal2 = 0;
-            float zImag2 = 0;
+        [Benchmark]
+        public int ScalarParallelNoAdtCachingSquares()
+        {
+            return
+                GetNumbers()
+                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
+                    .Take(NumberOfPoints)
+                    .AsParallel()
+                    .Count(c => IsInsideMandelbrotSetCachingSquares(c.Real, c.Imaginary, Range.ExclusiveMaximum));
+        }
 
-            for (int i = 0; i < range.ExclusiveMaximum; i++)
+        [Benchmark]
+        public int ScalarParallelNoAdtCachingSquaresFloats()
+        {
+            return
+                GetNumbers()
+                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
+                    .Take(NumberOfPoints)
+                    .AsParallel()
+                    .Count(c => IsInsideMandelbrotSetFloats((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum));
+        }
+
+        [Benchmark]
+        public int ScalarParallelNoAdtCachingSquaresCycleDetection()
+        {
+            return
+                GetNumbers()
+                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
+                    .Take(NumberOfPoints)
+                    .AsParallel()
+                    .Count(c => IsInsideMandelbrotSetCycleDetection(c.Real, c.Imaginary, Range.ExclusiveMaximum));
+        }
+
+
+        public bool IsInsideMandelbrotSet(
+            Complex c, int iterationLimit)
+        {
+            var z = Complex.Zero;
+
+            for (int i = 0; i < iterationLimit; i++)
             {
-                float zRealTemp = zReal2 - zImag2 + cReal;
+                z = z * z + c;
+
+                if (z.Magnitude > 2)
+                    return false;
+            }
+            return true;
+        }
+
+        public bool IsInsideMandelbrotSetNoADT(
+            double cReal, double cImag, int iterationLimit)
+        {
+            var zReal = 0.0;
+            var zImag = 0.0;
+
+            for (int i = 0; i < iterationLimit; i++)
+            {
+                var zRealTemp = zReal * zReal - zImag * zImag + cReal;
                 zImag = 2 * zReal * zImag + cImag;
                 zReal = zRealTemp;
+
+                if (zReal * zReal + zImag + zImag > 4)
+                    return false;
+            }
+            return true;
+        }
+
+        public bool IsInsideMandelbrotSetCachingSquares(
+            double cReal, double cImag, int iterationLimit)
+        {
+            var zReal = 0.0;
+            var zImag = 0.0;
+
+            var zReal2 = 0.0;
+            var zImag2 = 0.0;
+
+            for (int i = 0; i < iterationLimit; i++)
+            {
+                zImag = 2 * zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
 
                 zReal2 = zReal * zReal;
                 zImag2 = zImag * zImag;
 
-                // Check the magnitude squared against 2^2
-                if ((zReal2 + zImag2) > 4)
-                {
-                    return i >= range.InclusiveMinimum;
-                }
+                if (zReal2 + zImag2 > 4)
+                    return false;
             }
+            return true;
+        }
 
+        public bool IsInsideMandelbrotSetCycleDetection(
+            double cReal, double cImag, int iterationLimit)
+        {
+            var zReal = 0.0;
+            var zImag = 0.0;
+
+            var zReal2 = 0.0;
+            var zImag2 = 0.0;
+
+            var oldZReal = 0.0;
+            var oldZImag = 0.0;
+
+            int stepsTaken = 0;
+            int stepLimit = 2;
+
+            for (int i = 0; i < iterationLimit; i++)
+            {
+                zImag = 2 * zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                if (zReal == oldZReal && zImag == oldZImag)
+                    return true;
+
+                if (stepsTaken == stepLimit)
+                {
+                    oldZReal = zReal;
+                    oldZImag = zImag;
+                    stepsTaken = 0;
+                    stepLimit *= 2;
+                }
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                if (zReal2 + zImag2 > 4)
+                    return false;
+            }
+            return true;
+        }
+
+        public bool IsInsideMandelbrotSetFloats(
+            float cReal, float cImag, int iterationLimit)
+        {
+            var zReal = 0.0f;
+            var zImag = 0.0f;
+
+            var zReal2 = 0.0f;
+            var zImag2 = 0.0f;
+
+            for (int i = 0; i < iterationLimit; i++)
+            {
+                zImag = 2 * zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                if (zReal2 + zImag2 > 4)
+                    return false;
+            }
             return true;
         }
 
@@ -100,57 +252,153 @@ namespace Benchmarks
         #region Vectors
 
         //[Benchmark]
-        public int FindPointsVectors()
+        public int Vectors()
         {
-            var realBatch = new float[Vector<float>.Count];
-            var imagBatch = new float[Vector<float>.Count];
-            var result = new int[Vector<int>.Count];
+            return FindPointsVectorsParallelBatches(MandelbrotVectors);
+        }
 
+        public Vector<long> MandelbrotVectors(
+            Vector<double> cReal, Vector<double> cImag, int maxIterations)
+        {
+            var zReal = new Vector<double>(0);
+            var zImag = new Vector<double>(0);
+
+            var zReal2 = new Vector<double>(0);
+            var zImag2 = new Vector<double>(0);
+
+            var iterations = Vector<long>.Zero;
+            var increment = Vector<long>.One;
+
+            do
+            {
+                zImag = zReal * zImag + zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                var shouldContinue =
+                    Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<double>(4)) &
+                    Vector.LessThan(iterations, new Vector<long>(maxIterations));
+
+                increment = increment & shouldContinue;
+                iterations += increment;
+            } while (increment != Vector<long>.Zero);
+
+            return iterations;
+        }
+
+        //[Benchmark]
+        public int VectorsNoEarlyReturn()
+        {
+            return FindPointsVectorsParallelBatches(MandelbrotCheckVectorsNoEarlyReturn);
+        }
+
+        public Vector<long> MandelbrotCheckVectorsNoEarlyReturn(
+            Vector<double> cReal, Vector<double> cImag, int maxIterations)
+        {
+            var zReal = new Vector<double>(0);
+            var zImag = new Vector<double>(0);
+
+            var zReal2 = new Vector<double>(0);
+            var zImag2 = new Vector<double>(0);
+
+            var iterations = Vector<long>.Zero;
+            var increment = Vector<long>.One;
+
+            for (int i = 0; i < maxIterations; i++)
+            {
+                zImag = zReal * zImag + zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                var shouldContinue = Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<double>(4));
+
+                increment = increment & shouldContinue;
+                iterations += increment;
+            }
+
+            return iterations;
+        }
+
+        public delegate Vector<long> IteratePoints(Vector<double> cReal, Vector<double> cImage, int maxIterations);
+
+        public int FindPointsVectorsParallelBatches(IteratePoints method)
+        {
             var points =
-                _pointGenerator.GetNumbers().
-                    Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
+                GetNumbers().
+                    //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
                     Take(NumberOfPoints);
 
-            var buddhabrotPointsFound = 0;
+            var mandelbrotPointsFound = 0;
 
-            int batchProgress = 0;
-            foreach (var c in points)
+            var vectorCapacity = Vector<double>.Count;
+
+            IEnumerable<Complex[]> VectorBatch(IEnumerable<Complex> pointSequence)
             {
-                realBatch[batchProgress] = (float)c.Real;
-                imagBatch[batchProgress] = (float)c.Imaginary;
-
-                batchProgress++;
-
-                if (batchProgress == Vector<float>.Count)
+                int count = 0;
+                var batch = new Complex[vectorCapacity];
+                foreach (var complex in pointSequence)
                 {
-                    batchProgress = 0;
+                    batch[count++] = complex;
 
-                    var cReal = new Vector<float>(realBatch);
-                    var cImag = new Vector<float>(imagBatch);
-
-                    var finalIterations = IsBuddhabrotPointVector(cReal, cImag, Range.ExclusiveMaximum);
-                    finalIterations.CopyTo(result);
-
-                    buddhabrotPointsFound += result.Count(i => Range.IsInside(i));
+                    if (count == vectorCapacity)
+                    {
+                        count = 0;
+                        yield return batch;
+                        batch = new Complex[vectorCapacity];
+                    }
                 }
             }
 
-            return buddhabrotPointsFound;
+            Parallel.ForEach(
+                source: VectorBatch(points),
+                localInit: () => 0,
+                body: (batch, state, subTotal) =>
+                {
+                    var realBatch = new double[vectorCapacity];
+                    var imagBatch = new double[vectorCapacity];
+                    var result = new long[vectorCapacity];
+
+                    for (int i = 0; i < vectorCapacity; i++)
+                    {
+                        realBatch[i] = batch[i].Real;
+                        imagBatch[i] = batch[i].Imaginary;
+                    }
+
+                    var cReal = new Vector<double>(realBatch);
+                    var cImag = new Vector<double>(imagBatch);
+
+                    var finalIterations = method(cReal, cImag, Range.ExclusiveMaximum);
+                    finalIterations.CopyTo(result);
+
+                    subTotal += result.Count(r => r == Range.ExclusiveMaximum);
+
+                    return subTotal;
+                },
+                localFinally: count => Interlocked.Add(ref mandelbrotPointsFound, count));
+
+            return mandelbrotPointsFound;
         }
 
-        [Benchmark]
-        public int FindPointsVectorsParallel()
+        #endregion Vectors
+
+        #region Vectors Floats
+
+        //[Benchmark]
+        public int VectorsFloats()
         {
-            return FindPointsVectorsParallelBatches(IsBuddhabrotPointVector);
+            return FindPointsVectorsParallelBatches(MandelbrotVectorsFloats);
         }
 
-        public Vector<int> IsBuddhabrotPointVector(Vector<float> cReal, Vector<float> cImag, int maxIterations)
+        public Vector<int> MandelbrotVectorsFloats(
+            Vector<float> cReal, Vector<float> cImag, int maxIterations)
         {
             var zReal = new Vector<float>(0);
             var zImag = new Vector<float>(0);
 
-            // Cache the squares
-            // They are used to find the magnitude; reuse these values when computing the next re/im
             var zReal2 = new Vector<float>(0);
             var zImag2 = new Vector<float>(0);
 
@@ -159,11 +407,8 @@ namespace Benchmarks
 
             do
             {
-                var zRealTemp = zReal2 - zImag2 + cReal;
-                // Doing the two multiplications with an addition is somehow faster than 2 * zReal * zImag!
-                // I don't get it either
                 zImag = zReal * zImag + zReal * zImag + cImag;
-                zReal = zRealTemp;
+                zReal = zReal2 - zImag2 + cReal;
 
                 zReal2 = zReal * zReal;
                 zImag2 = zImag * zImag;
@@ -179,19 +424,18 @@ namespace Benchmarks
             return iterations;
         }
 
-        [Benchmark]
-        public int FindPointsVectorsNoEarlyReturn()
+        //[Benchmark]
+        public int VectorsNoEarlyReturnFloats()
         {
-            return FindPointsVectorsParallelBatches(IsBuddhabrotPointVectorNoEarlyReturn);
+            return FindPointsVectorsParallelBatches(MandelbrotCheckVectorsNoEarlyReturnFloats);
         }
 
-        public Vector<int> IsBuddhabrotPointVectorNoEarlyReturn(Vector<float> cReal, Vector<float> cImag, int maxIterations)
+        public Vector<int> MandelbrotCheckVectorsNoEarlyReturnFloats(
+            Vector<float> cReal, Vector<float> cImag, int maxIterations)
         {
             var zReal = new Vector<float>(0);
             var zImag = new Vector<float>(0);
 
-            // Cache the squares
-            // They are used to find the magnitude; reuse these values when computing the next re/im
             var zReal2 = new Vector<float>(0);
             var zImag2 = new Vector<float>(0);
 
@@ -200,11 +444,8 @@ namespace Benchmarks
 
             for (int i = 0; i < maxIterations; i++)
             {
-                var zRealTemp = zReal2 - zImag2 + cReal;
-                // Doing the two multiplications with an addition is somehow faster than 2 * zReal * zImag!
-                // I don't get it either
                 zImag = zReal * zImag + zReal * zImag + cImag;
-                zReal = zRealTemp;
+                zReal = zReal2 - zImag2 + cReal;
 
                 zReal2 = zReal * zReal;
                 zImag2 = zImag * zImag;
@@ -218,16 +459,16 @@ namespace Benchmarks
             return iterations;
         }
 
-        public delegate Vector<int> IteratePoints(Vector<float> cReal, Vector<float> cImage, int maxIterations);
+        public delegate Vector<int> IteratePointsFloats(Vector<float> cReal, Vector<float> cImage, int maxIterations);
 
-        public int FindPointsVectorsParallelBatches(IteratePoints method)
+        public int FindPointsVectorsParallelBatches(IteratePointsFloats method)
         {
             var points =
-                _pointGenerator.GetNumbers().
-                    Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
+                GetNumbers().
+                    //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
                     Take(NumberOfPoints);
 
-            var buddhabrotPointsFound = 0;
+            var mandelbrotPointsFound = 0;
 
             var vectorCapacity = Vector<float>.Count;
 
@@ -269,32 +510,32 @@ namespace Benchmarks
                     var finalIterations = method(cReal, cImag, Range.ExclusiveMaximum);
                     finalIterations.CopyTo(result);
 
-                    subTotal += result.Count(r => Range.IsInside(r));
+                    subTotal += result.Count(r => r == Range.ExclusiveMaximum);
 
                     return subTotal;
                 },
-                localFinally: count => Interlocked.Add(ref buddhabrotPointsFound, count));
+                localFinally: count => Interlocked.Add(ref mandelbrotPointsFound, count));
 
-            return buddhabrotPointsFound;
+            return mandelbrotPointsFound;
         }
 
-        #endregion Vectors
+        #endregion Vectors Floats
 
         #region OpenCL
 
-        [Benchmark]
+        //[Benchmark]
         public int FindPointsOpenClCpu()
         {
             return FindPointsOpenCl(DeviceType.Cpu);
         }
 
-        [Benchmark]
+        //[Benchmark]
         public int FindPointsOpenClGpu()
         {
             return FindPointsOpenCl(DeviceType.Gpu);
         }
 
-        [Benchmark]
+        //[Benchmark]
         public unsafe int FindPointsOpenClHeterogenous(
             int cpuRatio = 1,
             int gpuRatio = 1)
@@ -396,7 +637,7 @@ namespace Benchmarks
                         enqueueEvents[deviceIndex] = commandQueues[deviceIndex]
                             .EnqueueNDRangeKernel(
                                 kernel,
-                                globalWorkSize: new[] {(IntPtr) batchSizes[deviceIndex]},
+                                globalWorkSize: new[] { (IntPtr)batchSizes[deviceIndex] },
                                 localWorkSize: null);//new[] {(IntPtr) device.MaxComputeUnits});
                     }
 
