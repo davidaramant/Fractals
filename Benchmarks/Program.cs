@@ -16,7 +16,7 @@ namespace Benchmarks
             void RunTest(string name, Func<int> test)
             {
                 Console.WriteLine($"* {name}:");
-                const int NumberTrials = 1;
+                const int NumberTrials = 3;
                 var totals = new int[NumberTrials];
 
                 GC.Collect();
@@ -29,7 +29,7 @@ namespace Benchmarks
                 }
                 stopwatch.Stop();
 
-                var pointsPerSecond = 3 * ScalarVsVectorPointFinder.NumberOfPoints / stopwatch.Elapsed.TotalSeconds;
+                var pointsPerSecond = NumberTrials * ScalarVsVectorPointFinder.NumberOfPoints / stopwatch.Elapsed.TotalSeconds;
                 Console.WriteLine($"\t{totals[0]} points (Took {stopwatch.Elapsed.TotalSeconds / NumberTrials:N1}s - {pointsPerSecond:N1} points/sec)");
             }
 
@@ -62,7 +62,11 @@ namespace Benchmarks
             //}
 
 
-
+            using (s.SetupOpenCL(DeviceType.Cpu))
+            {
+                RunTest("OpenCL CPU, floats", s.OpenCLFloats);
+                //RunTest("OpenCL GPU, floats, No Early Return", cpu.VectorsNoEarlyReturnFloats);
+            }
 
             //RunTest(() => $"* Scalar Parallel:\n\t{s.FindPointsScalarParallel()} points");
             //RunTest(() => $"* Vector early return:\n\t{s.FindPointsVectorsParallel()} points");

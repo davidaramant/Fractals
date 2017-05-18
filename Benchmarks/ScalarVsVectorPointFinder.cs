@@ -18,7 +18,7 @@ namespace Benchmarks
     {
         public IterationRange Range => new IterationRange(20_000_000, 30_000_000);
 
-        public static int NumberOfPoints => 12800;
+        public static int NumberOfPoints => 1024;
         // 512 - software
         // 16384 - GTX 1060
         // 12800 - Intel desktop
