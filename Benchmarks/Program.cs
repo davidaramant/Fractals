@@ -37,14 +37,14 @@ namespace Benchmarks
             Console.WriteLine($"Iteration Range: {s.Range}");
 
             //RunTest("Scalar", s.Scalar);
-            RunTest("Scalar Parallel", s.ScalarParallel);
-            RunTest("Scalar Parallel, No ADT", s.ScalarParallelNoAdt);
-            RunTest("Scalar Parallel, No ADT, Caching Squares", s.ScalarParallelNoAdtCachingSquares);
-            RunTest("Scalar Parallel, No ADT, Caching Squares, Floats", s.ScalarParallelNoAdtCachingSquaresFloats);
-            RunTest("Scalar Parallel, No ADT, Caching Squares, Cycle Detection", s.ScalarParallelNoAdtCachingSquaresCycleDetection);
+            //RunTest("Scalar Parallel", s.ScalarParallel);
+            //RunTest("Scalar Parallel, No ADT", s.ScalarParallelNoAdt);
+            //RunTest("Scalar Parallel, No ADT, Caching Squares", s.ScalarParallelNoAdtCachingSquares);
+            //RunTest("Scalar Parallel, No ADT, Caching Squares, Floats", s.ScalarParallelNoAdtCachingSquaresFloats);
+            //RunTest("Scalar Parallel, No ADT, Caching Squares, Cycle Detection", s.ScalarParallelNoAdtCachingSquaresCycleDetection);
 
-            RunTest("Vectors", s.Vectors);
-            RunTest("Vectors, No Early Return", s.VectorsNoEarlyReturn);
+            //RunTest("Vectors", s.Vectors);
+            //RunTest("Vectors, No Early Return", s.VectorsNoEarlyReturn);
             RunTest("Vectors, floats", s.VectorsFloats);
             RunTest("Vectors, floats, No Early Return", s.VectorsNoEarlyReturnFloats);
 

@@ -29,7 +29,11 @@ namespace Benchmarks
             return edgeReader.GetAreas();
         }
 
-        private readonly RandomPointGenerator _pointGenerator = new RandomPointGenerator(GetEdges(), seed: 0);
+        //        private readonly RandomPointGenerator _pointGenerator = new RandomPointGenerator(GetEdges(), seed: 0);
+        private readonly RandomPointGenerator _pointGenerator = new RandomPointGenerator(
+            new[] { new Area(
+                realRange: new InclusiveRange(-0.0330803080308029, -0.0328162816281627), 
+                imagRange: new InclusiveRange(0.768261665534427, 0.768525691937067)), }, seed: 0);
 
         private static readonly string KernelSource = System.IO.File.ReadAllText("iterate_points.cl");
 
@@ -44,21 +48,7 @@ namespace Benchmarks
             _pointGenerator.ResetRandom(seed: 0);
         }
 
-        private static IEnumerable<Complex> GetNumbers()
-        {
-            var resolution = new Size(32, 16);
-
-            var realIncrement = 4.0 / (resolution.Width - 1);
-            var imagIncrement = 2.0 / (resolution.Height - 1);
-
-            for (int y = 0; y < resolution.Height; y++)
-            {
-                for (int x = 0; x < resolution.Width; x++)
-                {
-                    yield return new Complex(-2 + x * realIncrement, y * imagIncrement);
-                }
-            }
-        }
+        private IEnumerable<Complex> GetNumbers() => _pointGenerator.GetNumbers();
 
         #region Scalar
 
@@ -69,7 +59,7 @@ namespace Benchmarks
                 GetNumbers()
                 //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                 .Take(NumberOfPoints)
-                .Count(c => IsInsideMandelbrotSet(c, Range.ExclusiveMaximum));
+                .Count(c => Range.IsInside(Iterate(c, Range.ExclusiveMaximum)));
         }
 
         [Benchmark]
@@ -80,7 +70,7 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => IsInsideMandelbrotSet(c, Range.ExclusiveMaximum));
+                    .Count(c => Range.IsInside(Iterate(c, Range.ExclusiveMaximum)));
         }
 
         [Benchmark]
@@ -91,7 +81,7 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => IsInsideMandelbrotSetNoADT(c.Real, c.Imaginary, Range.ExclusiveMaximum));
+                    .Count(c => Range.IsInside(IterateNoADT(c.Real, c.Imaginary, Range.ExclusiveMaximum)));
         }
 
         [Benchmark]
@@ -102,7 +92,7 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => IsInsideMandelbrotSetCachingSquares(c.Real, c.Imaginary, Range.ExclusiveMaximum));
+                    .Count(c => Range.IsInside(IterateCachingSquares(c.Real, c.Imaginary, Range.ExclusiveMaximum)));
         }
 
         [Benchmark]
@@ -113,7 +103,8 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => IsInsideMandelbrotSetFloats((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum));
+                    .Count(c => Range.IsInside(IterateFloat((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum)));
+
         }
 
         [Benchmark]
@@ -124,11 +115,12 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => IsInsideMandelbrotSetCycleDetection(c.Real, c.Imaginary, Range.ExclusiveMaximum));
+                    .Count(c => Range.IsInside(IterateCycleDetection(c.Real, c.Imaginary, Range.ExclusiveMaximum)));
+
         }
 
 
-        public bool IsInsideMandelbrotSet(
+        public int Iterate(
             Complex c, int iterationLimit)
         {
             var z = Complex.Zero;
@@ -138,12 +130,12 @@ namespace Benchmarks
                 z = z * z + c;
 
                 if (z.Magnitude > 2)
-                    return false;
+                    return i;
             }
-            return true;
+            return iterationLimit;
         }
 
-        public bool IsInsideMandelbrotSetNoADT(
+        public int IterateNoADT(
             double cReal, double cImag, int iterationLimit)
         {
             var zReal = 0.0;
@@ -156,12 +148,12 @@ namespace Benchmarks
                 zReal = zRealTemp;
 
                 if (zReal * zReal + zImag + zImag > 4)
-                    return false;
+                    return i;
             }
-            return true;
+            return iterationLimit;
         }
 
-        public bool IsInsideMandelbrotSetCachingSquares(
+        public int IterateCachingSquares(
             double cReal, double cImag, int iterationLimit)
         {
             var zReal = 0.0;
@@ -179,12 +171,12 @@ namespace Benchmarks
                 zImag2 = zImag * zImag;
 
                 if (zReal2 + zImag2 > 4)
-                    return false;
+                    return i;
             }
-            return true;
+            return iterationLimit;
         }
 
-        public bool IsInsideMandelbrotSetCycleDetection(
+        public int IterateCycleDetection(
             double cReal, double cImag, int iterationLimit)
         {
             var zReal = 0.0;
@@ -205,7 +197,7 @@ namespace Benchmarks
                 zReal = zReal2 - zImag2 + cReal;
 
                 if (zReal == oldZReal && zImag == oldZImag)
-                    return true;
+                    return iterationLimit;
 
                 if (stepsTaken == stepLimit)
                 {
@@ -219,12 +211,12 @@ namespace Benchmarks
                 zImag2 = zImag * zImag;
 
                 if (zReal2 + zImag2 > 4)
-                    return false;
+                    return i;
             }
-            return true;
+            return iterationLimit;
         }
 
-        public bool IsInsideMandelbrotSetFloats(
+        public int IterateFloat(
             float cReal, float cImag, int iterationLimit)
         {
             var zReal = 0.0f;
@@ -242,9 +234,9 @@ namespace Benchmarks
                 zImag2 = zImag * zImag;
 
                 if (zReal2 + zImag2 > 4)
-                    return false;
+                    return i;
             }
-            return true;
+            return iterationLimit;
         }
 
         #endregion Scalar
@@ -254,10 +246,10 @@ namespace Benchmarks
         //[Benchmark]
         public int Vectors()
         {
-            return FindPointsVectorsParallelBatches(MandelbrotVectors);
+            return FindPointsVectorsParallelBatches(IterateVectorDoubles);
         }
 
-        public Vector<long> MandelbrotVectors(
+        public Vector<long> IterateVectorDoubles(
             Vector<double> cReal, Vector<double> cImag, int maxIterations)
         {
             var zReal = new Vector<double>(0);
@@ -291,10 +283,10 @@ namespace Benchmarks
         //[Benchmark]
         public int VectorsNoEarlyReturn()
         {
-            return FindPointsVectorsParallelBatches(MandelbrotCheckVectorsNoEarlyReturn);
+            return FindPointsVectorsParallelBatches(IterateVectorDoublesNoEarlyReturn);
         }
 
-        public Vector<long> MandelbrotCheckVectorsNoEarlyReturn(
+        public Vector<long> IterateVectorDoublesNoEarlyReturn(
             Vector<double> cReal, Vector<double> cImag, int maxIterations)
         {
             var zReal = new Vector<double>(0);
@@ -332,7 +324,7 @@ namespace Benchmarks
                     //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
                     Take(NumberOfPoints);
 
-            var mandelbrotPointsFound = 0;
+            var pointsFound = 0;
 
             var vectorCapacity = Vector<double>.Count;
 
@@ -374,13 +366,13 @@ namespace Benchmarks
                     var finalIterations = method(cReal, cImag, Range.ExclusiveMaximum);
                     finalIterations.CopyTo(result);
 
-                    subTotal += result.Count(r => r == Range.ExclusiveMaximum);
+                    subTotal += result.Count(i => Range.IsInside((int)i));
 
                     return subTotal;
                 },
-                localFinally: count => Interlocked.Add(ref mandelbrotPointsFound, count));
+                localFinally: count => Interlocked.Add(ref pointsFound, count));
 
-            return mandelbrotPointsFound;
+            return pointsFound;
         }
 
         #endregion Vectors
@@ -390,10 +382,10 @@ namespace Benchmarks
         //[Benchmark]
         public int VectorsFloats()
         {
-            return FindPointsVectorsParallelBatches(MandelbrotVectorsFloats);
+            return FindPointsVectorsParallelBatches(IterateVectorsFloats);
         }
 
-        public Vector<int> MandelbrotVectorsFloats(
+        public Vector<int> IterateVectorsFloats(
             Vector<float> cReal, Vector<float> cImag, int maxIterations)
         {
             var zReal = new Vector<float>(0);
@@ -427,10 +419,10 @@ namespace Benchmarks
         //[Benchmark]
         public int VectorsNoEarlyReturnFloats()
         {
-            return FindPointsVectorsParallelBatches(MandelbrotCheckVectorsNoEarlyReturnFloats);
+            return FindPointsVectorsParallelBatches(IterateVectorFloatsNoEarlyReturn);
         }
 
-        public Vector<int> MandelbrotCheckVectorsNoEarlyReturnFloats(
+        public Vector<int> IterateVectorFloatsNoEarlyReturn(
             Vector<float> cReal, Vector<float> cImag, int maxIterations)
         {
             var zReal = new Vector<float>(0);
@@ -468,7 +460,7 @@ namespace Benchmarks
                     //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
                     Take(NumberOfPoints);
 
-            var mandelbrotPointsFound = 0;
+            var pointsFound = 0;
 
             var vectorCapacity = Vector<float>.Count;
 
@@ -510,13 +502,13 @@ namespace Benchmarks
                     var finalIterations = method(cReal, cImag, Range.ExclusiveMaximum);
                     finalIterations.CopyTo(result);
 
-                    subTotal += result.Count(r => r == Range.ExclusiveMaximum);
+                    subTotal += result.Count(Range.IsInside);
 
                     return subTotal;
                 },
-                localFinally: count => Interlocked.Add(ref mandelbrotPointsFound, count));
+                localFinally: count => Interlocked.Add(ref pointsFound, count));
 
-            return mandelbrotPointsFound;
+            return pointsFound;
         }
 
         #endregion Vectors Floats
