@@ -13,6 +13,11 @@ namespace Benchmarks
             return disposableObject;
         }
 
+        public void AddParams(params IDisposable[] objs)
+        {
+            AddMultiple(objs);
+        }
+
         public void AddMultiple<T>(IEnumerable<T> disposableObjects) where T : IDisposable
         {
             foreach (var d in disposableObjects)

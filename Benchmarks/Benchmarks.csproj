@@ -164,12 +164,15 @@
     <Compile Include="RandomPointGeneration.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="VectorDotProductVsIterationSum.cs" />
-    <Compile Include="ScalarVsVectorVsGpuPointFinder.cs" />
+    <Compile Include="ScalarVsVectorPointFinder.cs" />
     <Compile Include="VectorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="iterate_points.cl">
+    <None Include="iterate_points_d.cl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="iterate_points_f.cl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="NewEdge.edge">
