@@ -23,7 +23,7 @@
         zImag2 = zImag * zImag;
 
         // Only increment if the point is still inside the circle
-        iterations += (zReal2 + zImag2) <= 4.0f;
+        iterations += islessequal(zReal2 + zImag2, 4.0f);
     }
 
     finalIterations[globalId] = iterations;

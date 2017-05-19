@@ -247,10 +247,7 @@ namespace Benchmarks
         #region Vectors
 
         //[Benchmark]
-        public int Vectors()
-        {
-            return FindPointsVectorsParallelBatches(IterateVectorDoubles);
-        }
+        public int Vectors() => FindPointsVectorsParallelBatches(IterateVectorDoubles);
 
         public Vector<long> IterateVectorDoubles(
             Vector<double> cReal, Vector<double> cImag, int maxIterations)
@@ -284,10 +281,7 @@ namespace Benchmarks
         }
 
         //[Benchmark]
-        public int VectorsNoEarlyReturn()
-        {
-            return FindPointsVectorsParallelBatches(IterateVectorDoublesNoEarlyReturn);
-        }
+        public int VectorsNoEarlyReturn() => FindPointsVectorsParallelBatches(IterateVectorDoublesNoEarlyReturn);
 
         public Vector<long> IterateVectorDoublesNoEarlyReturn(
             Vector<double> cReal, Vector<double> cImag, int maxIterations)
@@ -299,7 +293,6 @@ namespace Benchmarks
             var zImag2 = new Vector<double>(0);
 
             var iterations = Vector<long>.Zero;
-            var increment = Vector<long>.One;
 
             for (int i = 0; i < maxIterations; i++)
             {
@@ -309,10 +302,7 @@ namespace Benchmarks
                 zReal2 = zReal * zReal;
                 zImag2 = zImag * zImag;
 
-                var shouldContinue = Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<double>(4));
-
-                increment = increment & shouldContinue;
-                iterations += increment;
+                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<double>(4));
             }
 
             return iterations;
@@ -383,10 +373,7 @@ namespace Benchmarks
         #region Vectors Floats
 
         //[Benchmark]
-        public int VectorsFloats()
-        {
-            return FindPointsVectorsParallelBatches(IterateVectorsFloats);
-        }
+        public int VectorsFloats() => FindPointsVectorsParallelBatches(IterateVectorsFloats);
 
         public Vector<int> IterateVectorsFloats(
             Vector<float> cReal, Vector<float> cImag, int maxIterations)
@@ -420,10 +407,7 @@ namespace Benchmarks
         }
 
         //[Benchmark]
-        public int VectorsNoEarlyReturnFloats()
-        {
-            return FindPointsVectorsParallelBatches(IterateVectorFloatsNoEarlyReturn);
-        }
+        public int VectorsNoEarlyReturnFloats() => FindPointsVectorsParallelBatches(IterateVectorFloatsNoEarlyReturn);
 
         public Vector<int> IterateVectorFloatsNoEarlyReturn(
             Vector<float> cReal, Vector<float> cImag, int maxIterations)
@@ -435,7 +419,6 @@ namespace Benchmarks
             var zImag2 = new Vector<float>(0);
 
             var iterations = Vector<int>.Zero;
-            var increment = Vector<int>.One;
 
             for (int i = 0; i < maxIterations; i++)
             {
@@ -445,10 +428,7 @@ namespace Benchmarks
                 zReal2 = zReal * zReal;
                 zImag2 = zImag * zImag;
 
-                var shouldContinue = Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4));
-
-                increment = increment & shouldContinue;
-                iterations += increment;
+                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4));
             }
 
             return iterations;
