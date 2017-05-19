@@ -52,28 +52,22 @@ namespace Benchmarks
             using (s.SetupOpenCL(DeviceType.Gpu))
             {
                 RunTest("OpenCL GPU, floats", s.OpenCLFloats);
-                //RunTest("OpenCL GPU, floats, No Early Return", cpu.VectorsNoEarlyReturnFloats);
             }
 
             //using (s.SetupOpenCL(DeviceType.Gpu, single: false))
             //{
-            //    RunTest("OpenCL GPU, doubles", s.OpenCLFloats);
-            //    //RunTest("OpenCL GPU, doubles, No Early Return", cpu.VectorsNoEarlyReturnDoubles);
+            //    RunTest("OpenCL GPU, doubles", () => s.OpenCLDoubles());
             //}
-
 
             using (s.SetupOpenCL(DeviceType.Cpu))
             {
                 RunTest("OpenCL CPU, floats", s.OpenCLFloats);
-                //RunTest("OpenCL GPU, floats, No Early Return", cpu.VectorsNoEarlyReturnFloats);
             }
 
-            //RunTest(() => $"* Scalar Parallel:\n\t{s.FindPointsScalarParallel()} points");
-            //RunTest(() => $"* Vector early return:\n\t{s.FindPointsVectorsParallel()} points");
-            //RunTest(() => $"* Vector no early return:\n\t{s.FindPointsVectorsNoEarlyReturn()} points");
-            //RunTest(() => $"* OpenCL CPU:\n\t{s.FindPointsOpenClCpu()} points");
-            //RunTest(() => $"* OpenCL GPU:\n\t{s.FindPointsOpenClGpu()} points");
-            //RunTest(() => $"* OpenCL Heterogenous:\n\t{s.FindPointsOpenClHeterogenous(cpuRatio:52,gpuRatio:46)} points");
+            using (s.SetupOpenCL(DeviceType.Cpu, single: false))
+            {
+                RunTest("OpenCL CPU, doubles", s.OpenCLDoubles);
+            }
 
             //var summary = BenchmarkRunner.Run<ScalarVsVectorVsGpuPointFinder>();
         }

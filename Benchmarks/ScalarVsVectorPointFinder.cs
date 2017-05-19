@@ -518,29 +518,163 @@ namespace Benchmarks
 
         #region OpenCL
 
-        private Device device;
-        private Context context;
-        private CommandQueue commandQueue;
-        private NOpenCL.Program program;
+        private Device _device;
+        private Context _context;
+        private CommandQueue _commandQueue;
+        private NOpenCL.Program _program;
+        private Kernel _kernel;
 
-        public IDisposable SetupOpenCL(DeviceType deviceType, bool single = true)
+        public IDisposable SetupOpenCL(DeviceType deviceType, bool single = true, string kernelName = "iterate_points")
         {
             var stack = new DisposeStack();
 
-            device = GetDevice(deviceType);
-            context = Context.Create(device);
-            commandQueue = context.CreateCommandQueue(device);
-            program = context.CreateProgramWithSource(single ? KernelSourceFloat : KernelSourceDouble);
-            program.Build();
+            _device = GetDevice(deviceType);
+            _context = Context.Create(_device);
+            _commandQueue = _context.CreateCommandQueue(_device);
+            _program = _context.CreateProgramWithSource(single ? KernelSourceFloat : KernelSourceDouble);
+            _program.Build();
+            _kernel = _program.CreateKernel(kernelName);
 
-            stack.AddParams(device, context, commandQueue, program);
+            stack.AddParams(
+                _device, 
+                _context, 
+                _commandQueue, 
+                _program, 
+                _kernel);
 
             return stack;
         }
 
 
-        public int OpenCLFloats() => FindPointsOpenClFloats();
-        public int OpenCLDoubles() => FindPointsOpenClDoubles();
+        public unsafe int OpenCLFloats()
+        {
+            var points =
+                GetNumbers().
+                    //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
+                    Take(NumberOfPoints);
+
+            var cReals = new float[NumberOfPoints];
+            var cImags = new float[NumberOfPoints];
+
+            foreach (var (c, index) in points.Select((c, i) => (c, i)))
+            {
+                cReals[index] = (float)c.Real;
+                cImags[index] = (float)c.Imaginary;
+            }
+
+            var finalIterations = new int[NumberOfPoints];
+
+            IntPtr[] globalSize = { (IntPtr)NumberOfPoints };
+            IntPtr[] localSize = null;//{ (IntPtr)_device.MaxComputeUnits };
+
+            fixed (float* pCReals = cReals, pCImags = cImags)
+            fixed (int* pFinalIterations = finalIterations)
+            {
+                using (var cRealsBuffer = _context.CreateBuffer(
+                    MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                    sizeof(float) * NumberOfPoints,
+                    (IntPtr)pCReals))
+                using (var cImagsBuffer = _context.CreateBuffer(
+                    MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                    sizeof(float) * NumberOfPoints,
+                    (IntPtr)pCImags))
+                using (var iterationsBuffer = _context.CreateBuffer(
+                    MemoryFlags.UseHostPointer | MemoryFlags.WriteOnly | MemoryFlags.HostReadOnly,
+                    sizeof(int) * NumberOfPoints,
+                    (IntPtr)pFinalIterations))
+                {
+                    _kernel.Arguments[0].SetValue(cRealsBuffer);
+                    _kernel.Arguments[1].SetValue(cImagsBuffer);
+                    _kernel.Arguments[2].SetValue(iterationsBuffer);
+
+                    using (var perfEvent = _commandQueue.EnqueueNDRangeKernel(
+                        _kernel,
+                        globalWorkSize: globalSize,
+                        localWorkSize: localSize))
+                    {
+                        Event.WaitAll(perfEvent);
+                    }
+
+                    using (_commandQueue.EnqueueReadBuffer(
+                        iterationsBuffer,
+                        blocking: true,
+                        offset: 0,
+                        size: sizeof(int) * finalIterations.Length,
+                        destination: (IntPtr)pFinalIterations))
+                    {
+                    }
+
+                    _commandQueue.Finish();
+                }
+            }
+
+            return finalIterations.Count(Range.IsInside);
+        }
+
+        public unsafe int OpenCLDoubles()
+        {
+            var points =
+                GetNumbers().
+                    //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
+                    Take(NumberOfPoints);
+
+            var cReals = new double[NumberOfPoints];
+            var cImags = new double[NumberOfPoints];
+
+            foreach (var (c, index) in points.Select((c, i) => (c, i)))
+            {
+                cReals[index] = c.Real;
+                cImags[index] = c.Imaginary;
+            }
+
+            var finalIterations = new int[NumberOfPoints];
+
+            IntPtr[] globalSize = { (IntPtr)NumberOfPoints };
+            IntPtr[] localSize = null;//{ (IntPtr)_device.MaxComputeUnits };
+
+            fixed (double* pCReals = cReals, pCImags = cImags)
+            fixed (int* pFinalIterations = finalIterations)
+            {
+                using (var cRealsBuffer = _context.CreateBuffer(
+                    MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                    sizeof(double) * NumberOfPoints,
+                    (IntPtr)pCReals))
+                using (var cImagsBuffer = _context.CreateBuffer(
+                    MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
+                    sizeof(double) * NumberOfPoints,
+                    (IntPtr)pCImags))
+                using (var iterationsBuffer = _context.CreateBuffer(
+                    MemoryFlags.UseHostPointer | MemoryFlags.WriteOnly | MemoryFlags.HostReadOnly,
+                    sizeof(int) * NumberOfPoints,
+                    (IntPtr)pFinalIterations))
+                {
+                    _kernel.Arguments[0].SetValue(cRealsBuffer);
+                    _kernel.Arguments[1].SetValue(cImagsBuffer);
+                    _kernel.Arguments[2].SetValue(iterationsBuffer);
+
+                    using (var perfEvent = _commandQueue.EnqueueNDRangeKernel(
+                        _kernel,
+                        globalWorkSize: globalSize,
+                        localWorkSize: localSize))
+                    {
+                        Event.WaitAll(perfEvent);
+                    }
+
+                    using (_commandQueue.EnqueueReadBuffer(
+                        iterationsBuffer,
+                        blocking: true,
+                        offset: 0,
+                        size: sizeof(int) * finalIterations.Length,
+                        destination: (IntPtr)pFinalIterations))
+                    {
+                    }
+
+                    _commandQueue.Finish();
+                }
+            }
+
+            return finalIterations.Count(Range.IsInside);
+        }
 
 
         //[Benchmark]
@@ -670,144 +804,6 @@ namespace Benchmarks
                     return finalIterations.Count(Range.IsInside);
                 }
             }
-        }
-
-        private unsafe int FindPointsOpenClFloats()
-        {
-            using (var kernel = program.CreateKernel("iterate_points"))
-            {
-                var points =
-                        GetNumbers().
-                        //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
-                        Take(NumberOfPoints);
-
-                var cReals = new float[NumberOfPoints];
-                var cImags = new float[NumberOfPoints];
-
-                foreach (var (c, index) in points.Select((c, i) => (c, i)))
-                {
-                    cReals[index] = (float)c.Real;
-                    cImags[index] = (float)c.Imaginary;
-                }
-
-                var finalIterations = new int[NumberOfPoints];
-
-                IntPtr[] globalSize = { (IntPtr)NumberOfPoints };
-                IntPtr[] localSize = null;//{ (IntPtr)device.MaxComputeUnits };
-
-                fixed (float* pCReals = cReals, pCImags = cImags)
-                fixed (int* pFinalIterations = finalIterations)
-                {
-                    using (var cRealsBuffer = context.CreateBuffer(
-                        MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
-                        sizeof(float) * NumberOfPoints,
-                        (IntPtr)pCReals))
-                    using (var cImagsBuffer = context.CreateBuffer(
-                        MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
-                        sizeof(float) * NumberOfPoints,
-                        (IntPtr)pCImags))
-                    using (var iterationsBuffer = context.CreateBuffer(
-                        MemoryFlags.UseHostPointer | MemoryFlags.WriteOnly | MemoryFlags.HostReadOnly,
-                        sizeof(int) * NumberOfPoints,
-                        (IntPtr)pFinalIterations))
-                    {
-                        kernel.Arguments[0].SetValue(cRealsBuffer);
-                        kernel.Arguments[1].SetValue(cImagsBuffer);
-                        kernel.Arguments[2].SetValue(iterationsBuffer);
-
-                        using (var perfEvent = commandQueue.EnqueueNDRangeKernel(
-                            kernel,
-                            globalWorkSize: globalSize,
-                            localWorkSize: localSize))
-                        {
-                            Event.WaitAll(perfEvent);
-                        }
-
-                        using (commandQueue.EnqueueReadBuffer(
-                            iterationsBuffer,
-                            blocking: true,
-                            offset: 0,
-                            size: sizeof(int) * finalIterations.Length,
-                            destination: (IntPtr)pFinalIterations))
-                        {
-                        }
-
-                        commandQueue.Finish();
-                    }
-                }
-
-                return finalIterations.Count(Range.IsInside);
-            }
-
-        }
-
-        private unsafe int FindPointsOpenClDoubles()
-        {
-            using (var kernel = program.CreateKernel("iterate_points"))
-            {
-                var points =
-                    GetNumbers().
-                        //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
-                        Take(NumberOfPoints);
-
-                var cReals = new double[NumberOfPoints];
-                var cImags = new double[NumberOfPoints];
-
-                foreach (var (c, index) in points.Select((c, i) => (c, i)))
-                {
-                    cReals[index] = c.Real;
-                    cImags[index] = c.Imaginary;
-                }
-
-                var finalIterations = new int[NumberOfPoints];
-
-                IntPtr[] globalSize = { (IntPtr)NumberOfPoints };
-                IntPtr[] localSize = null;//{ (IntPtr)device.MaxComputeUnits };
-
-                fixed (double* pCReals = cReals, pCImags = cImags)
-                fixed (int* pFinalIterations = finalIterations)
-                {
-                    using (var cRealsBuffer = context.CreateBuffer(
-                        MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
-                        sizeof(double) * NumberOfPoints,
-                        (IntPtr)pCReals))
-                    using (var cImagsBuffer = context.CreateBuffer(
-                        MemoryFlags.UseHostPointer | MemoryFlags.ReadOnly | MemoryFlags.HostNoAccess,
-                        sizeof(double) * NumberOfPoints,
-                        (IntPtr)pCImags))
-                    using (var iterationsBuffer = context.CreateBuffer(
-                        MemoryFlags.UseHostPointer | MemoryFlags.WriteOnly | MemoryFlags.HostReadOnly,
-                        sizeof(int) * NumberOfPoints,
-                        (IntPtr)pFinalIterations))
-                    {
-                        kernel.Arguments[0].SetValue(cRealsBuffer);
-                        kernel.Arguments[1].SetValue(cImagsBuffer);
-                        kernel.Arguments[2].SetValue(iterationsBuffer);
-
-                        using (var perfEvent = commandQueue.EnqueueNDRangeKernel(
-                            kernel,
-                            globalWorkSize: globalSize,
-                            localWorkSize: localSize))
-                        {
-                            Event.WaitAll(perfEvent);
-                        }
-
-                        using (commandQueue.EnqueueReadBuffer(
-                            iterationsBuffer,
-                            blocking: true,
-                            offset: 0,
-                            size: sizeof(int) * finalIterations.Length,
-                            destination: (IntPtr)pFinalIterations))
-                        {
-                        }
-
-                        commandQueue.Finish();
-                    }
-                }
-
-                return finalIterations.Count(Range.IsInside);
-            }
-
         }
 
         #endregion OpenCL
