@@ -62,7 +62,7 @@ namespace Benchmarks
                 GetNumbers()
                 //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                 .Take(NumberOfPoints)
-                .Count(c => Range.IsInside(Iterate(c, Range.ExclusiveMaximum)));
+                .Count(c => Iterate(c, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
         }
 
         [Benchmark]
@@ -73,7 +73,7 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => Range.IsInside(Iterate(c, Range.ExclusiveMaximum)));
+                    .Count(c => Iterate(c, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
         }
 
         [Benchmark]
@@ -84,7 +84,7 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => Range.IsInside(IterateNoADT(c.Real, c.Imaginary, Range.ExclusiveMaximum)));
+                    .Count(c => IterateNoADT(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
         }
 
         [Benchmark]
@@ -95,7 +95,7 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => Range.IsInside(IterateCachingSquares(c.Real, c.Imaginary, Range.ExclusiveMaximum)));
+                    .Count(c => IterateCachingSquares(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
         }
 
         [Benchmark]
@@ -106,7 +106,7 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => Range.IsInside(IterateFloat((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum)));
+                    .Count(c => IterateFloat((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
         }
 
@@ -118,7 +118,7 @@ namespace Benchmarks
                     //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
                     .Take(NumberOfPoints)
                     .AsParallel()
-                    .Count(c => Range.IsInside(IterateCycleDetection(c.Real, c.Imaginary, Range.ExclusiveMaximum)));
+                    .Count(c => IterateCycleDetection(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
         }
 
@@ -369,7 +369,7 @@ namespace Benchmarks
                     var finalIterations = method(cReal, cImag, Range.ExclusiveMaximum);
                     finalIterations.CopyTo(result);
 
-                    subTotal += result.Count(i => Range.IsInside((int)i));
+                    subTotal += result.Count(r => r == Range.ExclusiveMaximum);
 
                     return subTotal;
                 },
@@ -505,7 +505,7 @@ namespace Benchmarks
                     var finalIterations = method(cReal, cImag, Range.ExclusiveMaximum);
                     finalIterations.CopyTo(result);
 
-                    subTotal += result.Count(Range.IsInside);
+                    subTotal += result.Count(i => i == Range.ExclusiveMaximum);
 
                     return subTotal;
                 },
@@ -536,10 +536,10 @@ namespace Benchmarks
             _kernel = _program.CreateKernel(kernelName);
 
             stack.AddParams(
-                _device, 
-                _context, 
-                _commandQueue, 
-                _program, 
+                _device,
+                _context,
+                _commandQueue,
+                _program,
                 _kernel);
 
             return stack;
@@ -608,7 +608,7 @@ namespace Benchmarks
                 }
             }
 
-            return finalIterations.Count(Range.IsInside);
+            return finalIterations.Count(c => c == Range.ExclusiveMaximum);
         }
 
         public unsafe int OpenCLDoubles()
@@ -673,7 +673,7 @@ namespace Benchmarks
                 }
             }
 
-            return finalIterations.Count(Range.IsInside);
+            return finalIterations.Count(c => c == Range.ExclusiveMaximum);
         }
 
 
