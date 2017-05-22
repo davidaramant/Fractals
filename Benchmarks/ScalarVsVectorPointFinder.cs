@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
@@ -51,77 +50,37 @@ namespace Benchmarks
             _pointGenerator.ResetRandom(seed: 0);
         }
 
-        private IEnumerable<Complex> GetNumbers() => _pointGenerator.GetNumbers();
+        private IEnumerable<Complex> GetNumbers() => _pointGenerator.GetNumbers().Take(NumberOfPoints);
 
         #region Scalar
 
-        [Benchmark(Baseline = true)]
-        public int Scalar()
-        {
-            return
+        public int Scalar() =>
+            GetNumbers().
+            Count(c => Iterate(c, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
+        public int ScalarParallel() =>
+            GetNumbers().
+            AsParallel().
+            Count(c => Iterate(c, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
+
+        public int ScalarParallelNoAdt() =>
                 GetNumbers()
-                //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
-                .Take(NumberOfPoints)
-                .Count(c => Iterate(c, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
-        }
+                .AsParallel()
+                .Count(c => IterateNoADT(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
-        [Benchmark]
-        public int ScalarParallel()
-        {
-            return
+        public int ScalarParallelNoAdtCachingSquares() =>
                 GetNumbers()
-                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
-                    .Take(NumberOfPoints)
-                    .AsParallel()
-                    .Count(c => Iterate(c, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
-        }
+                .AsParallel()
+                .Count(c => IterateCachingSquares(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
-        [Benchmark]
-        public int ScalarParallelNoAdt()
-        {
-            return
+        public int ScalarParallelNoAdtCachingSquaresFloats() =>
                 GetNumbers()
-                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
-                    .Take(NumberOfPoints)
-                    .AsParallel()
-                    .Count(c => IterateNoADT(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
-        }
+                .AsParallel()
+                .Count(c => IterateFloat((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
-        [Benchmark]
-        public int ScalarParallelNoAdtCachingSquares()
-        {
-            return
+        public int ScalarParallelNoAdtCachingSquaresCycleDetection() =>
                 GetNumbers()
-                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
-                    .Take(NumberOfPoints)
-                    .AsParallel()
-                    .Count(c => IterateCachingSquares(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
-        }
-
-        [Benchmark]
-        public int ScalarParallelNoAdtCachingSquaresFloats()
-        {
-            return
-                GetNumbers()
-                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
-                    .Take(NumberOfPoints)
-                    .AsParallel()
-                    .Count(c => IterateFloat((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
-
-        }
-
-        [Benchmark]
-        public int ScalarParallelNoAdtCachingSquaresCycleDetection()
-        {
-            return
-                GetNumbers()
-                    //.Where(c => !MandelbulbChecker.IsInsideBulbs(c))
-                    .Take(NumberOfPoints)
-                    .AsParallel()
-                    .Count(c => IterateCycleDetection(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
-
-        }
-
+                .AsParallel()
+                .Count(c => IterateCycleDetection(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
         public int Iterate(
             Complex c, int iterationLimit)
@@ -246,7 +205,6 @@ namespace Benchmarks
 
         #region Vectors
 
-        //[Benchmark]
         public int Vectors() => FindPointsVectorsParallelBatches(IterateVectorDoubles);
 
         public Vector<long> IterateVectorDoubles(
@@ -280,7 +238,6 @@ namespace Benchmarks
             return iterations;
         }
 
-        //[Benchmark]
         public int VectorsNoEarlyReturn() => FindPointsVectorsParallelBatches(IterateVectorDoublesNoEarlyReturn);
 
         public Vector<long> IterateVectorDoublesNoEarlyReturn(
@@ -313,9 +270,7 @@ namespace Benchmarks
         public int FindPointsVectorsParallelBatches(IteratePoints method)
         {
             var points =
-                GetNumbers().
-                    //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
-                    Take(NumberOfPoints);
+                GetNumbers();
 
             var pointsFound = 0;
 
@@ -372,7 +327,6 @@ namespace Benchmarks
 
         #region Vectors Floats
 
-        //[Benchmark]
         public int VectorsFloats() => FindPointsVectorsParallelBatches(IterateVectorsFloats);
 
         public Vector<int> IterateVectorsFloats(
@@ -406,7 +360,6 @@ namespace Benchmarks
             return iterations;
         }
 
-        //[Benchmark]
         public int VectorsNoEarlyReturnFloats() => FindPointsVectorsParallelBatches(IterateVectorFloatsNoEarlyReturn);
 
         public Vector<int> IterateVectorFloatsNoEarlyReturn(
@@ -439,9 +392,7 @@ namespace Benchmarks
         public int FindPointsVectorsParallelBatches(IteratePointsFloats method)
         {
             var points =
-                GetNumbers().
-                    //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
-                    Take(NumberOfPoints);
+                GetNumbers();
 
             var pointsFound = 0;
 
@@ -537,9 +488,7 @@ namespace Benchmarks
         public unsafe int OpenCLFloats()
         {
             var points =
-                GetNumbers().
-                    //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
-                    Take(NumberOfPoints);
+                GetNumbers();
 
             var cReals = new float[NumberOfPoints];
             var cImags = new float[NumberOfPoints];
@@ -606,9 +555,7 @@ namespace Benchmarks
         public unsafe int OpenCLDoubles()
         {
             var points =
-                GetNumbers().
-                    //Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
-                    Take(NumberOfPoints);
+                GetNumbers();
 
             var cReals = new double[NumberOfPoints];
             var cImags = new double[NumberOfPoints];
@@ -673,7 +620,6 @@ namespace Benchmarks
         }
 
 
-        //[Benchmark]
         public unsafe int FindPointsOpenClHeterogenous(
             int cpuRatio = 1,
             int gpuRatio = 1)
@@ -691,13 +637,9 @@ namespace Benchmarks
 
                 var context = stack.Add(Context.Create(devices));
                 var program = stack.Add(context.CreateProgramWithSource(KernelSourceFloat));
-                //program.Build("-cl-no-signed-zeros -cl-finite-math-only"); // TODO: These optimization don't work on nVidia
                 program.Build();
 
-                var points =
-                    _pointGenerator.GetNumbers().
-                        Where(c => !MandelbulbChecker.IsInsideBulbs(c)).
-                        Take(NumberOfPoints);
+                var points = GetNumbers();
 
                 var cReals = new float[NumberOfPoints];
                 var cImags = new float[NumberOfPoints];
