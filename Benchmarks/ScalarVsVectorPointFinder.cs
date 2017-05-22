@@ -16,7 +16,7 @@ namespace Benchmarks
 {
     public class ScalarVsVectorPointFinder
     {
-        public IterationRange Range => new IterationRange(20_000_000, 30_000_000);
+        public IterationRange Range => new IterationRange(10_000_000, 15_000_000);
 
         public static int NumberOfPoints => 1024;
         // 512 - software
@@ -503,16 +503,24 @@ namespace Benchmarks
         private CommandQueue _commandQueue;
         private NOpenCL.Program _program;
         private Kernel _kernel;
+        private bool _maxLimitArg;
 
-        public IDisposable SetupOpenCL(DeviceType deviceType, bool single = true, string kernelName = "iterate_points")
+        public IDisposable SetupOpenCL(
+            DeviceType deviceType,
+            bool singlePrecision = true,
+            string kernelName = "iterate_points",
+            bool relaxedMath = false,
+            bool maxLimitArg = false)
         {
+            _maxLimitArg = maxLimitArg;
+
             var stack = new DisposeStack();
 
             _device = GetDevice(deviceType);
             _context = Context.Create(_device);
             _commandQueue = _context.CreateCommandQueue(_device);
-            _program = _context.CreateProgramWithSource(single ? KernelSourceFloat : KernelSourceDouble);
-            _program.Build();
+            _program = _context.CreateProgramWithSource(singlePrecision ? KernelSourceFloat : KernelSourceDouble);
+            _program.Build(relaxedMath ? "-cl-fast-relaxed-math" : "");
             _kernel = _program.CreateKernel(kernelName);
 
             stack.AddParams(
@@ -566,6 +574,10 @@ namespace Benchmarks
                     _kernel.Arguments[0].SetValue(cRealsBuffer);
                     _kernel.Arguments[1].SetValue(cImagsBuffer);
                     _kernel.Arguments[2].SetValue(iterationsBuffer);
+                    if (_maxLimitArg)
+                    {
+                        _kernel.Arguments[3].SetValue(Range.ExclusiveMaximum);
+                    }
 
                     using (var perfEvent = _commandQueue.EnqueueNDRangeKernel(
                         _kernel,
@@ -631,6 +643,10 @@ namespace Benchmarks
                     _kernel.Arguments[0].SetValue(cRealsBuffer);
                     _kernel.Arguments[1].SetValue(cImagsBuffer);
                     _kernel.Arguments[2].SetValue(iterationsBuffer);
+                    if (_maxLimitArg)
+                    {
+                        _kernel.Arguments[3].SetValue(Range.ExclusiveMaximum);
+                    }
 
                     using (var perfEvent = _commandQueue.EnqueueNDRangeKernel(
                         _kernel,
