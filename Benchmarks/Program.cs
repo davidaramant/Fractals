@@ -72,13 +72,16 @@ namespace Benchmarks
             //RunTest("Vectors, floats", s.VectorsFloats);
             //RunTest("Vectors, floats, No Early Return", s.VectorsNoEarlyReturnFloats);
 
-            //SectionHeader("OpenCL GPU - floats");
+            SectionHeader("OpenCL GPU - floats");
 
             //RunFloatOpenCLTest("Max Limit Argument",
             //    s.SetupOpenCL(DeviceType.Gpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument"));
 
-            //RunFloatOpenCLTest("Baseline",
-            //    s.SetupOpenCL(DeviceType.Gpu));
+            RunFloatOpenCLTest("Baseline",
+                s.SetupOpenCL(DeviceType.Gpu));
+
+            RunDoubleOpenCLTest("Early Return",
+                s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_early_return"));
 
             //RunFloatOpenCLTest("Relaxed Math",
             //    s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true));
@@ -98,6 +101,9 @@ namespace Benchmarks
             //RunDoubleOpenCLTest("Baseline",
             //    s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false));
 
+            //RunDoubleOpenCLTest("Early Return",
+            //    s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false, kernelName: "iterate_points_early_return"));
+
             //RunDoubleOpenCLTest("Relaxed Math",
             //    s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true, singlePrecision: false));
 
@@ -108,13 +114,16 @@ namespace Benchmarks
             //    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", relaxedMath: true, singlePrecision: false));
 
 
-            //SectionHeader("OpenCL CPU - floats");
+            SectionHeader("OpenCL CPU - floats");
 
             //RunFloatOpenCLTest("Max Limit Argument",
             //    s.SetupOpenCL(DeviceType.Cpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument"));
 
-            //RunFloatOpenCLTest("Baseline",
-            //    s.SetupOpenCL(DeviceType.Cpu));
+            RunFloatOpenCLTest("Baseline",
+                s.SetupOpenCL(DeviceType.Cpu));
+
+            RunDoubleOpenCLTest("Early Return",
+                s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_early_return"));
 
             //RunFloatOpenCLTest("Relaxed Math",
             //    s.SetupOpenCL(DeviceType.Cpu, relaxedMath: true));
@@ -128,14 +137,17 @@ namespace Benchmarks
 
             SectionHeader("OpenCL CPU - doubles");
 
-            RunDoubleOpenCLTest("Max Limit Argument",
-                s.SetupOpenCL(DeviceType.Cpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument", singlePrecision: false));
+            //RunDoubleOpenCLTest("Max Limit Argument",
+            //    s.SetupOpenCL(DeviceType.Cpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument", singlePrecision: false));
 
             RunDoubleOpenCLTest("Baseline",
                 s.SetupOpenCL(DeviceType.Cpu, singlePrecision: false));
 
-            RunDoubleOpenCLTest("Relaxed Math",
-                s.SetupOpenCL(DeviceType.Cpu, relaxedMath: true, singlePrecision: false));
+            RunDoubleOpenCLTest("Early Return",
+                s.SetupOpenCL(DeviceType.Cpu, singlePrecision: false, kernelName: "iterate_points_early_return"));
+
+            //RunDoubleOpenCLTest("Relaxed Math",
+            //    s.SetupOpenCL(DeviceType.Cpu, relaxedMath: true, singlePrecision: false));
 
             //RunDoubleOpenCLTest("FMA",
             //    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_fma", singlePrecision: false));
