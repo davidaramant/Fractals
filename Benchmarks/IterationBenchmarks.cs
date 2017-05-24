@@ -20,7 +20,7 @@ namespace Benchmarks
         private string _contextName;
         private Func<Device, bool> _openCLGuard;
         private bool _shouldRunTest = true;
-        public readonly int NumberTrials = 3;
+        public readonly int NumberTrials = 5;
         public readonly int NumberOfPoints;
         // 512 - software
         // 16384 - GTX 1060
