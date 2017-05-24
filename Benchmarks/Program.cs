@@ -1,159 +1,150 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 using NOpenCL;
 
 namespace Benchmarks
 {
     class Program
     {
+
         static void Main(string[] args)
         {
             // var summary = BenchmarkRunner.Run<ClassVsStructVsRawBenchmark>();
             // var summary = BenchmarkRunner.Run<BitmapVsFastImage>();
 
-            var s = new ScalarVsVectorPointFinder();
+            var csvRows = new List<string>();
+            string createRow(params object[] cols) => string.Join(",", cols.Select(c => $"\"{c.ToString().Replace("\"", "\"\"")}\""));
 
-            const int NumberTrials = 3;
-
-            void RunTest(string name, Func<int> test)
-            {
-                Console.WriteLine($"* {name}:");
-
-                var totals = new int[NumberTrials];
-
-                GC.Collect();
-
-                var stopwatch = Stopwatch.StartNew();
-                for (int i = 0; i < NumberTrials; i++)
-                {
-                    s.InitializeRun();
-                    totals[i] = test();
-                }
-                stopwatch.Stop();
-
-                var pointsPerSecond = NumberTrials * ScalarVsVectorPointFinder.NumberOfPoints / stopwatch.Elapsed.TotalSeconds;
-                Console.WriteLine($"\t{totals[0]} points (Took {stopwatch.Elapsed.TotalSeconds / NumberTrials:N1}s - {pointsPerSecond:N1} points/sec)");
-            }
-
-            void RunFloatOpenCLTest(string name, IDisposable setup)
-            {
-                using (setup)
-                {
-                    RunTest(name, s.OpenCLFloats);
-                }
-            }
-
-            void RunDoubleOpenCLTest(string name, IDisposable setup)
-            {
-                using (setup)
-                {
-                    RunTest(name, s.OpenCLDoubles);
-                }
-            }
+            var s = new IterationBenchmarks();
 
             Console.WriteLine(DateTime.Now.ToString("s"));
-            Console.WriteLine($"Total Points: {ScalarVsVectorPointFinder.NumberOfPoints:N0}");
+            Console.WriteLine($"Total Points: {s.NumberOfPoints:N0}");
             Console.WriteLine($"Iteration Range: {s.Range}");
-            Console.WriteLine($"Trials: {NumberTrials}");
+            Console.WriteLine($"Trials: {s.NumberTrials}");
 
-            void SectionHeader(string name) => Console.WriteLine($"\n\n{new string('#', name.Length)}\n{name}\n{new string('#', name.Length)}\n");
+            csvRows.Add(createRow("Timestamp", DateTime.Now.ToString("s")));
+            csvRows.Add(createRow("Total Points", s.NumberOfPoints.ToString("N0")));
+            csvRows.Add(createRow("Iteration Min", s.Range.InclusiveMinimum));
+            csvRows.Add(createRow("Iteration Max", s.Range.ExclusiveMaximum));
+            csvRows.Add(createRow("Trials", s.NumberTrials));
+            csvRows.Add(createRow("Machine", Environment.MachineName));
+            csvRows.Add(string.Empty);
 
-            //SectionHeader("Scalar CPU");
-            ////RunTest("Scalar", s.Scalar);
-            //RunTest("Scalar Parallel", s.ScalarParallel);
-            //RunTest("Scalar Parallel, No ADT", s.ScalarParallelNoAdt);
-            //RunTest("Scalar Parallel, No ADT, Caching Squares", s.ScalarParallelNoAdtCachingSquares);
-            //RunTest("Scalar Parallel, No ADT, Caching Squares, floats", s.ScalarParallelNoAdtCachingSquaresFloats);
-            //RunTest("Scalar Parallel, No ADT, Caching Squares, Cycle Detection", s.ScalarParallelNoAdtCachingSquaresCycleDetection);
+            using (s.SetContext("Scalar CPU"))
+            {
+                s.RunTest("No Threading", s.Scalar);
+                s.RunTest("Baseline", s.ScalarParallel);
+                s.RunTest("No ADT", s.ScalarParallelNoAdt);
+                s.RunTest("No ADT, Caching Squares", s.ScalarParallelNoAdtCachingSquares);
+                s.RunTest("No ADT, Caching Squares, floats", s.ScalarParallelNoAdtCachingSquaresFloats);
+                s.RunTest("No ADT, Caching Squares, Cycle Detection", s.ScalarParallelNoAdtCachingSquaresCycleDetection);
+            }
 
-            //SectionHeader("Vector CPU");
-            //RunTest("Vectors, doubles", s.Vectors);
-            //RunTest("Vectors, doubles, No Early Return", s.VectorsNoEarlyReturn);
-            //RunTest("Vectors, floats", s.VectorsFloats);
-            //RunTest("Vectors, floats, No Early Return", s.VectorsNoEarlyReturnFloats);
+            using (s.SetContext("Vector CPU - floats"))
+            {
+                s.RunTest("Baseline", s.VectorsFloats);
+                s.RunTest("No Early Return", s.VectorsNoEarlyReturnFloats);
+            }
 
-            SectionHeader("OpenCL GPU - floats");
+            using (s.SetContext("Vector CPU - doubles"))
+            {
+                s.RunTest("Baseline", s.Vectors);
+                s.RunTest("No Early Return", s.VectorsNoEarlyReturn);
+            }
 
-            //RunFloatOpenCLTest("Max Limit Argument",
-            //    s.SetupOpenCL(DeviceType.Gpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument"));
+            using (s.SetContext("OpenCL GPU - floats"))
+            {
+                s.RunFloatOpenCLTest("Max Limit Argument",
+                    s.SetupOpenCL(DeviceType.Gpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument"));
 
-            RunFloatOpenCLTest("Baseline",
-                s.SetupOpenCL(DeviceType.Gpu));
+                s.RunFloatOpenCLTest("Baseline",
+                    s.SetupOpenCL(DeviceType.Gpu));
 
-            RunDoubleOpenCLTest("Early Return",
-                s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_early_return"));
+                s.RunDoubleOpenCLTest("Early Return",
+                    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_early_return"));
 
-            //RunFloatOpenCLTest("Relaxed Math",
-            //    s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true));
+                s.RunFloatOpenCLTest("Relaxed Math",
+                    s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true));
 
-            //RunFloatOpenCLTest("FMA",
-            //    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma"));
+                s.RunFloatOpenCLTest("FMA",
+                    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma"));
 
-            //RunFloatOpenCLTest("FMA, Relaxed Math",
-            //    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", relaxedMath: true));
+                s.RunFloatOpenCLTest("FMA, Relaxed Math",
+                    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", relaxedMath: true));
+            }
 
+            using (s.SetContext("OpenCL GPU - doubles", 
+                openCLGuard:device=>device.DoubleFloatingPointConfiguration != FloatingPointConfiguration.None))
+            {
+                s.RunDoubleOpenCLTest("Max Limit Argument",
+                    s.SetupOpenCL(DeviceType.Gpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument", singlePrecision: false));
 
-            //SectionHeader("OpenCL GPU - doubles");
+                s.RunDoubleOpenCLTest("Baseline",
+                    s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false));
 
-            //RunDoubleOpenCLTest("Max Limit Argument",
-            //    s.SetupOpenCL(DeviceType.Gpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument", singlePrecision: false));
+                s.RunDoubleOpenCLTest("Early Return",
+                    s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false, kernelName: "iterate_points_early_return"));
 
-            //RunDoubleOpenCLTest("Baseline",
-            //    s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false));
+                s.RunDoubleOpenCLTest("Relaxed Math",
+                    s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true, singlePrecision: false));
 
-            //RunDoubleOpenCLTest("Early Return",
-            //    s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false, kernelName: "iterate_points_early_return"));
+                s.RunDoubleOpenCLTest("FMA",
+                    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", singlePrecision: false));
 
-            //RunDoubleOpenCLTest("Relaxed Math",
-            //    s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true, singlePrecision: false));
+                s.RunDoubleOpenCLTest("FMA, Relaxed Math",
+                    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", relaxedMath: true, singlePrecision: false));
+            }
 
-            //RunDoubleOpenCLTest("FMA",
-            //    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", singlePrecision: false));
+            using (s.SetContext("OpenCL CPU - floats"))
+            {
+                s.RunFloatOpenCLTest("Max Limit Argument",
+                    s.SetupOpenCL(DeviceType.Cpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument"));
 
-            //RunDoubleOpenCLTest("FMA, Relaxed Math",
-            //    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", relaxedMath: true, singlePrecision: false));
+                s.RunFloatOpenCLTest("Baseline",
+                    s.SetupOpenCL(DeviceType.Cpu));
 
+                s.RunDoubleOpenCLTest("Early Return",
+                    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_early_return"));
 
-            SectionHeader("OpenCL CPU - floats");
+                s.RunFloatOpenCLTest("Relaxed Math",
+                    s.SetupOpenCL(DeviceType.Cpu, relaxedMath: true));
 
-            //RunFloatOpenCLTest("Max Limit Argument",
-            //    s.SetupOpenCL(DeviceType.Cpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument"));
+                s.RunFloatOpenCLTest("FMA",
+                    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_fma"));
 
-            RunFloatOpenCLTest("Baseline",
-                s.SetupOpenCL(DeviceType.Cpu));
+                s.RunFloatOpenCLTest("FMA, Relaxed Math",
+                    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_fma", relaxedMath: true));
+            }
 
-            RunDoubleOpenCLTest("Early Return",
-                s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_early_return"));
+            using (s.SetContext("OpenCL CPU - doubles"))
+            {
+                s.RunDoubleOpenCLTest("Max Limit Argument",
+                    s.SetupOpenCL(DeviceType.Cpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument", singlePrecision: false));
 
-            //RunFloatOpenCLTest("Relaxed Math",
-            //    s.SetupOpenCL(DeviceType.Cpu, relaxedMath: true));
+                s.RunDoubleOpenCLTest("Baseline",
+                    s.SetupOpenCL(DeviceType.Cpu, singlePrecision: false));
 
-            //RunFloatOpenCLTest("FMA",
-            //    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_fma"));
+                s.RunDoubleOpenCLTest("Early Return",
+                    s.SetupOpenCL(DeviceType.Cpu, singlePrecision: false, kernelName: "iterate_points_early_return"));
 
-            //RunFloatOpenCLTest("FMA, Relaxed Math",
-            //    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_fma", relaxedMath: true));
+                s.RunDoubleOpenCLTest("Relaxed Math",
+                    s.SetupOpenCL(DeviceType.Cpu, relaxedMath: true, singlePrecision: false));
 
+                s.RunDoubleOpenCLTest("FMA",
+                    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_fma", singlePrecision: false));
 
-            SectionHeader("OpenCL CPU - doubles");
+                s.RunDoubleOpenCLTest("FMA, Relaxed Math",
+                    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_fma", relaxedMath: true, singlePrecision: false));
+            }
 
-            //RunDoubleOpenCLTest("Max Limit Argument",
-            //    s.SetupOpenCL(DeviceType.Cpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument", singlePrecision: false));
+            csvRows.Add(createRow("Context", "Test", "Points/Second", "Points Found"));
+            foreach (var result in s.Results)
+            {
+                csvRows.Add(createRow(result.Context, result.Name, result.Rate.ToString("N1"), result.PointsFound));
+            }
 
-            RunDoubleOpenCLTest("Baseline",
-                s.SetupOpenCL(DeviceType.Cpu, singlePrecision: false));
-
-            RunDoubleOpenCLTest("Early Return",
-                s.SetupOpenCL(DeviceType.Cpu, singlePrecision: false, kernelName: "iterate_points_early_return"));
-
-            //RunDoubleOpenCLTest("Relaxed Math",
-            //    s.SetupOpenCL(DeviceType.Cpu, relaxedMath: true, singlePrecision: false));
-
-            //RunDoubleOpenCLTest("FMA",
-            //    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_fma", singlePrecision: false));
-
-            //RunDoubleOpenCLTest("FMA, Relaxed Math",
-            //    s.SetupOpenCL(DeviceType.Cpu, kernelName: "iterate_points_fma", relaxedMath: true, singlePrecision: false));
+            System.IO.File.WriteAllLines(Environment.MachineName + ".benchmarks.csv", csvRows);
         }
     }
 }

@@ -163,9 +163,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomPointGeneration.cs" />
+    <Compile Include="Result.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="VectorDotProductVsIterationSum.cs" />
-    <Compile Include="ScalarVsVectorPointFinder.cs" />
+    <Compile Include="IterationBenchmarks.cs" />
     <Compile Include="VectorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

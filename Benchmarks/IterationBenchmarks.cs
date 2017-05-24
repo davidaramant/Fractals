@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
-using BenchmarkDotNet.Attributes;
 using Fractals.Model;
 using Fractals.PointGenerator;
 using Fractals.Utility;
@@ -13,15 +13,46 @@ using Buffer = NOpenCL.Buffer;
 
 namespace Benchmarks
 {
-    public class ScalarVsVectorPointFinder
+    public class IterationBenchmarks
     {
         public IterationRange Range => new IterationRange(10_000_000, 15_000_000);
 
-        public static int NumberOfPoints => 1024;
+        private string _contextName;
+        private Func<Device, bool> _openCLGuard;
+        private bool _shouldRunTest = true;
+        public readonly int NumberTrials = 3;
+        public readonly int NumberOfPoints;
         // 512 - software
         // 16384 - GTX 1060
         // 12800 - Intel desktop
         // 10240 - Intel laptop
+
+        sealed class TestContext : IDisposable
+        {
+            private readonly IterationBenchmarks _b;
+
+            public TestContext(IterationBenchmarks b, string name, Func<Device, bool> openCLGuard)
+            {
+                Console.WriteLine($"\n\n{new string('#', name.Length)}\n{name}\n{new string('#', name.Length)}\n");
+                _b = b;
+                _b._openCLGuard = openCLGuard;
+                _b._contextName = name;
+            }
+
+            public void Dispose()
+            {
+                _b._contextName = null;
+            }
+        }
+
+        public IDisposable SetContext(string name, Func<Device, bool> openCLGuard = null) =>
+            new TestContext(this, name, openCLGuard ?? new Func<Device, bool>(_ => true));
+
+
+        public IterationBenchmarks(int numberOfPoints = 1024)
+        {
+            NumberOfPoints = numberOfPoints;
+        }
 
         private static IEnumerable<Area> GetEdges()
         {
@@ -39,12 +70,56 @@ namespace Benchmarks
         private static readonly string KernelSourceDouble = System.IO.File.ReadAllText("iterate_points_d.cl");
 
 
+        public readonly List<Result> Results = new List<Result>();
+
+        public void RunTest(string name, Func<int> test)
+        {
+            Console.WriteLine($"* {name}:");
+
+            var totals = new int[NumberTrials];
+
+            GC.Collect();
+
+            var stopwatch = Stopwatch.StartNew();
+            for (int i = 0; i < NumberTrials; i++)
+            {
+                InitializeRun();
+                totals[i] = test();
+            }
+            stopwatch.Stop();
+
+            var pointsPerSecond = NumberTrials * NumberOfPoints / stopwatch.Elapsed.TotalSeconds;
+            Console.WriteLine($"\t{totals[0]} points (Took {stopwatch.Elapsed.TotalSeconds / NumberTrials:N1}s - {pointsPerSecond:N1} points/sec)");
+            Results.Add(new Result(_contextName, name, pointsPerSecond, totals[0]));
+        }
+
+        public void RunFloatOpenCLTest(string name, IDisposable setup)
+        {
+            using (setup)
+            {
+                if (_shouldRunTest)
+                    RunTest(name, OpenCLFloats);
+                else
+                    Results.Add(new Result(_contextName, name, 0, 0));
+            }
+        }
+
+        public void RunDoubleOpenCLTest(string name, IDisposable setup)
+        {
+            using (setup)
+            {
+                if (_shouldRunTest)
+                    RunTest(name, OpenCLDoubles);
+                else
+                    Results.Add(new Result(_contextName, name, 0, 0));
+            }
+        }
+
         private static Device GetDevice(DeviceType deviceType)
         {
             return Platform.GetPlatforms()[0].GetDevices(deviceType).ElementAt(0);
         }
 
-        [Setup]
         public void InitializeRun()
         {
             _pointGenerator.ResetRandom(seed: 0);
@@ -467,20 +542,30 @@ namespace Benchmarks
 
             var stack = new DisposeStack();
 
+            _shouldRunTest = true;
             _device = GetDevice(deviceType);
-            _context = Context.Create(_device);
-            _commandQueue = _context.CreateCommandQueue(_device);
-            _program = _context.CreateProgramWithSource(singlePrecision ? KernelSourceFloat : KernelSourceDouble);
-            _program.Build(relaxedMath ? "-cl-fast-relaxed-math" : "");
-            _kernel = _program.CreateKernel(kernelName);
+            stack.Add(_device);
 
-            stack.AddParams(
-                _device,
-                _context,
-                _commandQueue,
-                _program,
-                _kernel);
+            if (_openCLGuard(_device))
+            {
+                _shouldRunTest = true;
 
+                _context = Context.Create(_device);
+                _commandQueue = _context.CreateCommandQueue(_device);
+                _program = _context.CreateProgramWithSource(singlePrecision ? KernelSourceFloat : KernelSourceDouble);
+                _program.Build(relaxedMath ? "-cl-fast-relaxed-math" : "");
+                _kernel = _program.CreateKernel(kernelName);
+
+                stack.AddParams(
+                    _context,
+                    _commandQueue,
+                    _program,
+                    _kernel);
+            }
+            else
+            {
+                _shouldRunTest = false;
+            }
             return stack;
         }
 
