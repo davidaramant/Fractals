@@ -20,7 +20,7 @@ namespace Benchmarks
         private string _contextName;
         private Func<Device, bool> _openCLGuard;
         private bool _shouldRunTest = true;
-        public readonly int NumberTrials = 5;
+        public readonly int NumberTrials;
         public readonly int NumberOfPoints;
         // 512 - software
         // 16384 - GTX 1060
@@ -49,9 +49,10 @@ namespace Benchmarks
             new TestContext(this, name, openCLGuard ?? new Func<Device, bool>(_ => true));
 
 
-        public IterationBenchmarks(int numberOfPoints = 1024)
+        public IterationBenchmarks(int numberOfPoints , int trials)
         {
             NumberOfPoints = numberOfPoints;
+            NumberTrials = trials;
         }
 
         private static IEnumerable<Area> GetEdges()
@@ -140,22 +141,22 @@ namespace Benchmarks
         public int ScalarParallelNoAdt() =>
                 GetNumbers()
                 .AsParallel()
-                .Count(c => IterateNoADT(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
+                .Count(c => IterateNoADT((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
         public int ScalarParallelNoAdtCachingSquares() =>
                 GetNumbers()
                 .AsParallel()
-                .Count(c => IterateCachingSquares(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
+                .Count(c => IterateCachingSquares((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
-        public int ScalarParallelNoAdtCachingSquaresFloats() =>
+        public int ScalarParallelNoAdtCachingSquaresDoubles() =>
                 GetNumbers()
                 .AsParallel()
-                .Count(c => IterateFloat((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
+                .Count(c => IterateDouble(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
         public int ScalarParallelNoAdtCachingSquaresCycleDetection() =>
                 GetNumbers()
                 .AsParallel()
-                .Count(c => IterateCycleDetection(c.Real, c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
+                .Count(c => IterateCycleDetection((float)c.Real, (float)c.Imaginary, Range.ExclusiveMaximum) == Range.ExclusiveMaximum);
 
         public int Iterate(
             Complex c, int iterationLimit)
@@ -173,10 +174,10 @@ namespace Benchmarks
         }
 
         public int IterateNoADT(
-            double cReal, double cImag, int iterationLimit)
+            float cReal, float cImag, int iterationLimit)
         {
-            var zReal = 0.0;
-            var zImag = 0.0;
+            float zReal = 0;
+            float zImag = 0;
 
             for (int i = 0; i < iterationLimit; i++)
             {
@@ -191,13 +192,13 @@ namespace Benchmarks
         }
 
         public int IterateCachingSquares(
-            double cReal, double cImag, int iterationLimit)
+            float cReal, float cImag, int iterationLimit)
         {
-            var zReal = 0.0;
-            var zImag = 0.0;
+            float zReal = 0;
+            float zImag = 0;
 
-            var zReal2 = 0.0;
-            var zImag2 = 0.0;
+            float zReal2 = 0;
+            float zImag2 = 0;
 
             for (int i = 0; i < iterationLimit; i++)
             {
@@ -214,16 +215,15 @@ namespace Benchmarks
         }
 
         public int IterateCycleDetection(
-            double cReal, double cImag, int iterationLimit)
+            float cReal, float cImag, int iterationLimit)
         {
-            var zReal = 0.0;
-            var zImag = 0.0;
+            float zReal = 0;
+            float zImag = 0;
 
-            var zReal2 = 0.0;
-            var zImag2 = 0.0;
+            float zReal2 = 0;
+            float zImag2 = 0;
 
-            var oldZReal = 0.0;
-            var oldZImag = 0.0;
+            float oldZReal = 0, oldZImag = 0;
 
             int stepsTaken = 0;
             int stepLimit = 2;
@@ -253,14 +253,14 @@ namespace Benchmarks
             return iterationLimit;
         }
 
-        public int IterateFloat(
-            float cReal, float cImag, int iterationLimit)
+        public int IterateDouble(
+            double cReal, double cImag, int iterationLimit)
         {
-            var zReal = 0.0f;
-            var zImag = 0.0f;
+            double zReal = 0;
+            double zImag = 0;
 
-            var zReal2 = 0.0f;
-            var zImag2 = 0.0f;
+            double zReal2 = 0;
+            double zImag2 = 0;
 
             for (int i = 0; i < iterationLimit; i++)
             {
@@ -403,6 +403,7 @@ namespace Benchmarks
         #region Vectors Floats
 
         public int VectorsFloats() => FindPointsVectorsParallelBatches(IterateVectorsFloats);
+        public int VectorsFloats2() => FindPointsVectorsParallelBatches(IterateVectorsEarlyReturn2);
 
         public Vector<int> IterateVectorsFloats(
             Vector<float> cReal, Vector<float> cImag, int maxIterations)
@@ -435,6 +436,42 @@ namespace Benchmarks
             return iterations;
         }
 
+        public Vector<int> IterateVectorsEarlyReturn2(
+            Vector<float> cReal, Vector<float> cImag, int maxIterations)
+        {
+            var zReal = new Vector<float>(0);
+            var zImag = new Vector<float>(0);
+
+            var zReal2 = new Vector<float>(0);
+            var zImag2 = new Vector<float>(0);
+
+            var iterations = Vector<int>.Zero;
+            var increment = Vector<int>.One;
+
+            for (int i = 0; i < maxIterations; i++)
+            {
+                zImag = zReal * zImag + zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4));
+
+                var shouldContinue =
+                    Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4));
+
+                increment = increment & shouldContinue;
+
+                if (increment == Vector<int>.Zero)
+                    break;
+
+                iterations += increment;
+            }
+
+            return iterations;
+        }
+
         public int VectorsNoEarlyReturnFloats() => FindPointsVectorsParallelBatches(IterateVectorFloatsNoEarlyReturn);
 
         public Vector<int> IterateVectorFloatsNoEarlyReturn(
@@ -449,6 +486,61 @@ namespace Benchmarks
             var iterations = Vector<int>.Zero;
 
             for (int i = 0; i < maxIterations; i++)
+            {
+                zImag = zReal * zImag + zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4));
+            }
+
+            return iterations;
+        }
+
+        public int VectorsNoEarlyReturnFloatsTimes2() => FindPointsVectorsParallelBatches(IterateVectorFloatsNoEarlyReturnTimes2);
+
+        public Vector<int> IterateVectorFloatsNoEarlyReturnTimes2(
+            Vector<float> cReal, Vector<float> cImag, int maxIterations)
+        {
+            var zReal = new Vector<float>(0);
+            var zImag = new Vector<float>(0);
+
+            var zReal2 = new Vector<float>(0);
+            var zImag2 = new Vector<float>(0);
+
+            var iterations = Vector<int>.Zero;
+
+            for (int i = 0; i < maxIterations; i++)
+            {
+                zImag = new Vector<float>(2) * zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4));
+            }
+
+            return iterations;
+        }
+
+        public int VectorsNoEarlyReturnFloatsConstLimit() => FindPointsVectorsParallelBatches(
+            IterateVectorFloatsNoEarlyReturnConstLimit);
+
+        public Vector<int> IterateVectorFloatsNoEarlyReturnConstLimit(
+            Vector<float> cReal, Vector<float> cImag, int maxIterations)
+        {
+            var zReal = new Vector<float>(0);
+            var zImag = new Vector<float>(0);
+
+            var zReal2 = new Vector<float>(0);
+            var zImag2 = new Vector<float>(0);
+
+            var iterations = Vector<int>.Zero;
+
+            for (int i = 0; i < 15_000_000; i++)
             {
                 zImag = zReal * zImag + zReal * zImag + cImag;
                 zReal = zReal2 - zImag2 + cReal;
