@@ -49,7 +49,7 @@ namespace Benchmarks
             new TestContext(this, name, openCLGuard ?? new Func<Device, bool>(_ => true));
 
 
-        public IterationBenchmarks(int numberOfPoints , int trials)
+        public IterationBenchmarks(int numberOfPoints, int trials)
         {
             NumberOfPoints = numberOfPoints;
             NumberTrials = trials;
@@ -278,132 +278,9 @@ namespace Benchmarks
 
         #endregion Scalar
 
-        #region Vectors
-
-        public int Vectors() => FindPointsVectorsParallelBatches(IterateVectorDoubles);
-
-        public Vector<long> IterateVectorDoubles(
-            Vector<double> cReal, Vector<double> cImag, int maxIterations)
-        {
-            var zReal = new Vector<double>(0);
-            var zImag = new Vector<double>(0);
-
-            var zReal2 = new Vector<double>(0);
-            var zImag2 = new Vector<double>(0);
-
-            var iterations = Vector<long>.Zero;
-            var increment = Vector<long>.One;
-
-            do
-            {
-                zImag = zReal * zImag + zReal * zImag + cImag;
-                zReal = zReal2 - zImag2 + cReal;
-
-                zReal2 = zReal * zReal;
-                zImag2 = zImag * zImag;
-
-                var shouldContinue =
-                    Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<double>(4)) &
-                    Vector.LessThan(iterations, new Vector<long>(maxIterations));
-
-                increment = increment & shouldContinue;
-                iterations += increment;
-            } while (increment != Vector<long>.Zero);
-
-            return iterations;
-        }
-
-        public int VectorsNoEarlyReturn() => FindPointsVectorsParallelBatches(IterateVectorDoublesNoEarlyReturn);
-
-        public Vector<long> IterateVectorDoublesNoEarlyReturn(
-            Vector<double> cReal, Vector<double> cImag, int maxIterations)
-        {
-            var zReal = new Vector<double>(0);
-            var zImag = new Vector<double>(0);
-
-            var zReal2 = new Vector<double>(0);
-            var zImag2 = new Vector<double>(0);
-
-            var iterations = Vector<long>.Zero;
-
-            for (int i = 0; i < maxIterations; i++)
-            {
-                zImag = zReal * zImag + zReal * zImag + cImag;
-                zReal = zReal2 - zImag2 + cReal;
-
-                zReal2 = zReal * zReal;
-                zImag2 = zImag * zImag;
-
-                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<double>(4));
-            }
-
-            return iterations;
-        }
-
-        public delegate Vector<long> IteratePoints(Vector<double> cReal, Vector<double> cImage, int maxIterations);
-
-        public int FindPointsVectorsParallelBatches(IteratePoints method)
-        {
-            var points =
-                GetNumbers();
-
-            var pointsFound = 0;
-
-            var vectorCapacity = Vector<double>.Count;
-
-            IEnumerable<Complex[]> VectorBatch(IEnumerable<Complex> pointSequence)
-            {
-                int count = 0;
-                var batch = new Complex[vectorCapacity];
-                foreach (var complex in pointSequence)
-                {
-                    batch[count++] = complex;
-
-                    if (count == vectorCapacity)
-                    {
-                        count = 0;
-                        yield return batch;
-                        batch = new Complex[vectorCapacity];
-                    }
-                }
-            }
-
-            Parallel.ForEach(
-                source: VectorBatch(points),
-                localInit: () => 0,
-                body: (batch, state, subTotal) =>
-                {
-                    var realBatch = new double[vectorCapacity];
-                    var imagBatch = new double[vectorCapacity];
-                    var result = new long[vectorCapacity];
-
-                    for (int i = 0; i < vectorCapacity; i++)
-                    {
-                        realBatch[i] = batch[i].Real;
-                        imagBatch[i] = batch[i].Imaginary;
-                    }
-
-                    var cReal = new Vector<double>(realBatch);
-                    var cImag = new Vector<double>(imagBatch);
-
-                    var finalIterations = method(cReal, cImag, Range.ExclusiveMaximum);
-                    finalIterations.CopyTo(result);
-
-                    subTotal += result.Count(r => r == Range.ExclusiveMaximum);
-
-                    return subTotal;
-                },
-                localFinally: count => Interlocked.Add(ref pointsFound, count));
-
-            return pointsFound;
-        }
-
-        #endregion Vectors
-
         #region Vectors Floats
 
         public int VectorsFloats() => FindPointsVectorsParallelBatches(IterateVectorsFloats);
-        public int VectorsFloats2() => FindPointsVectorsParallelBatches(IterateVectorsEarlyReturn2);
 
         public Vector<int> IterateVectorsFloats(
             Vector<float> cReal, Vector<float> cImag, int maxIterations)
@@ -436,42 +313,6 @@ namespace Benchmarks
             return iterations;
         }
 
-        public Vector<int> IterateVectorsEarlyReturn2(
-            Vector<float> cReal, Vector<float> cImag, int maxIterations)
-        {
-            var zReal = new Vector<float>(0);
-            var zImag = new Vector<float>(0);
-
-            var zReal2 = new Vector<float>(0);
-            var zImag2 = new Vector<float>(0);
-
-            var iterations = Vector<int>.Zero;
-            var increment = Vector<int>.One;
-
-            for (int i = 0; i < maxIterations; i++)
-            {
-                zImag = zReal * zImag + zReal * zImag + cImag;
-                zReal = zReal2 - zImag2 + cReal;
-
-                zReal2 = zReal * zReal;
-                zImag2 = zImag * zImag;
-
-                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4));
-
-                var shouldContinue =
-                    Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4));
-
-                increment = increment & shouldContinue;
-
-                if (increment == Vector<int>.Zero)
-                    break;
-
-                iterations += increment;
-            }
-
-            return iterations;
-        }
-
         public int VectorsNoEarlyReturnFloats() => FindPointsVectorsParallelBatches(IterateVectorFloatsNoEarlyReturn);
 
         public Vector<int> IterateVectorFloatsNoEarlyReturn(
@@ -488,33 +329,6 @@ namespace Benchmarks
             for (int i = 0; i < maxIterations; i++)
             {
                 zImag = zReal * zImag + zReal * zImag + cImag;
-                zReal = zReal2 - zImag2 + cReal;
-
-                zReal2 = zReal * zReal;
-                zImag2 = zImag * zImag;
-
-                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<float>(4));
-            }
-
-            return iterations;
-        }
-
-        public int VectorsNoEarlyReturnFloatsTimes2() => FindPointsVectorsParallelBatches(IterateVectorFloatsNoEarlyReturnTimes2);
-
-        public Vector<int> IterateVectorFloatsNoEarlyReturnTimes2(
-            Vector<float> cReal, Vector<float> cImag, int maxIterations)
-        {
-            var zReal = new Vector<float>(0);
-            var zImag = new Vector<float>(0);
-
-            var zReal2 = new Vector<float>(0);
-            var zImag2 = new Vector<float>(0);
-
-            var iterations = Vector<int>.Zero;
-
-            for (int i = 0; i < maxIterations; i++)
-            {
-                zImag = new Vector<float>(2) * zReal * zImag + cImag;
                 zReal = zReal2 - zImag2 + cReal;
 
                 zReal2 = zReal * zReal;
@@ -613,6 +427,155 @@ namespace Benchmarks
         }
 
         #endregion Vectors Floats
+
+        #region Vector Doubles
+
+        public int Vectors() => FindPointsVectorsParallelBatches(IterateVectorDoubles);
+
+        public Vector<long> IterateVectorDoubles(
+            Vector<double> cReal, Vector<double> cImag, int maxIterations)
+        {
+            var zReal = new Vector<double>(0);
+            var zImag = new Vector<double>(0);
+
+            var zReal2 = new Vector<double>(0);
+            var zImag2 = new Vector<double>(0);
+
+            var iterations = Vector<long>.Zero;
+            var increment = Vector<long>.One;
+
+            do
+            {
+                zImag = zReal * zImag + zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                var shouldContinue =
+                    Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<double>(4)) &
+                    Vector.LessThan(iterations, new Vector<long>(maxIterations));
+
+                increment = increment & shouldContinue;
+                iterations += increment;
+            } while (increment != Vector<long>.Zero);
+
+            return iterations;
+        }
+
+        public int VectorsNoEarlyReturn() => FindPointsVectorsParallelBatches(IterateVectorDoublesNoEarlyReturn);
+
+        public Vector<long> IterateVectorDoublesNoEarlyReturn(
+            Vector<double> cReal, Vector<double> cImag, int maxIterations)
+        {
+            var zReal = new Vector<double>(0);
+            var zImag = new Vector<double>(0);
+
+            var zReal2 = new Vector<double>(0);
+            var zImag2 = new Vector<double>(0);
+
+            var iterations = Vector<long>.Zero;
+
+            for (int i = 0; i < maxIterations; i++)
+            {
+                zImag = zReal * zImag + zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<double>(4));
+            }
+
+            return iterations;
+        }
+
+        public int VectorsNoEarlyReturnConstLimit() => FindPointsVectorsParallelBatches(IterateVectorDoublesNoEarlyReturnConstLimit);
+
+        public Vector<long> IterateVectorDoublesNoEarlyReturnConstLimit(
+            Vector<double> cReal, Vector<double> cImag, int maxIterations)
+        {
+            var zReal = new Vector<double>(0);
+            var zImag = new Vector<double>(0);
+
+            var zReal2 = new Vector<double>(0);
+            var zImag2 = new Vector<double>(0);
+
+            var iterations = Vector<long>.Zero;
+
+            for (int i = 0; i < 15_000_000; i++)
+            {
+                zImag = zReal * zImag + zReal * zImag + cImag;
+                zReal = zReal2 - zImag2 + cReal;
+
+                zReal2 = zReal * zReal;
+                zImag2 = zImag * zImag;
+
+                iterations -= Vector.LessThanOrEqual(zReal2 + zImag2, new Vector<double>(4));
+            }
+
+            return iterations;
+        }
+
+        public delegate Vector<long> IteratePoints(Vector<double> cReal, Vector<double> cImage, int maxIterations);
+
+        public int FindPointsVectorsParallelBatches(IteratePoints method)
+        {
+            var points =
+                GetNumbers();
+
+            var pointsFound = 0;
+
+            var vectorCapacity = Vector<double>.Count;
+
+            IEnumerable<Complex[]> VectorBatch(IEnumerable<Complex> pointSequence)
+            {
+                int count = 0;
+                var batch = new Complex[vectorCapacity];
+                foreach (var complex in pointSequence)
+                {
+                    batch[count++] = complex;
+
+                    if (count == vectorCapacity)
+                    {
+                        count = 0;
+                        yield return batch;
+                        batch = new Complex[vectorCapacity];
+                    }
+                }
+            }
+
+            Parallel.ForEach(
+                source: VectorBatch(points),
+                localInit: () => 0,
+                body: (batch, state, subTotal) =>
+                {
+                    var realBatch = new double[vectorCapacity];
+                    var imagBatch = new double[vectorCapacity];
+                    var result = new long[vectorCapacity];
+
+                    for (int i = 0; i < vectorCapacity; i++)
+                    {
+                        realBatch[i] = batch[i].Real;
+                        imagBatch[i] = batch[i].Imaginary;
+                    }
+
+                    var cReal = new Vector<double>(realBatch);
+                    var cImag = new Vector<double>(imagBatch);
+
+                    var finalIterations = method(cReal, cImag, Range.ExclusiveMaximum);
+                    finalIterations.CopyTo(result);
+
+                    subTotal += result.Count(r => r == Range.ExclusiveMaximum);
+
+                    return subTotal;
+                },
+                localFinally: count => Interlocked.Add(ref pointsFound, count));
+
+            return pointsFound;
+        }
+
+        #endregion Vectors Doubles
 
         #region OpenCL
 

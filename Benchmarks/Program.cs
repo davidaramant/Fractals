@@ -82,68 +82,67 @@ namespace Benchmarks
                 //    s.RunTest("No ADT, Caching Squares, Cycle Detection", s.ScalarParallelNoAdtCachingSquaresCycleDetection);
                 //}
 
-                //using (s.SetContext("Vector CPU - floats"))
-                //{
-                //    s.RunTest("Baseline", s.VectorsFloats);
-                //    s.RunTest("Other type of early return", s.VectorsFloats2);
-                //    s.RunTest("No Early Return", s.VectorsNoEarlyReturnFloats);
-                //    s.RunTest("No Early Return 2", s.VectorsNoEarlyReturnFloatsTimes2);
-                //    s.RunTest("No Early Return - const limit", s.VectorsNoEarlyReturnFloatsConstLimit);
-                //}
-
-                //using (s.SetContext("Vector CPU - doubles"))
-                //{
-                //    s.RunTest("Baseline", s.Vectors);
-                //    s.RunTest("No Early Return", s.VectorsNoEarlyReturn);
-                //}
-
-                using (s.SetContext("OpenCL GPU - floats", openCLGuard: device => parsedArgs.FloatPrecision == FloatPrecision.Single))
+                using (s.SetContext("Vector CPU - floats"))
                 {
-                    s.RunFloatOpenCLTest("Max Limit Argument",
-                        s.SetupOpenCL(DeviceType.Gpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument"));
-
-                    s.RunFloatOpenCLTest("Baseline",
-                        s.SetupOpenCL(DeviceType.Gpu));
-
-                    //s.RunDoubleOpenCLTest("Early Return",
-                    //    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_early_return"));
-
-                    s.RunFloatOpenCLTest("Relaxed Math",
-                        s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true));
-
-                    s.RunFloatOpenCLTest("FMA",
-                        s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma"));
-
-                    s.RunFloatOpenCLTest("FMA, Relaxed Math",
-                        s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", relaxedMath: true));
+                    s.RunTest("Baseline", s.VectorsFloats);
+                    s.RunTest("No Early Return", s.VectorsNoEarlyReturnFloats);
+                    s.RunTest("No Early Return, Const Limit", s.VectorsNoEarlyReturnFloatsConstLimit);
                 }
 
-                using (s.SetContext("OpenCL GPU - doubles",
-                    openCLGuard: device => parsedArgs.FloatPrecision == FloatPrecision.Double && device.DoubleFloatingPointConfiguration != FloatingPointConfiguration.None))
+                using (s.SetContext("Vector CPU - doubles"))
                 {
-                    if (!parsedArgs.OnlyDoRelaxedDoubleMath)
-                    {
-                        s.RunDoubleOpenCLTest("Max Limit Argument",
-                            s.SetupOpenCL(DeviceType.Gpu, maxLimitArg: true,
-                                kernelName: "iterate_points_limit_argument", singlePrecision: false));
-
-                        s.RunDoubleOpenCLTest("Baseline",
-                            s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false));
-
-                        //s.RunDoubleOpenCLTest("Early Return",
-                        //    s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false,
-                        //        kernelName: "iterate_points_early_return"));
-                    }
-
-                    s.RunDoubleOpenCLTest("Relaxed Math",
-                        s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true, singlePrecision: false));
-
-                    if (!parsedArgs.OnlyDoRelaxedDoubleMath)
-                    {
-                        s.RunDoubleOpenCLTest("FMA",
-                            s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", singlePrecision: false));
-                    }
+                    s.RunTest("Baseline", s.Vectors);
+                    s.RunTest("No Early Return", s.VectorsNoEarlyReturn);
+                    s.RunTest("No Early Return, Const Limit", s.VectorsNoEarlyReturnConstLimit);
                 }
+
+                //using (s.SetContext("OpenCL GPU - floats", openCLGuard: device => parsedArgs.FloatPrecision == FloatPrecision.Single))
+                //{
+                //    s.RunFloatOpenCLTest("Max Limit Argument",
+                //        s.SetupOpenCL(DeviceType.Gpu, maxLimitArg: true, kernelName: "iterate_points_limit_argument"));
+
+                //    s.RunFloatOpenCLTest("Baseline",
+                //        s.SetupOpenCL(DeviceType.Gpu));
+
+                //    //s.RunDoubleOpenCLTest("Early Return",
+                //    //    s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_early_return"));
+
+                //    s.RunFloatOpenCLTest("Relaxed Math",
+                //        s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true));
+
+                //    s.RunFloatOpenCLTest("FMA",
+                //        s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma"));
+
+                //    s.RunFloatOpenCLTest("FMA, Relaxed Math",
+                //        s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", relaxedMath: true));
+                //}
+
+                //using (s.SetContext("OpenCL GPU - doubles",
+                //    openCLGuard: device => parsedArgs.FloatPrecision == FloatPrecision.Double && device.DoubleFloatingPointConfiguration != FloatingPointConfiguration.None))
+                //{
+                //    if (!parsedArgs.OnlyDoRelaxedDoubleMath)
+                //    {
+                //        s.RunDoubleOpenCLTest("Max Limit Argument",
+                //            s.SetupOpenCL(DeviceType.Gpu, maxLimitArg: true,
+                //                kernelName: "iterate_points_limit_argument", singlePrecision: false));
+
+                //        s.RunDoubleOpenCLTest("Baseline",
+                //            s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false));
+
+                //        //s.RunDoubleOpenCLTest("Early Return",
+                //        //    s.SetupOpenCL(DeviceType.Gpu, singlePrecision: false,
+                //        //        kernelName: "iterate_points_early_return"));
+                //    }
+
+                //    s.RunDoubleOpenCLTest("Relaxed Math",
+                //        s.SetupOpenCL(DeviceType.Gpu, relaxedMath: true, singlePrecision: false));
+
+                //    if (!parsedArgs.OnlyDoRelaxedDoubleMath)
+                //    {
+                //        s.RunDoubleOpenCLTest("FMA",
+                //            s.SetupOpenCL(DeviceType.Gpu, kernelName: "iterate_points_fma", singlePrecision: false));
+                //    }
+                //}
 
                 //using (s.SetContext("OpenCL CPU - floats"))
                 //{
